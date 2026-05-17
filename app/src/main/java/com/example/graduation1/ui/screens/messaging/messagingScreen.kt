@@ -1,0 +1,422 @@
+package com.example.graduation1.ui.screens.messaging
+
+import android.annotation.SuppressLint
+import android.net.Uri
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
+import com.example.graduation1.R
+import com.example.graduation1.data.remote.RetrofitInstance
+import com.example.graduation1.data.repository.ChatRepository
+import com.example.graduation1.domain.models.AppPages
+import com.example.graduation1.domain.models.User
+import com.example.graduation1.language
+import com.example.graduation1.ui.theme.Graduation1Theme
+import com.example.graduation1.ui.theme.darkGray
+import com.example.graduation1.ui.theme.darkGreen
+import com.example.graduation1.ui.theme.gray
+import com.example.graduation1.ui.theme.primaryRed
+import com.example.graduation1.user
+import com.example.graduation1.viewmodel.ChatViewModel
+import com.example.graduation1.viewmodel.ChatViewModelFactory
+
+@SuppressLint("SuspiciousIndentation")
+@Composable
+fun MessagingScreen(navController: NavHostController, user: User){
+
+    val viewModel : ChatViewModel = viewModel(
+        factory = ChatViewModelFactory(ChatRepository(RetrofitInstance.api))
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.getChatContent(user.id)
+        viewModel.updateMessagesSeen(user.id)
+    }
+
+    val currentUser by viewModel.currentUser.collectAsState()
+
+    val chatContent by viewModel.chatContent.collectAsState()
+    val listState = rememberLazyListState()
+    var firstLoad by remember { mutableStateOf(true) }
+
+    val messageText by viewModel.messageText.collectAsState()
+
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var imageIsSelected by remember { mutableStateOf(false) }
+    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
+        uri?.let {
+            selectedImageUri = uri
+            imageIsSelected = true
+            //signUpViewModel.saveProfileImageUrlToFirebase(it)
+        }
+    }
+
+    // when new message is received you scroll only if your screen is on the last message
+    val isAtBottom by remember { derivedStateOf {
+        val layoutInfo = listState.layoutInfo
+        val totalItems = layoutInfo.totalItemsCount
+
+        if (totalItems == 0) true
+
+        else{
+            val lastVisible = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            lastVisible >= totalItems - 2
+        }
+    } }
+
+    // auto scroll when new message is received
+    LaunchedEffect(chatContent.size) {
+        if (firstLoad && chatContent.isNotEmpty()) {
+            listState.scrollToItem(chatContent.lastIndex)
+            firstLoad = false
+        }
+        else if (isAtBottom) {
+            listState.animateScrollToItem(chatContent.lastIndex)
+        }
+    }
+
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.background),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+
+        Card(elevation = CardDefaults.cardElevation(4.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)) {
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(8.dp)
+                    .clickable { navController.navigate("${AppPages.OtherUsersProfile.route}/${user.id}") },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.back),
+                        contentDescription = "back",
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+
+                Spacer(Modifier.weight(1f))
+
+                Image(
+                    rememberAsyncImagePainter(user.image),
+                    contentDescription = "profile Image",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(shape = CircleShape)
+                )
+
+                Spacer(Modifier.weight(1f))
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        user.name,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        text = if (user.isOnline) stringResource(R.string.Online)
+                        else stringResource(R.string.Offline),
+                        color = gray,
+                        fontSize = 14.sp
+                    )
+                }
+
+                Spacer(Modifier.weight(3f))
+
+                Card(
+                    shape = CircleShape,
+                    border = BorderStroke(1.dp, Color.Black,),
+                    modifier = Modifier
+                        .width(40.dp)
+                        .height(40.dp)
+                ) {
+                    IconButton(
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surface),
+                        onClick = {}) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.videocam),
+                            contentDescription = "video call",
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier
+                                .size(25.dp)
+                        )
+                    }
+                } // Card
+
+                Spacer(Modifier.width(10.dp))
+
+                Card(
+                    shape = CircleShape,
+                    border = BorderStroke(1.dp, Color.Black,),
+                    modifier = Modifier
+                        .width(40.dp)
+                        .height(40.dp)
+                ) {
+                    IconButton(
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surface),
+                        onClick = {}) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.phonecall),
+                            contentDescription = "phone call",
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier
+                                .size(25.dp)
+                        )
+                    }
+                } // Card
+            } // Row
+        } // Card
+
+        LazyColumn(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .weight(1f),
+            state = listState) {
+            items(chatContent){ message ->
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)) {
+
+                    Card(modifier = Modifier
+                        .widthIn(min = 10.dp, max = 280.dp)
+                        .align(if (message.senderId == currentUser!!.id) Alignment.End else Alignment.Start),
+                        shape = RoundedCornerShape(25.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (message.senderId == currentUser!!.id) primaryRed else darkGray
+                        )) {
+
+                        Column(modifier = Modifier.padding(10.dp)) {
+
+                            if (message.image != null) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(message.image),
+                                    contentDescription = "messageImage",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .widthIn(100.dp, 300.dp)
+                                        .heightIn(100.dp, 400.dp)
+                                )
+
+                                Spacer(Modifier.height(10.dp))
+                            }
+
+                            if (message.text.isNotEmpty()) {
+                                Text(
+                                    text = message.text,
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            Row(horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically) {
+
+                                Text(
+                                    text = message.date,
+                                    color = Color.LightGray,
+                                    fontSize = 11.sp,
+                                    modifier = Modifier
+                                        .padding(end = 6.dp)
+                                )
+
+                                if (message.senderId == currentUser!!.id)
+                                Text(
+                                    text = if (message.isSeen) "Seen" else "Sent",
+                                    color = if (message.isSeen) darkGreen else Color.LightGray,
+                                    fontSize = 11.sp,
+                                    modifier = Modifier
+                                )
+                            } // Row
+                        } // Column
+                    } // Card
+                } // column
+            } // items
+        } // LazyColumn
+
+        Column {
+            if (imageIsSelected){
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(modifier = Modifier.size(100.dp),
+                        contentAlignment = Alignment.Center){
+                        Image(
+                            painter = rememberAsyncImagePainter(selectedImageUri),
+                            contentDescription = "image",
+                            Modifier.size(100.dp)
+                        )
+
+                        IconButton(onClick = {
+                            imageIsSelected = false
+                            selectedImageUri = null
+                        },
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)) {
+                            Icon(
+                                painterResource(id = R.drawable.close),
+                                contentDescription = "x",
+                                tint = Color.Black,
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(Color.White)
+                            )
+                        }
+                    }
+                    Spacer(Modifier.weight(1f))
+                } // Row
+            } // if
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                OutlinedTextField(
+                    value = messageText,
+                    onValueChange = { viewModel.updateMessageText(it) },
+                    placeholder = {
+                        Text(
+                            stringResource(R.string.Message),
+                            color = Color.Black,
+                            maxLines = 1,
+                            fontSize = 18.sp
+                        )
+                    },
+                    shape = RoundedCornerShape(30.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    leadingIcon = {
+                        Icon(
+                            painterResource(id = R.drawable.mic),
+                            contentDescription = "mic",
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier
+                                .size(18.dp)
+                        )
+                    },
+                    trailingIcon = {
+                        Icon(
+                            painterResource(id = R.drawable.clip),
+                            contentDescription = "clip",
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier
+                                .size(18.dp)
+                                .clickable { launcher.launch("image/*") }
+                        )
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    modifier = Modifier
+                        .weight(1f)
+                )
+
+                Spacer(Modifier.width(10.dp))
+
+                IconButton(
+                    onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            if (messageText.isNotEmpty() || imageIsSelected)
+                                if (selectedImageUri == null)
+                                    viewModel.sendMessage(messageText, null)
+                                else
+                                    viewModel.sendMessage(messageText, selectedImageUri.toString())
+                        }
+                        viewModel.updateMessageText("")
+                        selectedImageUri = null
+                        imageIsSelected = false
+                    },
+                    colors = IconButtonDefaults.iconButtonColors(darkGray),
+                    shape = CircleShape
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.sendarrow),
+                        contentDescription = "send",
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .rotate(if (language == "ar") 180f else 0f)
+                    )
+                }
+            } // Row
+        } // Column
+    } // Column
+} // MessagingScreen
+
+@Composable
+@Preview(showBackground = true)
+fun MessagingScreenPreview(){
+    Graduation1Theme(dynamicColor = false) {
+        val nav = rememberNavController()
+        MessagingScreen(nav, user)
+    }
+}
