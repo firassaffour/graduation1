@@ -11,6 +11,7 @@ import com.example.graduation1.commentsList
 import com.example.graduation1.data.repository.PostRepository
 import com.example.graduation1.domain.models.Comment
 import com.example.graduation1.domain.models.PostData
+import com.example.graduation1.domain.models.User
 import com.example.graduation1.favouritePost
 import com.example.graduation1.postList
 import com.example.graduation1.savedPost
@@ -25,7 +26,8 @@ import kotlin.uuid.Uuid
 
 class PostViewModel(private val repository: PostRepository): ViewModel() {
 
-    val currentUser = user
+    private val _currentUser = MutableStateFlow<User?>(null)
+    val currentUser  = _currentUser.asStateFlow()
 
     private val _posts = MutableStateFlow<List<PostData>>(emptyList())
     val posts = _posts.asStateFlow()
@@ -38,6 +40,12 @@ class PostViewModel(private val repository: PostRepository): ViewModel() {
 
     private val _savedPosts = MutableStateFlow<List<PostData>>(emptyList())
     val savedPosts = _savedPosts.asStateFlow()
+
+    private val _postText = MutableStateFlow("")
+    val postText  = _postText.asStateFlow()
+
+    private val _postCodeSnippet = MutableStateFlow("")
+    val postCodeSnippet  = _postCodeSnippet.asStateFlow()
 
     init {
         _posts.value = postList
@@ -108,16 +116,47 @@ class PostViewModel(private val repository: PostRepository): ViewModel() {
         }
     }
 
-    fun createPost(post: PostData){
+    @OptIn(ExperimentalUuidApi::class)
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun createPost(groupId : String, groupName : String, groupImage : String , postImage : String?){
         viewModelScope.launch {
             try {
+                val time = LocalDateTime.now()
+                val formatter = DateTimeFormatter.ofPattern("hh:mm")
+                val formatted = time.format(formatter)
+                val post = PostData(
+                    Uuid.random().toString(),
+                    groupId,
+                    currentUser.value!!.id,
+                    groupName,
+                    groupImage,
+                    currentUser.value!!.name,
+                    currentUser.value!!.image.toString(),
+                    _postText.value,
+                    postImage!!,
+                    _postCodeSnippet.value,
+                    formatted,
+                    false,
+                    false,
+                    0,
+                    emptyList()
+
+                )
                 _posts.value += post
-                //repository.createPost(post)
+
             }
             catch (e: Exception){
                 Log.e("API", "postViewModel: ${e.message}")
             }
         }
+    }
+
+    fun updatePostText(postText: String){
+        _postText.value = postText
+    }
+
+    fun updatePostCodeSnippet(postCodeSnippet: String){
+        _postCodeSnippet.value = postCodeSnippet
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -130,8 +169,8 @@ class PostViewModel(private val repository: PostRepository): ViewModel() {
                 val formatted = time.format(formatter)
                 val comment = Comment(
                     Uuid.random().toString(),
-                    currentUser.name,
-                    currentUser.image,
+                    _currentUser.value!!.name,
+                    _currentUser.value!!.image,
                     commentText,
                     formatted
                 )

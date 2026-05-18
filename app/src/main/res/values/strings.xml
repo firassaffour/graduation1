@@ -28,6 +28,7 @@
     <string name="UnFollow">unfollow</string>
     <string name="Post">Post</string>
     <string name="Share_thoughts">Share your Thoughts...</string>
+    <string name="Write_Code">Write your code here EX : print("Hello World")</string>
     <string name="Allchats">All Chats</string>
     <string name="Groups">Groups</string>
     <string name="Contacts">Contacts</string>

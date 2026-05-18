@@ -6,12 +6,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -115,6 +124,28 @@ class MainActivity : ComponentActivity() {
 
 
         Scaffold(
+            floatingActionButton = {
+                if (showBottomBar) {
+                    FloatingActionButton(
+                        onClick = {navController.navigate(AppPages.CreatePost.route)},
+                        containerColor = primaryRed,
+                        shape = CircleShape,
+                        elevation = FloatingActionButtonDefaults.elevation(8.dp),
+                        modifier = Modifier
+                            .size(40.dp)
+                            .offset(y = 70.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.create),
+                            contentDescription = "create",
+                            tint = Color.White,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+                }
+            },
+            floatingActionButtonPosition = FabPosition.Center,
+
             bottomBar = {
                 if (showBottomBar) {
                     BottomNavigationBar(navController)
@@ -131,8 +162,8 @@ class MainActivity : ComponentActivity() {
                 composable(AppPages.OnBoardingTabs.route) { OnBoardingTabs(navController) }
                 composable(BottomNavItem.Home.route) { HomeScreen(navController) }
                 composable(BottomNavItem.Chat.route) { ChatTabs(navController) }
-                composable(BottomNavItem.Create.route) { CreatePostScreen(navController) }
                 composable(AppPages.MyRooms.route) { MyRoomsScreen(navController) }
+                composable(AppPages.CreatePost.route) { CreatePostScreen(navController) }
                 composable(BottomNavItem.Friends.route) { FriendsScreen(navController) }
                 composable(BottomNavItem.Profile.route) { HomeScreen(navController) }
                 composable(AppPages.SignUp.route) { SignUpScreen(navController) }

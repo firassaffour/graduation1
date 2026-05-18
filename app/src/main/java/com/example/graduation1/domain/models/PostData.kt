@@ -11,6 +11,7 @@ data class PostData(
     val postText : String = "",
     val postImage : Any = "",
     val codeSnippet : String = "",
+    val postDate : String = "",
     var isLiked : Boolean = false,
     var isSaved : Boolean = false,
     var likesCount : Int = 0,

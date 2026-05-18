@@ -28,6 +28,7 @@
     <string name="UnFollow">إلغاء المتابعة</string>
     <string name="Post">نشر</string>
     <string name="Share_thoughts">شارك أفكارك</string>
+    <string name="Write_Code">اكتب الكود هنا : print("Hello World")</string>
     <string name="Allchats">المحادثات</string>
     <string name="Groups">المجموعات</string>
     <string name="Contacts">جهات الأتصال</string>

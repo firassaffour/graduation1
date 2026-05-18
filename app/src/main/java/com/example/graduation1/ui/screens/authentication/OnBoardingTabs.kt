@@ -113,7 +113,7 @@ fun OnBoardingTabs(navController: NavHostController){
                         .clip(RoundedCornerShape(50))
                         .background(
                             if (index <= pagerState.currentPage) darkGray
-                            else MaterialTheme.colorScheme.surface
+                            else Color(217, 217, 217)
                         )
                         .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center

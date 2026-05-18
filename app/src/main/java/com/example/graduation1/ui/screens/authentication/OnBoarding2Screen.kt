@@ -37,7 +37,8 @@ fun OnBoarding2Screen(){
 
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally) {
 
         Spacer(Modifier.weight(1f))

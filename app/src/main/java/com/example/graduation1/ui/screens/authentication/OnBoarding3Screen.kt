@@ -1,6 +1,7 @@
 package com.example.graduation1.ui.screens.authentication
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -37,7 +38,8 @@ fun OnBoarding3Screen(navController: NavHostController){
 
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally) {
 
         Spacer(Modifier.weight(1f))

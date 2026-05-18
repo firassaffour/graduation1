@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,14 +34,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -66,7 +62,6 @@ import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.PostRepository
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.PostData
-import com.example.graduation1.postList
 import com.example.graduation1.selectedPostPage
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGray
@@ -239,14 +234,24 @@ fun HomeScreen(navController: NavHostController){
 
                                 Spacer(Modifier.weight(1f))
 
-                                IconButton(onClick = {}) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.menudotshoriz),
-                                        contentDescription = "menuDots",
-                                        tint = MaterialTheme.colorScheme.onBackground,
-                                        modifier = Modifier.size(20.dp)
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    IconButton(onClick = {}) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.menudotshoriz),
+                                            contentDescription = "menuDots",
+                                            tint = MaterialTheme.colorScheme.onBackground,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+
+                                    Text(
+                                        text = post.postDate,
+                                        color = darkGray,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.offset(y = (-10).dp)
                                     )
-                                }
+                                } // Column
                             } // Row
 
                             Spacer(Modifier.height(10.dp))

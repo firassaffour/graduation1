@@ -5,6 +5,7 @@ sealed class AppPages(val route: String) {
     object SignUp : AppPages("signUpScreen")
     object Login : AppPages("loginScreen")
     object CreateAccount : AppPages("createAccountScreen")
+    object CreatePost : AppPages("createPostScreen")
     object Post : AppPages("postScreen")
     object MyProfile : AppPages("myProfileScreen")
     object MyProfileDetails : AppPages("myProfileDetailsScreen")

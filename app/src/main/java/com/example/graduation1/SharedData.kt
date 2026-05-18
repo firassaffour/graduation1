@@ -3,6 +3,7 @@ package com.example.graduation1
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import com.example.graduation1.domain.models.ChatItem
 import com.example.graduation1.domain.models.Comment
 import com.example.graduation1.domain.models.Group
@@ -87,11 +88,11 @@ val commentsList = listOf(
 )
 
 var postList = listOf(
-    PostData("1","1","2", "Java Bros", javaImage,"Feras", "","this is where every java developer started \uD83D\uDE02", codeSnippet = codeSnippet, likesCount = 20, commentsList = commentsList),
-    PostData("2","2","6", "AI Professionals", aiImage,"Seif","", "AI is changing the world and every programmer on this earth want to learn about it, here you will find all you need and want", likesCount = 113, commentsList = commentsList, commentsCount = commentsList.size),
-    PostData("3","3","1", "UI/UX", uiImage,"Sara","", "one of the biggest UI/UX community in the whole programming world", uiImage, likesCount = 10, commentsList = commentsList, commentsCount = commentsList.size),
-    PostData("4","4","4", "Backend Teams", backendImage,"Ahmed","", "can anyone fix this code ? ", codeSnippet = codeSnippet1, likesCount = 31, commentsList = commentsList, commentsCount = commentsList.size),
-    PostData("5","5","2", "Java Bros", javaImage,"Feras", "","i advice new developers to learn java before kotlin so they understand how old programming languages works", likesCount = 204, commentsList = commentsList)
+    PostData("1","1","2", "Java Bros", javaImage,"Feras", "","this is where every java developer started \uD83D\uDE02", codeSnippet = codeSnippet, likesCount = 20, commentsList = commentsList, postDate = "2:15 PM"),
+    PostData("2","2","6", "AI Professionals", aiImage,"Seif","", "AI is changing the world and every programmer on this earth want to learn about it, here you will find all you need and want", likesCount = 113, commentsList = commentsList, commentsCount = commentsList.size, postDate = "6:30 PM"),
+    PostData("3","3","1", "UI/UX", uiImage,"Sara","", "one of the biggest UI/UX community in the whole programming world", uiImage, likesCount = 10, commentsList = commentsList, commentsCount = commentsList.size, postDate = "10:23 AM"),
+    PostData("4","4","4", "Backend Teams", backendImage,"Ahmed","", "can anyone fix this code ? ", codeSnippet = codeSnippet1, likesCount = 31, commentsList = commentsList, commentsCount = commentsList.size, postDate = "1:43 AM"),
+    PostData("5","5","2", "Java Bros", javaImage,"Feras", "","i advice new developers to learn java before kotlin so they understand how old programming languages works", likesCount = 204, commentsList = commentsList, postDate = "2 days")
 )
 
 val groupsList = listOf(

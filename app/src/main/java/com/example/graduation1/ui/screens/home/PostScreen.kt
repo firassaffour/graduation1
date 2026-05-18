@@ -166,14 +166,24 @@ fun PostScreen(navController: NavHostController, postId: String){
 
                         Spacer(Modifier.weight(1f))
 
-                        IconButton(onClick = {}) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.menudotshoriz),
-                                contentDescription = "menuDots",
-                                tint = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier.size(20.dp)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            IconButton(onClick = {}) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.menudotshoriz),
+                                    contentDescription = "menuDots",
+                                    tint = MaterialTheme.colorScheme.onBackground,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+
+                            Text(
+                                text = post.postDate,
+                                color = darkGray,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.offset(y = (-10).dp)
                             )
-                        }
+                        } // Column
                     } // Row
 
                     Spacer(Modifier.height(10.dp))

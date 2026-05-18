@@ -1,5 +1,6 @@
 package com.example.graduation1.domain.models
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +28,7 @@ sealed class BottomNavItem(
 ) {
     object Home : BottomNavItem("homeScreen", R.drawable.home, "Home")
     object Friends : BottomNavItem("friendsScreen", R.drawable.friends, "Friends")
-    object Create : BottomNavItem("settingsScreen", R.drawable.create, "Create")
+    object Create : BottomNavItem("createScreen", R.drawable.create, "Create")
     object Chat : BottomNavItem("chatScreen", R.drawable.chat, "Chat")
     object Profile : BottomNavItem("profileScreen", R.drawable.profile, "Profile")
 
@@ -40,31 +41,44 @@ sealed class BottomNavItem(
 fun BottomNavigationBar(navController: NavController) {
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
-    NavigationBar(containerColor = MaterialTheme.colorScheme.background) {
+    NavigationBar(tonalElevation = 10.dp,
+        containerColor = MaterialTheme.colorScheme.background) {
         BottomNavItem.items.forEach { item ->
-            NavigationBarItem(
-                icon = { Icon(painter = painterResource(item.icon),
-                    contentDescription = item.title,
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(26.dp)) },
-                colors = NavigationBarItemColors(
-                    selectedIndicatorColor = primaryRed,
-                    selectedIconColor = MaterialTheme.colorScheme.onBackground,
-                    selectedTextColor = MaterialTheme.colorScheme.onBackground,
-                    unselectedIconColor = MaterialTheme.colorScheme.onBackground,
-                    unselectedTextColor = MaterialTheme.colorScheme.onBackground,
-                    disabledIconColor = MaterialTheme.colorScheme.onBackground,
-                    disabledTextColor = MaterialTheme.colorScheme.onBackground
-                ),
-                //label = { Text(item.title, color = MaterialTheme.colorScheme.onBackground, fontSize = 9.sp) },
-                selected = currentRoute == item.route,
-                onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(BottomNavItem.Home.route) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                } /* onClick */)
+
+            if (item == BottomNavItem.Create){
+                Box(modifier = Modifier.weight(1f))
+            }
+
+            else {
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            painter = painterResource(item.icon),
+                            contentDescription = item.title,
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.size(26.dp)
+                        )
+                    },
+                    colors = NavigationBarItemColors(
+                        selectedIndicatorColor = primaryRed,
+                        selectedIconColor = MaterialTheme.colorScheme.onBackground,
+                        selectedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unselectedIconColor = MaterialTheme.colorScheme.onBackground,
+                        unselectedTextColor = MaterialTheme.colorScheme.onBackground,
+                        disabledIconColor = MaterialTheme.colorScheme.onBackground,
+                        disabledTextColor = MaterialTheme.colorScheme.onBackground
+                    ),
+                    //label = { Text(item.title, color = MaterialTheme.colorScheme.onBackground, fontSize = 9.sp) },
+                    selected = currentRoute == item.route,
+                    onClick = {
+                            navController.navigate(item.route)
+                            {
+                                popUpTo(BottomNavItem.Home.route) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                    } /* onClick */)
+            } // else
         }
     } // NavigationBar
 } // BottomNavigationBar

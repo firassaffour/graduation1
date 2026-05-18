@@ -1,18 +1,27 @@
 package com.example.graduation1.ui.screens.createpost
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -23,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -37,21 +48,48 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
+import com.example.graduation1.data.remote.RetrofitInstance
+import com.example.graduation1.data.repository.PostRepository
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.user
+import com.example.graduation1.viewmodel.PostViewModel
+import com.example.graduation1.viewmodel.PostViewModelFactory
 
 @Composable
 fun CreatePostScreen(navController: NavHostController){
 
-    var postText by remember { mutableStateOf("") }
+    val viewModel : PostViewModel = viewModel(
+        factory = PostViewModelFactory(PostRepository(RetrofitInstance.api))
+    )
+
+    val currentUser by viewModel.currentUser.collectAsState()
+
+
+    val postText by viewModel.postText.collectAsState()
+    val postCodeSnippet by viewModel.postCodeSnippet.collectAsState()
+
+    var codeSnippetAdded by remember { mutableStateOf(false) }
+
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var imageIsSelected by remember { mutableStateOf(false) }
+    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
+        uri?.let {
+            selectedImageUri = uri
+            imageIsSelected = true
+            //signUpViewModel.saveProfileImageUrlToFirebase(it)
+        }
+    }
+
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(8.dp),
+        .padding(8.dp)
+        .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally) {
 
         Row(modifier = Modifier
@@ -118,8 +156,8 @@ fun CreatePostScreen(navController: NavHostController){
 
         TextField(
             value = postText,
-            onValueChange = { postText = it },
-            placeholder = { Text(stringResource(R.string.Share_thoughts), maxLines = 1, fontSize = 20.sp) },
+            onValueChange = { viewModel.updatePostText(it) },
+            placeholder = { Text(stringResource(R.string.Share_thoughts), fontSize = 20.sp) },
             shape = RoundedCornerShape(30.dp),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.background,
@@ -127,12 +165,64 @@ fun CreatePostScreen(navController: NavHostController){
                 unfocusedIndicatorColor = MaterialTheme.colorScheme.background,
                 focusedIndicatorColor = MaterialTheme.colorScheme.background
             ),
-            maxLines = 1,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .wrapContentHeight()
         )
 
+        if (codeSnippetAdded){
+            TextField(
+                value = postCodeSnippet,
+                onValueChange = { viewModel.updatePostCodeSnippet(it)},
+                placeholder = { Text(stringResource(R.string.Write_Code), fontSize = 20.sp) },
+                shape = RoundedCornerShape(30.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color(28, 27, 27, 255),
+                    unfocusedContainerColor = Color(28, 27, 27, 255),
+                    unfocusedIndicatorColor = Color(28, 27, 27, 255),
+                    focusedIndicatorColor = Color(28, 27, 27, 255),
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            )
+        }
+
+        if (imageIsSelected){
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 30.dp, max = 300.dp),
+                contentAlignment = Alignment.Center){
+                Image(
+                    painter = rememberAsyncImagePainter(selectedImageUri),
+                    contentDescription = "image",
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 30.dp, max = 300.dp)
+                )
+
+                IconButton(onClick = {
+                    imageIsSelected = false
+                    selectedImageUri = null
+                },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)) {
+                    Icon(
+                        painterResource(id = R.drawable.close),
+                        contentDescription = "x",
+                        tint = Color.Black,
+                        modifier = Modifier
+                            .size(25.dp)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.weight(1f))
 
 
         Row(modifier = Modifier
@@ -141,7 +231,7 @@ fun CreatePostScreen(navController: NavHostController){
 
             Spacer(Modifier.weight(1f))
 
-            IconButton(onClick = {}) {
+            IconButton(onClick = {launcher.launch("image/*")}) {
                 Icon(
                     painter = painterResource(id = R.drawable.addimage),
                     contentDescription = "add image",
@@ -150,9 +240,10 @@ fun CreatePostScreen(navController: NavHostController){
                 )
             }
 
-            IconButton(onClick = {}) {
+            IconButton(onClick = {codeSnippetAdded = !codeSnippetAdded}) {
                 Icon(
-                    painter = painterResource(id = R.drawable.plus),
+                    painter = if (!codeSnippetAdded) painterResource(id = R.drawable.plus)
+                    else painterResource(R.drawable.close),
                     contentDescription = "plus",
                     tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(35.dp)
