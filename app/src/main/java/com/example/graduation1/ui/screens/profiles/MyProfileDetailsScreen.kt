@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,6 +53,7 @@ import com.example.graduation1.R
 import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.PostRepository
 import com.example.graduation1.data.repository.UserRepository
+import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.groupsList
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGreen
@@ -370,7 +372,9 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
             Text(
                 text = stringResource(R.string.ViewAll),
                 color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                modifier = Modifier
+                    .clickable { navController.navigate("${AppPages.GroupsList.route}/${currentUser!!.id}") }
             )
         } // Row
 
