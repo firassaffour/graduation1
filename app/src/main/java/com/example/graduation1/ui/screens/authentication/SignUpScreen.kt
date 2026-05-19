@@ -62,9 +62,10 @@ import com.example.graduation1.domain.models.BottomNavItem
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.primaryRed
 import com.example.graduation1.ui.theme.secondaryBlue
+import com.example.graduation1.viewmodel.AuthViewModel
 
 @Composable
-fun SignUpScreen(navController: NavHostController){
+fun SignUpScreen(navController: NavHostController, authViewModel: AuthViewModel){
 
     var phoneButtonClicked by remember { mutableStateOf(false) }
     var googleButtonClicked by remember { mutableStateOf(false) }
@@ -481,6 +482,5 @@ fun SignUpScreen(navController: NavHostController){
 fun SignUpScreenPreview(){
     Graduation1Theme( dynamicColor = false) {
         val nav = rememberNavController()
-        SignUpScreen(nav)
     }
 }

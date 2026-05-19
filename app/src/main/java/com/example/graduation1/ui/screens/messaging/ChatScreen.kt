@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,7 +32,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.graduation1.chatList
 import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.ChatRepository
 import com.example.graduation1.domain.models.AppPages
@@ -45,13 +43,9 @@ import com.example.graduation1.viewmodel.ChatViewModel
 import com.example.graduation1.viewmodel.ChatViewModelFactory
 
 @Composable
-fun ChatScreen(navController: NavHostController){
+fun ChatScreen(navController: NavHostController, chatViewModel: ChatViewModel){
 
-    val viewModel : ChatViewModel = viewModel(
-        factory = ChatViewModelFactory(ChatRepository(RetrofitInstance.api))
-    )
-
-    val chatsList by viewModel.chatsList.collectAsState()
+    val chatsList by chatViewModel.chatsList.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()) {
@@ -158,7 +152,10 @@ fun ChatScreen(navController: NavHostController){
 @Preview(showBackground = true)
 fun ChatScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
+        val chatViewModel : ChatViewModel = viewModel(
+            factory = ChatViewModelFactory(ChatRepository(RetrofitInstance.api))
+        )
         val nav = rememberNavController()
-        ChatScreen(nav)
+        ChatScreen(nav, chatViewModel)
     }
 }

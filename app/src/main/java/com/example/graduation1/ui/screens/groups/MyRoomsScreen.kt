@@ -48,7 +48,6 @@ import com.example.graduation1.R
 import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.GroupsRepository
 import com.example.graduation1.domain.models.AppPages
-import com.example.graduation1.todayNotificationList
 import com.example.graduation1.ui.designs.CircledImagesRow
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.gray
@@ -58,13 +57,9 @@ import com.example.graduation1.viewmodel.GroupsViewModelFactory
 
 
 @Composable
-fun MyRoomsScreen(navController: NavHostController){
+fun MyRoomsScreen(navController: NavHostController, groupsViewModel: GroupsViewModel){
 
-    val viewModel : GroupsViewModel = viewModel(
-        factory = GroupsViewModelFactory(GroupsRepository(RetrofitInstance.api))
-    )
-
-    val groupsList by viewModel.groups.collectAsState()
+    val groupsList by groupsViewModel.groups.collectAsState()
     
     val roomsCount by remember { mutableStateOf(groupsList.size.toString()) }
     Column(modifier = Modifier
@@ -200,7 +195,10 @@ fun MyRoomsScreen(navController: NavHostController){
 @Preview(showBackground = true)
 fun MyRoomsScreenPreview(){
     Graduation1Theme(dynamicColor = true) {
+        val groupsViewModel : GroupsViewModel = viewModel(
+            factory = GroupsViewModelFactory(GroupsRepository(RetrofitInstance.api))
+        )
         val nav = rememberNavController()
-        MyRoomsScreen(nav)
+        MyRoomsScreen(nav, groupsViewModel)
     }
 }

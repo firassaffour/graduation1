@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -45,24 +44,18 @@ import com.example.graduation1.R
 import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.AppPages
-import com.example.graduation1.friendsList
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.ui.theme.darkGreen
-import com.example.graduation1.user
 import com.example.graduation1.viewmodel.UserViewModel
 import com.example.graduation1.viewmodel.UserViewModelFactory
 
 @Composable
-fun FriendsScreen(navController: NavHostController){
+fun FriendsScreen(navController: NavHostController, userViewModel: UserViewModel){
 
-    val viewModel : UserViewModel = viewModel(
-        factory = UserViewModelFactory(UserRepository(RetrofitInstance.api))
-    )
+    val usersList by userViewModel.users.collectAsState()
 
-    val usersList by viewModel.users.collectAsState()
-
-    val currentUser by viewModel.currentUser.collectAsState()
+    val currentUser by userViewModel.currentUser.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -133,7 +126,7 @@ fun FriendsScreen(navController: NavHostController){
 
                         Spacer(Modifier.weight(1f))
 
-                        Button(onClick = {viewModel.followUser(friend.id)},
+                        Button(onClick = {userViewModel.followUser(friend.id)},
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = if (friend.followersList.contains(currentUser!!.id)) darkGray
@@ -160,7 +153,10 @@ fun FriendsScreen(navController: NavHostController){
 @Preview(showBackground = true)
 fun FriendsScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
+        val userViewModel : UserViewModel = viewModel(
+            factory = UserViewModelFactory(UserRepository(RetrofitInstance.api))
+        )
         val nav = rememberNavController()
-        FriendsScreen(nav)
+        FriendsScreen(nav, userViewModel)
     }
 }

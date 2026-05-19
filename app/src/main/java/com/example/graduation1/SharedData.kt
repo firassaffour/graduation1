@@ -23,7 +23,7 @@ val followers1 = listOf("1", "2")
 val followers2 = listOf("4", "3", "1")
 val followers3 = listOf("1", "3", "5", "6")
 
-val user = User("2", "Feras", ferasImage, "feras@gmail.com", "Android Developer", "Syria", emptyList(), followersList =  followers1, followingList =  followers3, gender = "Male", birthday =  "June, 04, 2004", isOnline =  true)
+val user = User("2", "Feras", ferasImage, "feras@gmail.com", "Android Developer", "Syria", emptyList(), followersList =  followers1, followingList =  followers3, groupsList = listOf("1", "3", "4"), gender = "Male", birthday =  "June, 04, 2004", isOnline =  true)
 val aiImage = "https://previews.123rf.com/images/rokastenys/rokastenys2212/rokastenys221200010/196063269-ai-conceptual-image-artificial-intelligence-ai-is-intelligence%C3%A2%E2%82%AC%E2%80%9Dperceiving-synthesizing-and.jpg"
 val uiImage = "https://previews.123rf.com/images/tirachard/tirachard2007/tirachard200700034/153631619-asian-businessmen-and-businesswomen-meeting-brainstorming-ideas-about-creative-web-design-planning.jpg"
 val backendImage = "https://previews.123rf.com/images/khan05/khan052603/khan05260308350/299809123-online-store-dropshipping-concept-on-computer-screen.jpg"
@@ -70,12 +70,12 @@ val chatList = listOf(
 )
 
 val friendsList = listOf(
-    User("1", "Sara", saraImage, "sara@gmail.com", "UI/UX", "Egypt", followersList =   followers1, followingList =  followers2, gender =  "Female", birthday = "June, 17, 2004"),
-    User("2", "Feras", ferasImage, "feras@gmail.com", "Android Developer", "Syria", followersList =  followers2, followingList =  followers3, gender = "Male", birthday ="June, 4, 2004", isOnline = true),
-    User("3", "Mahmod", mahmodImage, "mohammed@gmail.com", "Backend Engineer", "Egypt", followersList =  followers3, followingList =  followers1, gender =  "Male", birthday =  "June, 17, 2004"),
-    User("4", "Ahmed", ahmedImage, "ahmed@gmail.com", "Backend Engineer", "Egypt", followersList =  followers2, followingList =  followers3, gender =  "Male", birthday =  "June, 17, 2004"),
-    User("5", "Omer", omerImage, "omer@gmail.com", "AI Trainer", "Egypt", followersList =  followers1, followingList =  followers3, gender =  "Male", birthday =  "June, 17, 2004"),
-    User("6", "Seif", seifImage, "seif@gmail.com", "Backend Engineer", "Egypt", followersList =  followers2, followingList =  followers1, gender =  "Male", birthday =  "June, 17, 2004"),
+    User("1", "Sara", saraImage, "sara@gmail.com", "UI/UX", "Egypt", followersList =   followers1, followingList =  followers2, groupsList = listOf("2","3"), gender =  "Female", birthday = "June, 17, 2004"),
+    User("2", "Feras", ferasImage, "feras@gmail.com", "Android Developer", "Syria", followersList =  followers2, followingList =  followers3, groupsList = listOf("2","3","1"), gender = "Male", birthday ="June, 4, 2004", isOnline = true),
+    User("3", "Mahmod", mahmodImage, "mohammed@gmail.com", "Backend Engineer", "Egypt", followersList =  followers3, followingList =  followers1, groupsList = listOf("2","1"), gender =  "Male", birthday =  "June, 17, 2004"),
+    User("4", "Ahmed", ahmedImage, "ahmed@gmail.com", "Backend Engineer", "Egypt", followersList =  followers2, followingList =  followers3, groupsList = listOf("5","3"), gender =  "Male", birthday =  "June, 17, 2004"),
+    User("5", "Omer", omerImage, "omer@gmail.com", "AI Trainer", "Egypt", followersList =  followers1, followingList =  followers3, groupsList = listOf("2","1","5"), gender =  "Male", birthday =  "June, 17, 2004"),
+    User("6", "Seif", seifImage, "seif@gmail.com", "Backend Engineer", "Egypt", followersList =  followers2, followingList =  followers1, groupsList = listOf("2","3","4"), gender =  "Male", birthday =  "June, 17, 2004"),
 )
 
 val commentsList = listOf(

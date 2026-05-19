@@ -101,4 +101,5 @@
     <string name="Offline">غير متصل</string>
     <string name="Male">ذكر</string>
     <string name="Female">أنثى</string>
+    <string name="Select_Group">اختر مجموعة</string>
 </resources>

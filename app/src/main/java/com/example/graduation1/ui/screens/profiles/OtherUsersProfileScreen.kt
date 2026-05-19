@@ -32,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -61,26 +62,25 @@ import com.example.graduation1.ui.theme.darkGreen
 import com.example.graduation1.ui.theme.gradientGray
 import com.example.graduation1.ui.theme.gray
 import com.example.graduation1.user
+import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.PostViewModelFactory
 import com.example.graduation1.viewmodel.UserViewModel
 import com.example.graduation1.viewmodel.UserViewModelFactory
 
 @Composable
-fun OtherUsersProfileScreen(navController: NavHostController, userId : String){
-
-    val userViewModel : UserViewModel = viewModel(
-        factory = UserViewModelFactory(UserRepository(RetrofitInstance.api))
-    )
-
-    val postViewModel : PostViewModel = viewModel(
-        factory = PostViewModelFactory(PostRepository(RetrofitInstance.api))
-    )
+fun OtherUsersProfileScreen(navController: NavHostController, userId : String, userViewModel: UserViewModel, postViewModel: PostViewModel, groupsViewModel: GroupsViewModel){
 
     val usersList by userViewModel.users.collectAsState()
     val user = usersList.first { it.id == userId }
 
     val currentUser by userViewModel.currentUser.collectAsState()
+
+    LaunchedEffect(Unit) {
+        groupsViewModel.getUserGroups(user.groupsList)
+    }
+
+    val groupList by groupsViewModel.currentUserGroups.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -423,7 +423,7 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String){
 
         LazyRow(modifier = Modifier
             .fillMaxWidth()) {
-            items(groupsList){ group ->
+            items(groupList){ group ->
                 Box(modifier = Modifier
                     .size(90.dp)
                     .padding(8.dp)
@@ -448,6 +448,5 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String){
 fun OtherUsersProfileScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
         val nav = rememberNavController()
-        OtherUsersProfileScreen(nav, user.id)
     }
 }

@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +37,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,29 +56,32 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.data.remote.RetrofitInstance
+import com.example.graduation1.data.repository.GroupsRepository
 import com.example.graduation1.data.repository.PostRepository
+import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.user
+import com.example.graduation1.viewmodel.GroupsViewModel
+import com.example.graduation1.viewmodel.GroupsViewModelFactory
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.PostViewModelFactory
+import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
-fun CreatePostScreen(navController: NavHostController){
-
-    val viewModel : PostViewModel = viewModel(
-        factory = PostViewModelFactory(PostRepository(RetrofitInstance.api))
-    )
-
-    val currentUser by viewModel.currentUser.collectAsState()
+fun CreatePostScreen(navController: NavHostController, userViewModel: UserViewModel, postViewModel: PostViewModel, groupsViewModel: GroupsViewModel){
 
 
-    val postText by viewModel.postText.collectAsState()
-    val postCodeSnippet by viewModel.postCodeSnippet.collectAsState()
+    val postText by postViewModel.postText.collectAsState()
+    val postCodeSnippet by postViewModel.postCodeSnippet.collectAsState()
 
-    var codeSnippetAdded by remember { mutableStateOf(false) }
+    val selectedGroup by groupsViewModel.selectedGroup.collectAsState()
 
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var imageIsSelected by remember { mutableStateOf(false) }
+    val currentUser by userViewModel.currentUser.collectAsState()
+
+    var codeSnippetAdded by rememberSaveable { mutableStateOf(false) }
+
+    var selectedImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    var imageIsSelected by rememberSaveable { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
             selectedImageUri = uri
@@ -109,21 +114,26 @@ fun CreatePostScreen(navController: NavHostController){
                 shape = RoundedCornerShape(25.dp)) {
 
                 Image(
-                    rememberAsyncImagePainter(user.image),
-                    contentDescription = "profile Image",
+                    if (selectedGroup != null) rememberAsyncImagePainter(selectedGroup!!.image)
+                    else painterResource(R.drawable.create),
+                    contentDescription = "group Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(35.dp)
                         .clip(shape = CircleShape)
+                        .clickable { navController.navigate("${AppPages.GroupsList.route}/${currentUser!!.id}") }
                 )
             } // Card
 
             Spacer(Modifier.width(10.dp))
 
             Text(
-                text = stringResource(R.string.Anyone),
+                text = if (selectedGroup != null) selectedGroup!!.name
+                else stringResource(R.string.Select_Group),
                 color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 20.sp
+                fontSize = 20.sp,
+                modifier = Modifier
+                    .clickable { navController.navigate("${AppPages.GroupsList.route}/${currentUser!!.id}") }
             )
 
             Spacer(Modifier.weight(1f))
@@ -156,7 +166,7 @@ fun CreatePostScreen(navController: NavHostController){
 
         TextField(
             value = postText,
-            onValueChange = { viewModel.updatePostText(it) },
+            onValueChange = { postViewModel.updatePostText(it) },
             placeholder = { Text(stringResource(R.string.Share_thoughts), fontSize = 20.sp) },
             shape = RoundedCornerShape(30.dp),
             colors = TextFieldDefaults.colors(
@@ -173,7 +183,7 @@ fun CreatePostScreen(navController: NavHostController){
         if (codeSnippetAdded){
             TextField(
                 value = postCodeSnippet,
-                onValueChange = { viewModel.updatePostCodeSnippet(it)},
+                onValueChange = { postViewModel.updatePostCodeSnippet(it)},
                 placeholder = { Text(stringResource(R.string.Write_Code), fontSize = 20.sp) },
                 shape = RoundedCornerShape(30.dp),
                 colors = TextFieldDefaults.colors(
@@ -258,6 +268,5 @@ fun CreatePostScreen(navController: NavHostController){
 fun CreatePostScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
         val nav = rememberNavController()
-        CreatePostScreen(nav)
     }
 }

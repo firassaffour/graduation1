@@ -23,6 +23,12 @@ class GroupsViewModel(private val repository: GroupsRepository) : ViewModel() {
     private val _members = MutableStateFlow<List<User>>(emptyList())
     val members = _members.asStateFlow()
 
+    private val _currentUserGroups = MutableStateFlow<List<Group>>(emptyList())
+    val currentUserGroups = _currentUserGroups.asStateFlow()
+
+    private val _selectedGroup = MutableStateFlow<Group?>(null)
+    val selectedGroup = _selectedGroup.asStateFlow()
+
     init {
         getGroups()
     }
@@ -31,6 +37,17 @@ class GroupsViewModel(private val repository: GroupsRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 _groups.value = groupsList
+            }
+            catch (e: Exception){
+                Log.e("API", "GroupsViewModel: ${e.message}")
+            }
+        }
+    }
+
+    fun getUserGroups(userGroups : List<String>){
+        viewModelScope.launch {
+            try {
+                _currentUserGroups.value = _groups.value.filter { it.id in userGroups }
             }
             catch (e: Exception){
                 Log.e("API", "GroupsViewModel: ${e.message}")
@@ -68,5 +85,15 @@ class GroupsViewModel(private val repository: GroupsRepository) : ViewModel() {
             }
         }
         return onlineMemberCount.intValue
+    }
+
+    fun getFriendsInGroup(group: Group, currentUserFollowingList : List<String>) : Int {
+        return group.members.count {
+            it.id in currentUserFollowingList
+        }
+    }
+
+    fun updateSelectedGroup(group: Group){
+        _selectedGroup.value = group
     }
 }

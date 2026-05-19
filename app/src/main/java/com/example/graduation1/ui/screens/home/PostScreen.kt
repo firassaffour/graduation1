@@ -72,18 +72,14 @@ import com.example.graduation1.viewmodel.PostViewModelFactory
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PostScreen(navController: NavHostController, postId: String){
+fun PostScreen(navController: NavHostController, postId: String, postViewModel: PostViewModel){
 
-    val viewModel : PostViewModel = viewModel(
-        factory = PostViewModelFactory(PostRepository(RetrofitInstance.api))
-    )
-
-    val postsList by viewModel.posts.collectAsState()
+    val postsList by postViewModel.posts.collectAsState()
     val post = postsList.first { it.postId == postId }
     LaunchedEffect(Unit) {
-        viewModel.getComments(postId)
+        postViewModel.getComments(postId)
     }
-    val commentsList by viewModel.comments.collectAsState()
+    val commentsList by postViewModel.comments.collectAsState()
 
     val listState = rememberLazyListState()
     LaunchedEffect(commentsList.size) {
@@ -259,7 +255,7 @@ fun PostScreen(navController: NavHostController, postId: String){
                     Row(verticalAlignment = Alignment.CenterVertically) {
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            IconButton(onClick = { viewModel.toggleLike(post.postId) }) {
+                            IconButton(onClick = { postViewModel.toggleLike(post.postId) }) {
                                 Icon(
                                     painter = if (!post.isLiked) painterResource(id = R.drawable.heart2)
                                     else painterResource(id = R.drawable.heart2red),
@@ -299,7 +295,7 @@ fun PostScreen(navController: NavHostController, postId: String){
 
                         Spacer(Modifier.weight(1f))
 
-                        IconButton(onClick = {viewModel.toggleSaved(post.postId)}) {
+                        IconButton(onClick = {postViewModel.toggleSaved(post.postId)}) {
                             Icon(
                                 painter = if (!post.isSaved) painterResource(id = R.drawable.saved)
                                 else painterResource(id = R.drawable.savedyellow),
@@ -314,7 +310,7 @@ fun PostScreen(navController: NavHostController, postId: String){
                 Spacer(Modifier.height(10.dp))
             } // item
             items(commentsList){ comment ->
-                CommentUI(navController, comment, viewModel)
+                CommentUI(navController, comment, postViewModel)
             } // items
         } // LazyColumn
 
@@ -341,7 +337,7 @@ fun PostScreen(navController: NavHostController, postId: String){
 
             IconButton(onClick = {
                 if (commentText.isNotEmpty())
-                    viewModel.createComment(commentText, postId)
+                    postViewModel.createComment(commentText, postId)
                     commentText = ""
             },
                 colors = IconButtonDefaults.iconButtonColors(darkGray),
@@ -364,7 +360,10 @@ fun PostScreen(navController: NavHostController, postId: String){
 @Preview(showBackground = true)
 fun PostScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
+        val postViewModel : PostViewModel = viewModel(
+            factory = PostViewModelFactory(PostRepository(RetrofitInstance.api))
+        )
         val nav = rememberNavController()
-        PostScreen(nav, postList[0].postId)
+        PostScreen(nav, postList[0].postId, postViewModel)
     }
 }

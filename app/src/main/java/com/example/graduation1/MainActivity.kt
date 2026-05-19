@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -28,6 +29,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.graduation1.data.remote.RetrofitInstance
+import com.example.graduation1.data.repository.AuthRepository
+import com.example.graduation1.data.repository.ChatRepository
+import com.example.graduation1.data.repository.GroupsRepository
+import com.example.graduation1.data.repository.PostRepository
+import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.BottomNavItem
 import com.example.graduation1.domain.models.BottomNavigationBar
@@ -53,6 +60,7 @@ import com.example.graduation1.ui.screens.settings.NotificationSettingsScreen
 import com.example.graduation1.ui.screens.profiles.OtherUsersProfileScreen
 import com.example.graduation1.ui.screens.settings.SettingsScreen
 import com.example.graduation1.ui.screens.authentication.StartScreen
+import com.example.graduation1.ui.screens.groups.GroupsListScreen
 import com.example.graduation1.ui.screens.home.PostScreen
 import com.example.graduation1.ui.screens.settings.AboutApplicationScreen
 import com.example.graduation1.ui.screens.settings.SavedScreen
@@ -64,6 +72,16 @@ import com.example.graduation1.ui.screens.settings.ReportTabs
 import com.example.graduation1.ui.screens.settings.SubscriptionScreen
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.primaryRed
+import com.example.graduation1.viewmodel.AuthViewModel
+import com.example.graduation1.viewmodel.AuthViewModelFactory
+import com.example.graduation1.viewmodel.ChatViewModel
+import com.example.graduation1.viewmodel.ChatViewModelFactory
+import com.example.graduation1.viewmodel.GroupsViewModel
+import com.example.graduation1.viewmodel.GroupsViewModelFactory
+import com.example.graduation1.viewmodel.PostViewModel
+import com.example.graduation1.viewmodel.PostViewModelFactory
+import com.example.graduation1.viewmodel.UserViewModel
+import com.example.graduation1.viewmodel.UserViewModelFactory
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import java.util.Locale
 
@@ -120,6 +138,26 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MainScreen(navController: NavHostController, currentRoute : String?) {
 
+        val postViewModel : PostViewModel = viewModel(
+            factory = PostViewModelFactory(PostRepository(RetrofitInstance.api))
+        )
+
+        val chatViewModel : ChatViewModel = viewModel(
+            factory = ChatViewModelFactory(ChatRepository(RetrofitInstance.api))
+        )
+
+        val userViewModel : UserViewModel = viewModel(
+            factory = UserViewModelFactory(UserRepository(RetrofitInstance.api))
+        )
+
+        val groupsViewModel : GroupsViewModel = viewModel(
+            factory = GroupsViewModelFactory(GroupsRepository(RetrofitInstance.api))
+        )
+
+        val authViewModel : AuthViewModel = viewModel(
+            factory = AuthViewModelFactory(AuthRepository(RetrofitInstance.api))
+        )
+
         val showBottomBar = currentRoute in BottomNavItem.items.map { it.route }
 
 
@@ -160,18 +198,20 @@ class MainActivity : ComponentActivity() {
             ) {
                 composable(AppPages.StartScreen.route) { StartScreen(navController) }
                 composable(AppPages.OnBoardingTabs.route) { OnBoardingTabs(navController) }
-                composable(BottomNavItem.Home.route) { HomeScreen(navController) }
-                composable(BottomNavItem.Chat.route) { ChatTabs(navController) }
-                composable(AppPages.MyRooms.route) { MyRoomsScreen(navController) }
-                composable(AppPages.CreatePost.route) { CreatePostScreen(navController) }
-                composable(BottomNavItem.Friends.route) { FriendsScreen(navController) }
-                composable(BottomNavItem.Profile.route) { HomeScreen(navController) }
-                composable(AppPages.SignUp.route) { SignUpScreen(navController) }
-                composable(AppPages.Login.route) { LoginScreen(navController) }
+                composable(BottomNavItem.Home.route) { HomeScreen(navController, postViewModel) }
+                composable(BottomNavItem.Chat.route) { ChatTabs(navController, chatViewModel, groupsViewModel) }
+                composable(AppPages.MyRooms.route) { MyRoomsScreen(navController, groupsViewModel) }
+                composable(AppPages.CreatePost.route) { CreatePostScreen(navController, userViewModel, postViewModel, groupsViewModel) }
+                composable(BottomNavItem.Friends.route) { FriendsScreen(navController, userViewModel) }
+                composable(AppPages.SignUp.route) { SignUpScreen(navController, authViewModel) }
+                composable(AppPages.Login.route) { LoginScreen(navController, authViewModel) }
                 composable(AppPages.CreateAccount.route) { CreateAccountScreen(navController) }
+                composable("${AppPages.GroupsList.route}/{userId}", arguments = listOf(navArgument("userId") {type = NavType.StringType})){ backStack ->
+                    val userId = backStack.arguments?.getString("userId")
+                    GroupsListScreen(navController, userId!!, groupsViewModel, userViewModel) }
                 composable("${AppPages.Post.route}/{postId}", arguments = listOf(navArgument("postId") {type = NavType.StringType})){ backStack ->
                 val postId = backStack.arguments?.getString("postId")
-                    PostScreen(navController, postId!!)
+                    PostScreen(navController, postId!!, postViewModel)
                 } // Composable
                 composable(BottomNavItem.Profile.route) { MyProfileScreen(navController) }
                 composable(AppPages.EditProfile.route) { EditProfileScreen(navController) }
@@ -192,15 +232,15 @@ class MainActivity : ComponentActivity() {
                 composable("${ AppPages.InRooms.route }/{groupId}", arguments = listOf(navArgument("groupId") {type = NavType.StringType})){ backStack ->
                     val groupId = backStack.arguments?.getString("groupId")
                     InRoomsScreen(navController, groupId!!) }
-                composable(AppPages.MyProfileDetails.route) { MyProfileDetailsScreen(navController) }
+                composable(AppPages.MyProfileDetails.route) { MyProfileDetailsScreen(navController, userViewModel, postViewModel, groupsViewModel) }
                 composable("${AppPages.OtherUsersProfile.route}/{userId}", arguments = listOf(navArgument("userId") {type = NavType.StringType})){ backStack ->
                     val userId = backStack.arguments?.getString("userId")
-                    OtherUsersProfileScreen(navController, userId!!)
+                    OtherUsersProfileScreen(navController, userId!!, userViewModel, postViewModel, groupsViewModel)
                 } // Composable
                 composable("${AppPages.Messaging.route}/{userId}", arguments = listOf(navArgument("userId") {type = NavType.StringType})){ backStack ->
                     val userId = backStack.arguments?.getString("userId")
                     val user = friendsList.first {it.id == userId}
-                    MessagingScreen(navController, user)
+                    MessagingScreen(navController, user, chatViewModel)
                 } // Composable
             }
         }

@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -51,7 +49,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -82,24 +79,20 @@ import com.example.graduation1.viewmodel.ChatViewModelFactory
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun MessagingScreen(navController: NavHostController, user: User){
-
-    val viewModel : ChatViewModel = viewModel(
-        factory = ChatViewModelFactory(ChatRepository(RetrofitInstance.api))
-    )
+fun MessagingScreen(navController: NavHostController, user: User, chatViewModel: ChatViewModel){
 
     LaunchedEffect(Unit) {
-        viewModel.getChatContent(user.id)
-        viewModel.updateMessagesSeen(user.id)
+        chatViewModel.getChatContent(user.id)
+        chatViewModel.updateMessagesSeen(user.id)
     }
 
-    val currentUser by viewModel.currentUser.collectAsState()
+    val currentUser by chatViewModel.currentUser.collectAsState()
 
-    val chatContent by viewModel.chatContent.collectAsState()
+    val chatContent by chatViewModel.chatContent.collectAsState()
     val listState = rememberLazyListState()
     var firstLoad by remember { mutableStateOf(true) }
 
-    val messageText by viewModel.messageText.collectAsState()
+    val messageText by chatViewModel.messageText.collectAsState()
 
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var imageIsSelected by remember { mutableStateOf(false) }
@@ -342,7 +335,7 @@ fun MessagingScreen(navController: NavHostController, user: User){
 
                 OutlinedTextField(
                     value = messageText,
-                    onValueChange = { viewModel.updateMessageText(it) },
+                    onValueChange = { chatViewModel.updateMessageText(it) },
                     placeholder = {
                         Text(
                             stringResource(R.string.Message),
@@ -387,11 +380,11 @@ fun MessagingScreen(navController: NavHostController, user: User){
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             if (messageText.isNotEmpty() || imageIsSelected)
                                 if (selectedImageUri == null)
-                                    viewModel.sendMessage(messageText, null)
+                                    chatViewModel.sendMessage(messageText, null)
                                 else
-                                    viewModel.sendMessage(messageText, selectedImageUri.toString())
+                                    chatViewModel.sendMessage(messageText, selectedImageUri.toString())
                         }
-                        viewModel.updateMessageText("")
+                        chatViewModel.updateMessageText("")
                         selectedImageUri = null
                         imageIsSelected = false
                     },
@@ -417,6 +410,9 @@ fun MessagingScreen(navController: NavHostController, user: User){
 fun MessagingScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
         val nav = rememberNavController()
-        MessagingScreen(nav, user)
+        val chatViewModel : ChatViewModel = viewModel(
+            factory = ChatViewModelFactory(ChatRepository(RetrofitInstance.api))
+        )
+        MessagingScreen(nav, user, chatViewModel)
     }
 }

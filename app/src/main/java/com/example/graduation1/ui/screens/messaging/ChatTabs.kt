@@ -40,9 +40,11 @@ import androidx.navigation.NavHostController
 import com.example.graduation1.R
 import com.example.graduation1.ui.screens.groups.GroupsScreen
 import com.example.graduation1.ui.theme.primaryRed
+import com.example.graduation1.viewmodel.ChatViewModel
+import com.example.graduation1.viewmodel.GroupsViewModel
 
 @Composable
-fun ChatTabs(navController: NavHostController){
+fun ChatTabs(navController: NavHostController, chatViewModel: ChatViewModel, groupsViewModel: GroupsViewModel){
     val tabs = listOf(
         stringResource(R.string.Allchats),
         stringResource(R.string.Groups),
@@ -197,7 +199,7 @@ fun ChatTabs(navController: NavHostController){
             }
         }
         when (selectedTab){
-            0 -> ChatScreen(navController)
+            0 -> ChatScreen(navController, chatViewModel)
             1 -> GroupsScreen(navController)
             2 -> GroupsScreen(navController)
         }

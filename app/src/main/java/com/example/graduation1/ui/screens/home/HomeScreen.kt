@@ -73,13 +73,9 @@ import com.example.graduation1.viewmodel.PostViewModelFactory
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController){
+fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel){
 
-        val viewModel : PostViewModel = viewModel(
-        factory = PostViewModelFactory(PostRepository(RetrofitInstance.api))
-    )
-
-    val postsList by viewModel.posts.collectAsState()
+    val postsList by postViewModel.posts.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
 
@@ -327,7 +323,7 @@ fun HomeScreen(navController: NavHostController){
                             Row(verticalAlignment = Alignment.CenterVertically) {
 
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    IconButton(onClick = { viewModel.toggleLike(post.postId) }) {
+                                    IconButton(onClick = { postViewModel.toggleLike(post.postId) }) {
                                         Icon(
                                             painter = if (!post.isLiked) painterResource(id = R.drawable.heart2)
                                             else painterResource(id = R.drawable.heart2red),
@@ -371,7 +367,7 @@ fun HomeScreen(navController: NavHostController){
 
                                 Spacer(Modifier.weight(1f))
 
-                                IconButton(onClick = {viewModel.toggleSaved(post.postId)}) {
+                                IconButton(onClick = {postViewModel.toggleSaved(post.postId)}) {
                                     Icon(
                                         painter = if (!post.isSaved) painterResource(id = R.drawable.saved)
                                         else painterResource(id = R.drawable.savedyellow),
@@ -420,7 +416,7 @@ fun HomeScreen(navController: NavHostController){
                 onDismissRequest = {showBottomSheet = false},
                 containerColor = MaterialTheme.colorScheme.background
             ) {
-                CommentsScreen(navController, selectedPost!!, viewModel)
+                CommentsScreen(navController, selectedPost!!, postViewModel)
             } // ModalBottomSheet
         } // if
     } // Box
@@ -432,6 +428,5 @@ fun HomeScreen(navController: NavHostController){
 fun HomeScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
         val nav = rememberNavController()
-        HomeScreen(nav)
     }
 }

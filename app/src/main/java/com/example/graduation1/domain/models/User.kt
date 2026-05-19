@@ -13,6 +13,7 @@ data class User (
     val followers : String = followersList.size.toString(),
     val followingList : List<String> = emptyList(),
     val following : String = followingList.size.toString(),
+    val groupsList : List<String> = emptyList(),
     val gender : String = "",
     val birthday : String = "",
     var isOnline : Boolean = false,

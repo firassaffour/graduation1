@@ -30,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -57,6 +58,7 @@ import com.example.graduation1.ui.theme.darkGreen
 import com.example.graduation1.ui.theme.gradientGray
 import com.example.graduation1.ui.theme.gray
 import com.example.graduation1.user
+import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.PostViewModelFactory
 import com.example.graduation1.viewmodel.UserViewModel
@@ -64,17 +66,15 @@ import com.example.graduation1.viewmodel.UserViewModelFactory
 
 
 @Composable
-fun MyProfileDetailsScreen(navController: NavHostController){
-
-    val userViewModel : UserViewModel = viewModel(
-        factory = UserViewModelFactory(UserRepository(RetrofitInstance.api))
-    )
-
-    val postViewModel : PostViewModel = viewModel(
-        factory = PostViewModelFactory(PostRepository(RetrofitInstance.api))
-    )
+fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: UserViewModel, postViewModel: PostViewModel, groupsViewModel: GroupsViewModel){
 
     val currentUser by userViewModel.currentUser.collectAsState()
+
+    LaunchedEffect(Unit) {
+        groupsViewModel.getUserGroups(currentUser!!.groupsList)
+    }
+
+    val groupsList by groupsViewModel.currentUserGroups.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -401,6 +401,5 @@ fun MyProfileDetailsScreen(navController: NavHostController){
 fun MyProfileDetailsScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
         val nav = rememberNavController()
-        MyProfileDetailsScreen(nav)
     }
 }

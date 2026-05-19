@@ -47,9 +47,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.BottomNavItem
 import com.example.graduation1.ui.theme.Graduation1Theme
+import com.example.graduation1.viewmodel.AuthViewModel
 
 @Composable
-fun LoginScreen(navController: NavHostController){
+fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel){
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -215,6 +216,5 @@ fun LoginScreen(navController: NavHostController){
 fun LoginScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
         val nav = rememberNavController()
-        LoginScreen(nav)
     }
 }

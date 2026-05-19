@@ -28,5 +28,6 @@ sealed class AppPages(val route: String) {
     object FAQ : AppPages("FAQScreen")
     object MyRooms : AppPages("MyRoomsScreen")
     object InRooms : AppPages("inRoomsScreen")
+    object GroupsList : AppPages("groupsListScreen")
     object Messaging : AppPages("messagingScreen")
 }

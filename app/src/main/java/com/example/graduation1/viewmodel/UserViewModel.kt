@@ -92,15 +92,8 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
         }
     }
 
-    fun getUserDetails(id : String){
-        viewModelScope.launch {
-            try {
-                //selectedUser = repository.getUserDetails(id)
-            }
-            catch (e: Exception){
-                Log.e("API", "friendsViewModel: ${e.message}")
-            }
-        }
+    fun getUserDetails(userId : String) : User{
+        return _users.value.first { it.id == userId }
     }
 
     fun editUser(id: String, user: User){
