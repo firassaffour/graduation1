@@ -75,18 +75,17 @@ import com.example.graduation1.viewmodel.PostViewModelFactory
 fun PostScreen(navController: NavHostController, postId: String, postViewModel: PostViewModel){
 
     val postsList by postViewModel.posts.collectAsState()
-    val post = postsList.first { it.postId == postId }
-    LaunchedEffect(Unit) {
-        postViewModel.getComments(postId)
-    }
-    val commentsList by postViewModel.comments.collectAsState()
+    val commentText by postViewModel.commentText.collectAsState()
+
+    val post = postsList.find { it.postId == postId } ?: return
+    val commentList = postsList.find { it.postId == postId }?.commentsList ?: emptyList()
 
     val listState = rememberLazyListState()
-    LaunchedEffect(commentsList.size) {
+    LaunchedEffect(commentList.size) {
+        if (commentList.isNotEmpty())
         listState.animateScrollToItem(0)
     }
 
-    var commentText by remember { mutableStateOf("") }
     val clipboard = LocalClipboardManager.current
 
     Column(modifier = Modifier
@@ -309,8 +308,8 @@ fun PostScreen(navController: NavHostController, postId: String, postViewModel: 
                 } // Column
                 Spacer(Modifier.height(10.dp))
             } // item
-            items(commentsList){ comment ->
-                CommentUI(navController, comment, postViewModel)
+            items(commentList){ comment ->
+                CommentUI(navController, comment, postId, postViewModel)
             } // items
         } // LazyColumn
 
@@ -321,7 +320,7 @@ fun PostScreen(navController: NavHostController, postId: String, postViewModel: 
 
             OutlinedTextField(
                 value = commentText,
-                onValueChange = { commentText = it },
+                onValueChange = { postViewModel.updateCommentText(it) },
                 placeholder = { Text(stringResource(R.string.Message), maxLines = 1, fontSize = 18.sp) },
                 shape = RoundedCornerShape(30.dp),
                 colors = TextFieldDefaults.colors(
@@ -337,8 +336,7 @@ fun PostScreen(navController: NavHostController, postId: String, postViewModel: 
 
             IconButton(onClick = {
                 if (commentText.isNotEmpty())
-                    postViewModel.createComment(commentText, postId)
-                    commentText = ""
+                    postViewModel.createComment(postId)
             },
                 colors = IconButtonDefaults.iconButtonColors(darkGray),
                 shape = CircleShape) {
@@ -360,10 +358,5 @@ fun PostScreen(navController: NavHostController, postId: String, postViewModel: 
 @Preview(showBackground = true)
 fun PostScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
-        val postViewModel : PostViewModel = viewModel(
-            factory = PostViewModelFactory(PostRepository(RetrofitInstance.api))
-        )
-        val nav = rememberNavController()
-        PostScreen(nav, postList[0].postId, postViewModel)
     }
 }

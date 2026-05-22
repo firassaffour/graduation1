@@ -43,35 +43,28 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.graduation1.R
-import com.example.graduation1.data.remote.RetrofitInstance
-import com.example.graduation1.data.repository.PostRepository
 import com.example.graduation1.domain.models.PostData
 import com.example.graduation1.language
-import com.example.graduation1.postList
 import com.example.graduation1.ui.designs.CommentUI
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.viewmodel.PostViewModel
-import com.example.graduation1.viewmodel.PostViewModelFactory
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CommentsScreen(navController : NavHostController, post : PostData, viewModel: PostViewModel){
+fun CommentsScreen(navController : NavHostController, postId : String, postViewModel: PostViewModel){
 
-    val commentsList by viewModel.comments.collectAsState()
-    LaunchedEffect(post.postId) {
-        viewModel.getComments(post.postId)
-    }
+    val postsList by postViewModel.posts.collectAsState()
+    val commentText by postViewModel.commentText.collectAsState()
 
-    var commentText by remember { mutableStateOf("") }
+    val post = postsList.find { it.postId == postId } ?: return
 
     val listState = rememberLazyListState()
-    LaunchedEffect(commentsList.size) {
-        if (commentsList.isNotEmpty()) {
+    LaunchedEffect(post.commentsList.size) {
+        if (post.commentsList.isNotEmpty()) {
             listState.animateScrollToItem(0)
         }
     }
@@ -94,8 +87,8 @@ fun CommentsScreen(navController : NavHostController, post : PostData, viewModel
             .fillMaxWidth()
             .weight(1f),
             state = listState) {
-            items(commentsList){ comment ->
-                CommentUI(navController, comment, viewModel)
+            items(post.commentsList){ comment ->
+                CommentUI(navController, comment, post.postId, postViewModel)
             } // items
         } // LazyColumn
 
@@ -106,7 +99,7 @@ fun CommentsScreen(navController : NavHostController, post : PostData, viewModel
 
             OutlinedTextField(
                 value = commentText,
-                onValueChange = { commentText = it },
+                onValueChange = { postViewModel.updateCommentText(it) },
                 placeholder = { Text(stringResource(R.string.Message), maxLines = 1, fontSize = 18.sp) },
                 shape = RoundedCornerShape(30.dp),
                 colors = TextFieldDefaults.colors(
@@ -122,8 +115,7 @@ fun CommentsScreen(navController : NavHostController, post : PostData, viewModel
 
             IconButton(onClick = {
                 if (commentText.isNotEmpty())
-                  viewModel.createComment(commentText, post.postId)
-                  commentText = ""},
+                  postViewModel.createComment(post.postId) },
                 colors = IconButtonDefaults.iconButtonColors(darkGray),
                 shape = CircleShape) {
                 Icon(
@@ -144,7 +136,6 @@ fun CommentsScreen(navController : NavHostController, post : PostData, viewModel
 @Preview(showBackground = true)
 fun CommentsScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
-        val nav = rememberNavController()
 
     }
 }

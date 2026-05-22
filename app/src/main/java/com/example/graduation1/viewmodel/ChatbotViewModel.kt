@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.graduation1.data.repository.AuthRepository
 import com.example.graduation1.data.repository.ChatbotRepository
+import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.Message
 import com.example.graduation1.domain.models.User
 import com.example.graduation1.messageList
@@ -20,7 +21,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class ChatbotViewModel(private val repository: ChatbotRepository) : ViewModel() {
+class ChatbotViewModel(private val repository: ChatbotRepository, private val userRepository: UserRepository) : ViewModel() {
 
     private val _chatContent = MutableStateFlow<List<Message>>(emptyList())
     val chatContent = _chatContent.asStateFlow()
@@ -28,12 +29,11 @@ class ChatbotViewModel(private val repository: ChatbotRepository) : ViewModel() 
     private val _messageText = MutableStateFlow("")
     val messageText = _messageText.asStateFlow()
 
-    private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser  = _currentUser.asStateFlow()
+    private val _currentUser = userRepository.currentUser
+    val currentUser  = _currentUser
 
     init {
         _chatContent.value = messageList
-        _currentUser.value = user
     }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -47,7 +47,7 @@ class ChatbotViewModel(private val repository: ChatbotRepository) : ViewModel() 
                 val message = Message(
                     Uuid.random().toString(),
                     messageText,
-                    currentUser.value!!.id,
+                    currentUser.id,
                     formatted,
                     image
                 )

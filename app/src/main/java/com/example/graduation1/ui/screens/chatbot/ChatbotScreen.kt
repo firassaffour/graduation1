@@ -76,19 +76,15 @@ import com.example.graduation1.viewmodel.ChatbotViewModel
 import com.example.graduation1.viewmodel.ChatbotViewModelFactory
 
 @Composable
-fun ChatbotScreen(navController: NavHostController){
+fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotViewModel){
 
-    val viewModel : ChatbotViewModel = viewModel(
-        factory = ChatbotViewModelFactory(ChatbotRepository(RetrofitInstance.api))
-    )
-
-    val chatContent by viewModel.chatContent.collectAsState()
+    val chatContent by chatbotViewModel.chatContent.collectAsState()
     val listState = rememberLazyListState()
     var firstLoad by remember { mutableStateOf(true) }
 
-    val messageText by viewModel.messageText.collectAsState()
+    val messageText by chatbotViewModel.messageText.collectAsState()
 
-    val currentUser by viewModel.currentUser.collectAsState()
+    val currentUser = chatbotViewModel.currentUser
 
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var imageIsSelected by remember { mutableStateOf(false) }
@@ -179,10 +175,10 @@ fun ChatbotScreen(navController: NavHostController){
 
                     Card(modifier = Modifier
                         .widthIn(min = 10.dp, max = 300.dp)
-                        .align(if (message.senderId == currentUser!!.id) Alignment.End else Alignment.Start),
+                        .align(if (message.senderId == currentUser.id) Alignment.End else Alignment.Start),
                         shape = RoundedCornerShape(25.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (message.senderId == currentUser!!.id) primaryRed else gray
+                            containerColor = if (message.senderId == currentUser.id) primaryRed else gray
                         )) {
 
                         Column(modifier = Modifier.padding(10.dp)) {
@@ -271,7 +267,7 @@ fun ChatbotScreen(navController: NavHostController){
 
                 OutlinedTextField(
                     value = messageText,
-                    onValueChange = { viewModel.updateMessageText(it) },
+                    onValueChange = { chatbotViewModel.updateMessageText(it) },
                     placeholder = {
                         Text(
                             stringResource(R.string.AskWhatsOnMind),
@@ -311,11 +307,11 @@ fun ChatbotScreen(navController: NavHostController){
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             if (messageText.isNotEmpty() || imageIsSelected)
                                 if (selectedImageUri == null)
-                                    viewModel.sendMessage(messageText, null)
+                                    chatbotViewModel.sendMessage(messageText, null)
                                 else
-                                    viewModel.sendMessage(messageText, selectedImageUri.toString())
+                                    chatbotViewModel.sendMessage(messageText, selectedImageUri.toString())
                         }
-                                viewModel.updateMessageText("")
+                                chatbotViewModel.updateMessageText("")
                                 selectedImageUri = null
                                 imageIsSelected = false
                 },
@@ -343,6 +339,5 @@ fun ChatbotScreen(navController: NavHostController){
 fun ChatbotScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
         val nav = rememberNavController()
-        ChatbotScreen(nav)
     }
 }

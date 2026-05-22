@@ -416,7 +416,7 @@ fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel){
                 onDismissRequest = {showBottomSheet = false},
                 containerColor = MaterialTheme.colorScheme.background
             ) {
-                CommentsScreen(navController, selectedPost!!, postViewModel)
+                CommentsScreen(navController, selectedPost!!.postId, postViewModel)
             } // ModalBottomSheet
         } // if
     } // Box

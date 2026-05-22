@@ -152,10 +152,5 @@ fun ChatScreen(navController: NavHostController, chatViewModel: ChatViewModel){
 @Preview(showBackground = true)
 fun ChatScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
-        val chatViewModel : ChatViewModel = viewModel(
-            factory = ChatViewModelFactory(ChatRepository(RetrofitInstance.api))
-        )
-        val nav = rememberNavController()
-        ChatScreen(nav, chatViewModel)
     }
 }

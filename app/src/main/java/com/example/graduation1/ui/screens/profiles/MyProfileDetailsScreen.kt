@@ -70,10 +70,10 @@ import com.example.graduation1.viewmodel.UserViewModelFactory
 @Composable
 fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: UserViewModel, postViewModel: PostViewModel, groupsViewModel: GroupsViewModel){
 
-    val currentUser by userViewModel.currentUser.collectAsState()
+    val currentUser = userViewModel.currentUser
 
     LaunchedEffect(Unit) {
-        groupsViewModel.getUserGroups(currentUser!!.groupsList)
+        groupsViewModel.getUserGroups(currentUser.groupsList)
     }
 
     val groupsList by groupsViewModel.currentUserGroups.collectAsState()
@@ -126,7 +126,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
                     .border(4.dp, Color.Black, CircleShape)
             )
 
-            if (currentUser!!.isOnline) {
+            if (currentUser.isOnline) {
                 Box(
                     modifier = Modifier
                         .offset(x = (-8).dp, y = (-8).dp)
@@ -139,7 +139,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
         }
 
         Text(
-            text = currentUser!!.name,
+            text = currentUser.name,
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = 23.sp,
             fontWeight = FontWeight.Bold,
@@ -148,7 +148,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
         )
 
         Text(
-            text = currentUser!!.description,
+            text = currentUser.description,
             color = gray,
             fontSize = 21.sp,
             modifier = Modifier
@@ -169,7 +169,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
             )
 
             Text(
-                text = currentUser!!.location,
+                text = currentUser.location,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 21.sp
             )
@@ -205,7 +205,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = postViewModel.getPostsCount(currentUser!!.id).toString(),
+                        text = postViewModel.getPostsCount(currentUser.id).toString(),
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -236,7 +236,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = currentUser!!.followers,
+                        text = currentUser.followers,
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -267,7 +267,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = currentUser!!.following,
+                        text = currentUser.following,
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -301,7 +301,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
             Spacer(Modifier.width(5.dp))
 
             Text(
-                text = currentUser!!.email,
+                text = currentUser.email,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 18.sp
             )
@@ -324,7 +324,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
             Spacer(Modifier.width(5.dp))
 
             Text(
-                text = currentUser!!.birthday,
+                text = currentUser.birthday,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 18.sp
             )
@@ -347,7 +347,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
             Spacer(Modifier.width(5.dp))
 
             Text(
-                text = if (currentUser!!.gender == "Male") stringResource(R.string.Male)
+                text = if (currentUser.gender == "Male") stringResource(R.string.Male)
                 else stringResource(R.string.Female),
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 18.sp

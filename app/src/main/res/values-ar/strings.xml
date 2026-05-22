@@ -102,4 +102,9 @@
     <string name="Male">ذكر</string>
     <string name="Female">أنثى</string>
     <string name="Select_Group">اختر مجموعة</string>
+    <string name="Write_Something">ارجوك كتابة شئ عن المنشور</string>
+    <string name="Write_Code_Please">ارجوك اكتب الكود</string>
+    <string name="Please_Select_Group">ارجوك اختر مجموعة</string>
+    <string name="Are_your_sure_close_post">هل انت متأكد انك تريد الغاء هذا المنشور</string>
+    <string name="Posted_Successfully">تم نشر المنشور بنجاح</string>
 </resources>

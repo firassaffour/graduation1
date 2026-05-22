@@ -30,6 +30,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.graduation1.data.remote.RetrofitInstance
+import com.example.graduation1.data.repository.AppModule
 import com.example.graduation1.data.repository.AuthRepository
 import com.example.graduation1.data.repository.ChatRepository
 import com.example.graduation1.data.repository.GroupsRepository
@@ -76,8 +77,12 @@ import com.example.graduation1.viewmodel.AuthViewModel
 import com.example.graduation1.viewmodel.AuthViewModelFactory
 import com.example.graduation1.viewmodel.ChatViewModel
 import com.example.graduation1.viewmodel.ChatViewModelFactory
+import com.example.graduation1.viewmodel.ChatbotViewModel
+import com.example.graduation1.viewmodel.ChatbotViewModelFactory
 import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.GroupsViewModelFactory
+import com.example.graduation1.viewmodel.NotificationViewModel
+import com.example.graduation1.viewmodel.NotificationViewModelFactory
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.PostViewModelFactory
 import com.example.graduation1.viewmodel.UserViewModel
@@ -139,23 +144,31 @@ class MainActivity : ComponentActivity() {
     fun MainScreen(navController: NavHostController, currentRoute : String?) {
 
         val postViewModel : PostViewModel = viewModel(
-            factory = PostViewModelFactory(PostRepository(RetrofitInstance.api))
+            factory = PostViewModelFactory(AppModule.postRepository, AppModule.userRepository)
         )
 
         val chatViewModel : ChatViewModel = viewModel(
-            factory = ChatViewModelFactory(ChatRepository(RetrofitInstance.api))
+            factory = ChatViewModelFactory(AppModule.chatRepository, AppModule.userRepository)
         )
 
         val userViewModel : UserViewModel = viewModel(
-            factory = UserViewModelFactory(UserRepository(RetrofitInstance.api))
+            factory = UserViewModelFactory(AppModule.userRepository)
         )
 
         val groupsViewModel : GroupsViewModel = viewModel(
-            factory = GroupsViewModelFactory(GroupsRepository(RetrofitInstance.api))
+            factory = GroupsViewModelFactory(AppModule.groupsRepository)
         )
 
         val authViewModel : AuthViewModel = viewModel(
-            factory = AuthViewModelFactory(AuthRepository(RetrofitInstance.api))
+            factory = AuthViewModelFactory(AppModule.authRepository)
+        )
+
+        val notificationViewModel : NotificationViewModel = viewModel(
+            factory = NotificationViewModelFactory(AppModule.notificationRepository)
+        )
+
+        val chatbotViewModel : ChatbotViewModel = viewModel(
+            factory = ChatbotViewModelFactory(AppModule.chatbotRepository, AppModule.userRepository)
         )
 
         val showBottomBar = currentRoute in BottomNavItem.items.map { it.route }
@@ -216,12 +229,12 @@ class MainActivity : ComponentActivity() {
                 composable(BottomNavItem.Profile.route) { MyProfileScreen(navController) }
                 composable(AppPages.EditProfile.route) { EditProfileScreen(navController) }
                 composable(AppPages.ChatbotStart.route) { ChatbotStartScreen(navController) }
-                composable(AppPages.Chatbot.route) { ChatbotScreen(navController) }
+                composable(AppPages.Chatbot.route) { ChatbotScreen(navController, chatbotViewModel) }
                 composable(AppPages.Notification.route) { NotificationScreen(navController) }
                 composable(AppPages.NotificationSettings.route) { NotificationSettingsScreen(navController) }
                 composable(AppPages.Settings.route) { SettingsScreen(navController) }
-                composable(AppPages.Favourite.route) { FavouriteScreen(navController) }
-                composable(AppPages.Saved.route) { SavedScreen(navController) }
+                composable(AppPages.Favourite.route) { FavouriteScreen(navController, postViewModel) }
+                composable(AppPages.Saved.route) { SavedScreen(navController, postViewModel) }
                 composable(AppPages.Language.route) { LanguageScreen(navController) }
                 composable(AppPages.Location.route) { LocationScreen(navController) }
                 composable(AppPages.Subscription.route) { SubscriptionScreen(navController) }

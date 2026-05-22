@@ -93,7 +93,7 @@ class GroupsViewModel(private val repository: GroupsRepository) : ViewModel() {
         }
     }
 
-    fun updateSelectedGroup(group: Group){
+    fun updateSelectedGroup(group: Group?){
         _selectedGroup.value = group
     }
 }

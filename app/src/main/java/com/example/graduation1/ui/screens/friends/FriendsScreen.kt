@@ -55,7 +55,7 @@ fun FriendsScreen(navController: NavHostController, userViewModel: UserViewModel
 
     val usersList by userViewModel.users.collectAsState()
 
-    val currentUser by userViewModel.currentUser.collectAsState()
+    val currentUser = userViewModel.currentUser
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -129,13 +129,13 @@ fun FriendsScreen(navController: NavHostController, userViewModel: UserViewModel
                         Button(onClick = {userViewModel.followUser(friend.id)},
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (friend.followersList.contains(currentUser!!.id)) darkGray
+                                containerColor = if (friend.followersList.contains(currentUser.id)) darkGray
                                 else MaterialTheme.colorScheme.primary
                             ),
                             modifier = Modifier
                                 .wrapContentWidth()
                                 .height(33.dp)) {
-                            Text(text = if (friend.followersList.contains(currentUser!!.id)) stringResource(R.string.UnFollow)
+                            Text(text = if (friend.followersList.contains(currentUser.id)) stringResource(R.string.UnFollow)
                                 else stringResource(R.string.Follow),
                                 color = Color.White,
                                 fontSize = 14.sp,

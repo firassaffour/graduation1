@@ -36,7 +36,7 @@ import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.viewmodel.PostViewModel
 
 @Composable
-fun CommentUI(navController : NavHostController, comment: Comment, viewModel : PostViewModel){
+fun CommentUI(navController : NavHostController, comment: Comment, postId : String, viewModel : PostViewModel){
 
     Column(
         modifier = Modifier
@@ -94,7 +94,7 @@ fun CommentUI(navController : NavHostController, comment: Comment, viewModel : P
 
             Column(horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f)) {
-                IconButton(onClick = {viewModel.toggleLikeComment(comment.id)}) {
+                IconButton(onClick = {viewModel.toggleLikeComment(comment.id, postId)}) {
                     Icon(
                         painter = if (!comment.isLiked) painterResource(id = R.drawable.heart2)
                         else painterResource(id = R.drawable.heart2red) ,

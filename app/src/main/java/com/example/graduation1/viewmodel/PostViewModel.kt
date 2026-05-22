@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.graduation1.commentsList
 import com.example.graduation1.data.repository.PostRepository
+import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.Comment
 import com.example.graduation1.domain.models.PostData
 import com.example.graduation1.domain.models.User
@@ -24,16 +25,13 @@ import java.time.format.DateTimeFormatter
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class PostViewModel(private val repository: PostRepository): ViewModel() {
+class PostViewModel(private val postRepository: PostRepository, private val userRepository: UserRepository): ViewModel() {
 
-    private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser  = _currentUser.asStateFlow()
+    private val _currentUser = userRepository.currentUser
+    val currentUser  = _currentUser
 
     private val _posts = MutableStateFlow<List<PostData>>(emptyList())
     val posts = _posts.asStateFlow()
-
-    private val _comments = MutableStateFlow<List<Comment>>(emptyList())
-    val comments = _comments.asStateFlow()
 
     private val _favouritePosts = MutableStateFlow<List<PostData>>(emptyList())
     val favouritePosts = _favouritePosts.asStateFlow()
@@ -47,18 +45,21 @@ class PostViewModel(private val repository: PostRepository): ViewModel() {
     private val _postCodeSnippet = MutableStateFlow("")
     val postCodeSnippet  = _postCodeSnippet.asStateFlow()
 
+    private val _commentText = MutableStateFlow("")
+    val commentText  = _commentText.asStateFlow()
+
     init {
-        _posts.value = postList
         getPosts()
+        Log.d("VM", "postViewModel created ${this.hashCode()} ")
     }
 
     private fun getPosts(){
         viewModelScope.launch {
             try {
-                //posts = repository.getPosts()
+                _posts.value = postList
             }
             catch (e: Exception){
-                Log.e("API", "postViewModel: ${e.message}")
+                Log.e("API", "postViewModel get post: ${e.message}")
             }
         }
     }
@@ -73,25 +74,10 @@ class PostViewModel(private val repository: PostRepository): ViewModel() {
                 }
             }
             catch (e: Exception){
-                Log.e("API", "postViewModel: ${e.message}")
+                Log.e("API", "postViewMode get post count: ${e.message}")
             }
         }
         return postsCount.intValue
-    }
-
-    fun getComments(postId: String){
-        viewModelScope.launch {
-            try {
-                _posts.value.map {
-                    if (it.postId == postId)
-                        _comments.value = it.commentsList
-                }
-                //_comments = repository.getComments()
-            }
-            catch (e: Exception){
-                Log.e("API", "postViewModel: ${e.message}")
-            }
-        }
     }
 
     fun getFavouritePosts(){
@@ -100,7 +86,7 @@ class PostViewModel(private val repository: PostRepository): ViewModel() {
                 _favouritePosts.value = favouritePost
             }
             catch (e: Exception){
-                Log.e("API", "postViewModel: ${e.message}")
+                Log.e("API", "postViewModel get favourite post: ${e.message}")
             }
         }
     }
@@ -111,7 +97,7 @@ class PostViewModel(private val repository: PostRepository): ViewModel() {
                 _savedPosts.value = savedPost
             }
             catch (e: Exception){
-                Log.e("API", "postViewModel: ${e.message}")
+                Log.e("API", "postViewModel get saved post: ${e.message}")
             }
         }
     }
@@ -127,11 +113,11 @@ class PostViewModel(private val repository: PostRepository): ViewModel() {
                 val post = PostData(
                     Uuid.random().toString(),
                     groupId,
-                    currentUser.value!!.id,
+                    currentUser.id,
                     groupName,
                     groupImage,
-                    currentUser.value!!.name,
-                    currentUser.value!!.image.toString(),
+                    currentUser.name,
+                    currentUser.image.toString(),
                     _postText.value,
                     postImage!!,
                     _postCodeSnippet.value,
@@ -144,9 +130,12 @@ class PostViewModel(private val repository: PostRepository): ViewModel() {
                 )
                 _posts.value += post
 
+                _postText.value = ""
+                _postCodeSnippet.value = ""
+
             }
             catch (e: Exception){
-                Log.e("API", "postViewModel: ${e.message}")
+                Log.e("API", "postViewModel create post: ${e.message}")
             }
         }
     }
@@ -159,9 +148,13 @@ class PostViewModel(private val repository: PostRepository): ViewModel() {
         _postCodeSnippet.value = postCodeSnippet
     }
 
+    fun updateCommentText(commentText: String){
+        _commentText.value = commentText
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalUuidApi::class)
-    fun createComment(commentText: String, postId: String){
+    fun createComment(postId: String){
         viewModelScope.launch {
             try {
                 val time = LocalDateTime.now()
@@ -169,36 +162,25 @@ class PostViewModel(private val repository: PostRepository): ViewModel() {
                 val formatted = time.format(formatter)
                 val comment = Comment(
                     Uuid.random().toString(),
-                    _currentUser.value!!.name,
-                    _currentUser.value!!.image,
-                    commentText,
+                    _currentUser.name,
+                    _currentUser.image,
+                    _commentText.value,
                     formatted
                 )
-                _comments.value = listOf(comment) + _comments.value
 
                 _posts.value = _posts.value.map {
                     if (it.postId == postId)
-                        it.copy(commentsCount = it.commentsCount + 1)
+                        it.copy(commentsList = listOf(comment) + it.commentsList, commentsCount = it.commentsCount + 1)
 
                     else it
                 }
+                _commentText.value = ""
             }
             catch (e: Exception){
-                Log.e("API", "postViewModel: ${e.message}")
+                Log.e("API", "postViewModel create comment: ${e.message}")
             }
         }
     }
-
-fun updateLike(postId : String, post: PostData){
-    viewModelScope.launch {
-        try {
-            repository.updateLike(postId, post)
-        }
-        catch (e: Exception){
-            Log.e("API", "postViewModel: ${e.message}")
-        }
-    }
-}
 
     fun toggleLike(postId: String){
         _posts.value = _posts.value.map {
@@ -220,16 +202,22 @@ fun updateLike(postId : String, post: PostData){
         }
     }
 
-    fun toggleLikeComment(commentId: String){
-        _comments.value = _comments.value.map {
-            if (it.id == commentId) {
-                if (!it.isLiked)
-                    it.copy(likesCount = it.likesCount + 1, isLiked = !it.isLiked)
-                else
-                    it.copy(likesCount = it.likesCount - 1, isLiked = !it.isLiked)
+    fun toggleLikeComment(commentId: String, postId: String){
+        _posts.value = _posts.value.map { post ->
+            if (post.postId == postId) {
+                val updatedComment = post.commentsList.map {comment ->
+                    if (comment.id == commentId) {
+                        if (!comment.isLiked)
+                            comment.copy(likesCount = comment.likesCount + 1, isLiked = !comment.isLiked)
+                        else
+                            comment.copy(likesCount = comment.likesCount - 1, isLiked = !comment.isLiked)
+                    }
+                    else comment
+                }
+                post.copy(commentsList = updatedComment)
             }
 
-            else it
+            else post
         }
     }
 }

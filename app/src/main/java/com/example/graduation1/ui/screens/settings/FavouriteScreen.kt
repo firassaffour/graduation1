@@ -48,15 +48,11 @@ import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.PostViewModelFactory
 
 @Composable
-fun FavouriteScreen(navController: NavHostController){
+fun FavouriteScreen(navController: NavHostController, postViewModel: PostViewModel){
 
-    val viewModel : PostViewModel = viewModel(
-        factory = PostViewModelFactory(PostRepository(RetrofitInstance.api))
-    )
-
-    val favouritePostsList by viewModel.favouritePosts.collectAsState()
+    val favouritePostsList by postViewModel.favouritePosts.collectAsState()
     LaunchedEffect(Unit) {
-        viewModel.getFavouritePosts()
+        postViewModel.getFavouritePosts()
     }
 
     Column(modifier = Modifier
@@ -171,7 +167,5 @@ fun FavouriteScreen(navController: NavHostController){
 @Preview(showBackground = true)
 fun FavouriteScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
-        val nav = rememberNavController()
-        FavouriteScreen(nav)
     }
 }

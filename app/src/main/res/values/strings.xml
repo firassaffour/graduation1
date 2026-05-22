@@ -102,4 +102,9 @@
     <string name="Male">Male</string>
     <string name="Female">Female</string>
     <string name="Select_Group">Select Group</string>
+    <string name="Write_Something">please write something about the post</string>
+    <string name="Write_Code_Please">please write your code</string>
+    <string name="Please_Select_Group">please select a group</string>
+    <string name="Are_your_sure_close_post">are you sure you want to cancel this post</string>
+    <string name="Posted_Successfully">the post is published successfully</string>
 </resources>

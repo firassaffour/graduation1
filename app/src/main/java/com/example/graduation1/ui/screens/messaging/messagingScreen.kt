@@ -86,7 +86,7 @@ fun MessagingScreen(navController: NavHostController, user: User, chatViewModel:
         chatViewModel.updateMessagesSeen(user.id)
     }
 
-    val currentUser by chatViewModel.currentUser.collectAsState()
+    val currentUser = chatViewModel.currentUser
 
     val chatContent by chatViewModel.chatContent.collectAsState()
     val listState = rememberLazyListState()
@@ -241,10 +241,10 @@ fun MessagingScreen(navController: NavHostController, user: User, chatViewModel:
 
                     Card(modifier = Modifier
                         .widthIn(min = 10.dp, max = 280.dp)
-                        .align(if (message.senderId == currentUser!!.id) Alignment.End else Alignment.Start),
+                        .align(if (message.senderId == currentUser.id) Alignment.End else Alignment.Start),
                         shape = RoundedCornerShape(25.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (message.senderId == currentUser!!.id) primaryRed else darkGray
+                            containerColor = if (message.senderId == currentUser.id) primaryRed else darkGray
                         )) {
 
                         Column(modifier = Modifier.padding(10.dp)) {
@@ -282,7 +282,7 @@ fun MessagingScreen(navController: NavHostController, user: User, chatViewModel:
                                         .padding(end = 6.dp)
                                 )
 
-                                if (message.senderId == currentUser!!.id)
+                                if (message.senderId == currentUser.id)
                                 Text(
                                     text = if (message.isSeen) "Seen" else "Sent",
                                     color = if (message.isSeen) darkGreen else Color.LightGray,
@@ -409,10 +409,5 @@ fun MessagingScreen(navController: NavHostController, user: User, chatViewModel:
 @Preview(showBackground = true)
 fun MessagingScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
-        val nav = rememberNavController()
-        val chatViewModel : ChatViewModel = viewModel(
-            factory = ChatViewModelFactory(ChatRepository(RetrofitInstance.api))
-        )
-        MessagingScreen(nav, user, chatViewModel)
     }
 }

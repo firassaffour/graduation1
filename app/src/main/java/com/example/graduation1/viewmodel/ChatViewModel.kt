@@ -3,18 +3,15 @@ package com.example.graduation1.viewmodel
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.graduation1.chatList
 import com.example.graduation1.data.repository.ChatRepository
+import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.ChatItem
 import com.example.graduation1.domain.models.Message
-import com.example.graduation1.domain.models.PostData
 import com.example.graduation1.domain.models.User
-import com.example.graduation1.messageList
 import com.example.graduation1.messageList2
-import com.example.graduation1.postList
 import com.example.graduation1.user
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +21,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class ChatViewModel(private val repository: ChatRepository) : ViewModel() {
+class ChatViewModel(private val chatRepository: ChatRepository, private val userRepository: UserRepository) : ViewModel() {
 
 
     private val _chatContent =  MutableStateFlow<List<Message>>(emptyList())
@@ -36,11 +33,10 @@ class ChatViewModel(private val repository: ChatRepository) : ViewModel() {
     private val _messageText = MutableStateFlow("")
     val messageText = _messageText.asStateFlow()
 
-    private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser  = _currentUser.asStateFlow()
+    private val _currentUser = userRepository.currentUser
+    val currentUser  = _currentUser
 
     init {
-        _currentUser.value = user
         getChats()
         getUnSeenMessagesCount()
     }
@@ -82,7 +78,7 @@ class ChatViewModel(private val repository: ChatRepository) : ViewModel() {
                 val message = Message(
                     Uuid.random().toString(),
                     messageText,
-                    _currentUser.value!!.id,
+                    _currentUser.id,
                     formatted,
                     image
                     )

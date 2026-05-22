@@ -75,7 +75,7 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String, u
     val usersList by userViewModel.users.collectAsState()
     val user = usersList.first { it.id == userId }
 
-    val currentUser by userViewModel.currentUser.collectAsState()
+    val currentUser = userViewModel.currentUser
 
     LaunchedEffect(Unit) {
         groupsViewModel.getUserGroups(user.groupsList)
@@ -186,13 +186,13 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String, u
             Button(onClick = {userViewModel.followUser(user.id)},
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (user.followersList.contains(currentUser!!.id)) darkGray
+                    containerColor = if (user.followersList.contains(currentUser.id)) darkGray
                         else MaterialTheme.colorScheme.primary
                 ),
                 modifier = Modifier
                     .wrapContentWidth()
                     .height(40.dp)) {
-                Text(text = if (user.followersList.contains(currentUser!!.id)) stringResource(R.string.UnFollow)
+                Text(text = if (user.followersList.contains(currentUser.id)) stringResource(R.string.UnFollow)
                 else stringResource(R.string.Follow),
                     color = Color.White,
                     fontSize = 14.sp,

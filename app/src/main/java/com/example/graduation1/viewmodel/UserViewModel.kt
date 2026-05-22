@@ -2,12 +2,9 @@ package com.example.graduation1.viewmodel
 
 import android.content.Context
 import android.util.Log
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.graduation1.data.repository.UserRepository
@@ -19,13 +16,12 @@ import com.example.graduation1.language
 import com.example.graduation1.user
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import java.util.Locale
 
-class UserViewModel(private val repository: UserRepository) : ViewModel() {
+class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
 
-    private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser  = _currentUser.asStateFlow()
+    private var _currentUser = userRepository.currentUser
+    val currentUser  = _currentUser
 
     private val _users = MutableStateFlow<List<User>>(emptyList())
     val users  = _users.asStateFlow()
@@ -59,7 +55,6 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
     private fun getCurrentUser(){
         viewModelScope.launch {
             try {
-                _currentUser.value = user
                 Log.d("TAG", "loadUsers: $users")
             }
             catch (e: Exception){
@@ -99,7 +94,7 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
     fun editUser(id: String, user: User){
         viewModelScope.launch {
             try {
-                repository.editUser(id, user)
+                userRepository.editUser(id, user)
             }
             catch (e: Exception){
                 Log.e("API", "friendsViewModel: ${e.message}")
@@ -110,7 +105,7 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
     fun followUser(userId: String){
         viewModelScope.launch {
             try {
-                val currentUserId = _currentUser.value?.id ?: return@launch
+                val currentUserId = _currentUser.id ?: return@launch
                 val isFollowing = _users.value.first { it.id == userId }.followersList.contains(currentUserId)
                 _users.value =_users.value.map {
                     if (it.id == userId) {
@@ -121,11 +116,11 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
                     else it
                 }
 
-                _currentUser.value = _currentUser.value?.copy(
+                _currentUser = _currentUser.copy(
                     followingList =
-                        if (isFollowing) _currentUser.value!!.followingList - userId
+                        if (isFollowing) _currentUser.followingList - userId
 
-                        else _currentUser.value!!.followingList - userId
+                        else _currentUser.followingList - userId
                 )
             }
             catch (e: Exception){

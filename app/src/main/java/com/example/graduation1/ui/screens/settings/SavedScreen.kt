@@ -48,16 +48,11 @@ import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.PostViewModelFactory
 
 @Composable
-fun SavedScreen(navController: NavHostController){
+fun SavedScreen(navController: NavHostController, postViewModel: PostViewModel){
 
-
-    val viewModel : PostViewModel = viewModel(
-        factory = PostViewModelFactory(PostRepository(RetrofitInstance.api))
-    )
-
-    val savedPostsList by viewModel.savedPosts.collectAsState()
+    val savedPostsList by postViewModel.savedPosts.collectAsState()
     LaunchedEffect(Unit) {
-        viewModel.getSavedPosts()
+        postViewModel.getSavedPosts()
     }
 
     Column(modifier = Modifier
@@ -172,7 +167,5 @@ fun SavedScreen(navController: NavHostController){
 @Preview(showBackground = true)
 fun SavedScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
-        val nav = rememberNavController()
-        SavedScreen(nav)
     }
 }
