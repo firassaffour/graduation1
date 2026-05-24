@@ -6,8 +6,6 @@ data class PostData(
     val userId : String = "",
     val groupName : String = "",
     val groupImage : String = "",
-    val publisherName: String = "",
-    val publisherPhoto : String = "",
     val postText : String = "",
     val postImage : Any = "",
     val codeSnippet : String = "",

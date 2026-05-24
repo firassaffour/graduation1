@@ -1,4 +1,4 @@
-package com.example.graduation1.ui.designs
+package com.example.graduation1.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size

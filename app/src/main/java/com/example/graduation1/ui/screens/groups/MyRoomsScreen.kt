@@ -1,8 +1,6 @@
 package com.example.graduation1.ui.screens.groups
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -31,33 +28,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
-import com.example.graduation1.data.remote.RetrofitInstance
-import com.example.graduation1.data.repository.GroupsRepository
-import com.example.graduation1.domain.models.AppPages
-import com.example.graduation1.ui.designs.CircledImagesRow
+import com.example.graduation1.ui.components.GroupUI
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.gray
 import com.example.graduation1.ui.theme.primaryRed
 import com.example.graduation1.viewmodel.GroupsViewModel
-import com.example.graduation1.viewmodel.GroupsViewModelFactory
+import com.example.graduation1.viewmodel.UserViewModel
 
 
 @Composable
-fun MyRoomsScreen(navController: NavHostController, groupsViewModel: GroupsViewModel){
+fun MyRoomsScreen(navController: NavHostController, groupsViewModel: GroupsViewModel, userViewModel: UserViewModel){
 
     val groupsList by groupsViewModel.groups.collectAsState()
     
@@ -123,47 +112,7 @@ fun MyRoomsScreen(navController: NavHostController, groupsViewModel: GroupsViewM
 
         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
             items(groupsList, key = {it.id}){ room ->
-
-                Column(modifier = Modifier
-                    .width(100.dp)
-                    .height(160.dp)
-                    .padding(8.dp)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .clickable { navController.navigate("${ AppPages.InRooms.route }/${room.id}") },
-                    horizontalAlignment = Alignment.CenterHorizontally) {
-
-                    Spacer(Modifier.weight(1f))
-
-                    Image(
-                        rememberAsyncImagePainter(room.image),
-                        contentDescription = "image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(70.dp)
-                            .clip(shape = CircleShape)
-                    )
-
-                    Text(
-                        text = room.name,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Text(
-                        text = "${room.membersCount} ${stringResource(R.string.Members)}",
-                        color = gray,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Row(modifier = Modifier,
-                        verticalAlignment = Alignment.CenterVertically) {
-                        CircledImagesRow(room.members.take(4).map { it.image })
-                    } // Row
-                    
-                    Spacer(Modifier.weight(1f))
-                } // Column
+                GroupUI(navController, room, groupsViewModel, userViewModel)
             } // items
         } // LazyVerticalGrid
 
@@ -195,10 +144,5 @@ fun MyRoomsScreen(navController: NavHostController, groupsViewModel: GroupsViewM
 @Preview(showBackground = true)
 fun MyRoomsScreenPreview(){
     Graduation1Theme(dynamicColor = true) {
-        val groupsViewModel : GroupsViewModel = viewModel(
-            factory = GroupsViewModelFactory(GroupsRepository(RetrofitInstance.api))
-        )
-        val nav = rememberNavController()
-        MyRoomsScreen(nav, groupsViewModel)
     }
 }

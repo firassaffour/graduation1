@@ -42,9 +42,10 @@ import com.example.graduation1.ui.screens.groups.GroupsScreen
 import com.example.graduation1.ui.theme.primaryRed
 import com.example.graduation1.viewmodel.ChatViewModel
 import com.example.graduation1.viewmodel.GroupsViewModel
+import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
-fun ChatTabs(navController: NavHostController, chatViewModel: ChatViewModel, groupsViewModel: GroupsViewModel){
+fun ChatTabs(navController: NavHostController, chatViewModel: ChatViewModel, groupsViewModel: GroupsViewModel, userViewModel: UserViewModel){
     val tabs = listOf(
         stringResource(R.string.Allchats),
         stringResource(R.string.Groups),
@@ -199,7 +200,7 @@ fun ChatTabs(navController: NavHostController, chatViewModel: ChatViewModel, gro
             }
         }
         when (selectedTab){
-            0 -> ChatScreen(navController, chatViewModel)
+            0 -> ChatScreen(navController, chatViewModel, userViewModel)
             1 -> GroupsScreen(navController)
             2 -> GroupsScreen(navController)
         }

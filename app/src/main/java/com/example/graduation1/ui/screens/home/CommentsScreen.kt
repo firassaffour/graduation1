@@ -29,9 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -44,21 +41,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.graduation1.R
-import com.example.graduation1.domain.models.PostData
 import com.example.graduation1.language
-import com.example.graduation1.ui.designs.CommentUI
+import com.example.graduation1.ui.components.CommentUI
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.viewmodel.PostViewModel
+import com.example.graduation1.viewmodel.UserViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CommentsScreen(navController : NavHostController, postId : String, postViewModel: PostViewModel){
+fun CommentsScreen(navController : NavHostController, postId : String, postViewModel: PostViewModel, userViewModel: UserViewModel){
 
     val postsList by postViewModel.posts.collectAsState()
     val commentText by postViewModel.commentText.collectAsState()
+    val newCommentId by postViewModel.newCommentId.collectAsState()
 
     val post = postsList.find { it.postId == postId } ?: return
 
@@ -87,8 +84,8 @@ fun CommentsScreen(navController : NavHostController, postId : String, postViewM
             .fillMaxWidth()
             .weight(1f),
             state = listState) {
-            items(post.commentsList){ comment ->
-                CommentUI(navController, comment, post.postId, postViewModel)
+            items(post.commentsList, key = {it.commentId}){ comment ->
+                CommentUI(navController, comment, comment.commentId == newCommentId, post.postId, postViewModel, userViewModel)
             } // items
         } // LazyColumn
 

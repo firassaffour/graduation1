@@ -1,6 +1,8 @@
-package com.example.graduation1.ui.designs
+package com.example.graduation1.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +18,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,12 +42,32 @@ import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.Comment
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.viewmodel.PostViewModel
+import com.example.graduation1.viewmodel.UserViewModel
+import kotlinx.coroutines.delay
 
 @Composable
-fun CommentUI(navController : NavHostController, comment: Comment, postId : String, viewModel : PostViewModel){
+fun CommentUI(navController : NavHostController, comment: Comment, isNew : Boolean, postId : String, postViewModel : PostViewModel, userViewModel: UserViewModel){
 
+    val userList by userViewModel.users.collectAsState()
+    val user = userList.find { it.id == comment.userId } ?: return
+
+    var highlight by remember(comment.commentId) { mutableStateOf(isNew) }
+    LaunchedEffect(comment.commentId) {
+        if (isNew) {
+            delay(2000)
+            highlight = false
+            postViewModel.updateNewCommentId("")
+        }
+    }
+
+    val backgroundColor by animateColorAsState(
+        targetValue =
+            if (highlight) MaterialTheme.colorScheme.surface
+            else MaterialTheme.colorScheme.background
+    )
     Column(
         modifier = Modifier
+            .background(backgroundColor)
             .fillMaxWidth()
             .padding(14.dp)
     ) {
@@ -47,12 +75,13 @@ fun CommentUI(navController : NavHostController, comment: Comment, postId : Stri
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { navController.navigate("${AppPages.OtherUsersProfile.route}/${comment.id}") },
+                .background(backgroundColor)
+                .clickable { navController.navigate("${AppPages.OtherUsersProfile.route}/${comment.userId}") },
             verticalAlignment = Alignment.CenterVertically
         ) {
 
             Image(
-                rememberAsyncImagePainter(comment.image),
+                rememberAsyncImagePainter(user.image),
                 contentDescription = "image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -63,7 +92,7 @@ fun CommentUI(navController : NavHostController, comment: Comment, postId : Stri
             Text(
                 modifier = Modifier
                     .padding(start = 8.dp),
-                text = comment.name,
+                text = user.name,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
@@ -94,7 +123,7 @@ fun CommentUI(navController : NavHostController, comment: Comment, postId : Stri
 
             Column(horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f)) {
-                IconButton(onClick = {viewModel.toggleLikeComment(comment.id, postId)}) {
+                IconButton(onClick = {postViewModel.toggleLikeComment(comment.commentId, postId)}) {
                     Icon(
                         painter = if (!comment.isLiked) painterResource(id = R.drawable.heart2)
                         else painterResource(id = R.drawable.heart2red) ,

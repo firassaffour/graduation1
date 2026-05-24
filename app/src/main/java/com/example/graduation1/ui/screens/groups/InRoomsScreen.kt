@@ -30,12 +30,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,42 +46,31 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
-import com.example.graduation1.data.remote.RetrofitInstance
-import com.example.graduation1.data.repository.GroupsRepository
 import com.example.graduation1.domain.models.AppPages
-import com.example.graduation1.friendsList
-import com.example.graduation1.groupsList
-import com.example.graduation1.todayNotificationList
-import com.example.graduation1.ui.designs.CircledImagesRow
+import com.example.graduation1.ui.components.CircledImagesRow
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGreen
 import com.example.graduation1.ui.theme.gray
 import com.example.graduation1.ui.theme.primaryRed
 import com.example.graduation1.viewmodel.GroupsViewModel
-import com.example.graduation1.viewmodel.GroupsViewModelFactory
+import com.example.graduation1.viewmodel.UserViewModel
 
 
 @Composable
-fun InRoomsScreen(navController: NavHostController, groupId : String){
+fun InRoomsScreen(navController: NavHostController, groupId : String, groupsViewModel: GroupsViewModel, userViewModel: UserViewModel){
 
-    val viewModel : GroupsViewModel = viewModel(
-        factory = GroupsViewModelFactory(GroupsRepository(RetrofitInstance.api))
-    )
 
-    val groupsList by viewModel.groups.collectAsState()
-    val group = groupsList.first { it.id == groupId }
+    val groupsList by groupsViewModel.groups.collectAsState()
+    val group = groupsList.find { it.id == groupId } ?: return
+    val groupMembers by groupsViewModel.members.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.getGroupMembers(groupId)
-    }
-    val groupMembers by viewModel.members.collectAsState()
+    val userList by userViewModel.users.collectAsState()
+    val groupMembersInformation = userList.filter { it.id in group.members }
 
-    val onlineMembersCount by remember { mutableStateOf(viewModel.getOnlineMembers(groupId).toString()) }
+    val onlineMembersCount by remember { mutableStateOf(groupsViewModel.getOnlineMembers(groupMembersInformation).toString()) }
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -157,7 +144,7 @@ fun InRoomsScreen(navController: NavHostController, groupId : String){
             .fillMaxWidth()
             .height(400.dp)) {
 
-            items(groupMembers) { friend ->
+            items(groupMembersInformation) { member ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -167,14 +154,14 @@ fun InRoomsScreen(navController: NavHostController, groupId : String){
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { navController.navigate("${AppPages.OtherUsersProfile.route}/${friend.id}") },
+                            .clickable { navController.navigate("${AppPages.OtherUsersProfile.route}/${member.id}") },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 
                         Box {
 
                             Image(
-                                rememberAsyncImagePainter(friend.image),
+                                rememberAsyncImagePainter(member.image),
                                 contentDescription = "image",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
@@ -182,7 +169,7 @@ fun InRoomsScreen(navController: NavHostController, groupId : String){
                                     .clip(shape = CircleShape)
                             )
 
-                            if (friend.isOnline) {
+                            if (member.isOnline) {
                                 Box(
                                     modifier = Modifier
                                         .size(18.dp)
@@ -197,7 +184,7 @@ fun InRoomsScreen(navController: NavHostController, groupId : String){
                                 modifier = Modifier
                                     .weight(5f)
                                     .padding(start = 16.dp),
-                                text = friend.name,
+                                text = member.name,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
@@ -207,7 +194,7 @@ fun InRoomsScreen(navController: NavHostController, groupId : String){
 
                         Spacer(Modifier.weight(1f))
 
-                        Button(onClick = { navController.navigate("${AppPages.Messaging.route}/${friend.id}") },
+                        Button(onClick = { navController.navigate("${AppPages.Messaging.route}/${member.id}") },
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.background
@@ -287,7 +274,7 @@ fun InRoomsScreen(navController: NavHostController, groupId : String){
 
                         Row(modifier = Modifier,
                             verticalAlignment = Alignment.CenterVertically) {
-                            CircledImagesRow(group.members.take(4).map { it.image })
+                            CircledImagesRow(groupMembersInformation.take(4).map { it.image })
                         } // Row
                     } // Column
             } // items
@@ -299,7 +286,5 @@ fun InRoomsScreen(navController: NavHostController, groupId : String){
 @Preview(showBackground = true)
 fun InRoomsScreenPreview(){
     Graduation1Theme(dynamicColor = true) {
-        val nav = rememberNavController()
-        InRoomsScreen(nav, "1")
     }
 }

@@ -60,6 +60,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.AppPages
+import com.example.graduation1.domain.models.BottomNavItem
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.PostViewModel
@@ -164,7 +165,7 @@ fun CreatePostScreen(navController: NavHostController, userViewModel: UserViewMo
             Button(onClick = {
                     when {
                         postText.isEmpty() || postText.isBlank() -> Toast.makeText(context, emptyPostTextMessage, Toast.LENGTH_SHORT).show()
-                        codeSnippetAdded && postCodeSnippet.isEmpty() || postCodeSnippet.isBlank() -> Toast.makeText(context, emptyCodeMessage, Toast.LENGTH_SHORT).show()
+                        codeSnippetAdded && postCodeSnippet.isEmpty() || codeSnippetAdded && postCodeSnippet.isBlank() -> Toast.makeText(context, emptyCodeMessage, Toast.LENGTH_SHORT).show()
                         selectedGroup == null -> Toast.makeText(context, emptyGroupMessage, Toast.LENGTH_SHORT).show()
 
                         selectedImageUri == null ->{
@@ -172,12 +173,14 @@ fun CreatePostScreen(navController: NavHostController, userViewModel: UserViewMo
                             groupsViewModel.updateSelectedGroup(null)
                             Toast.makeText(context, postedSuccessfullyMessage, Toast.LENGTH_SHORT).show()
                             navController.popBackStack()
+                            navController.navigate(BottomNavItem.Home.route)
                         }
                         else -> {
                             postViewModel.createPost(selectedGroup!!.id, selectedGroup!!.name, selectedGroup!!.image.toString(), selectedImageUri.toString())
                             groupsViewModel.updateSelectedGroup(null)
                             Toast.makeText(context, postedSuccessfullyMessage, Toast.LENGTH_SHORT).show()
                             navController.popBackStack()
+                            navController.navigate(BottomNavItem.Home.route)
                         }
                     }
             },

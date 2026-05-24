@@ -211,9 +211,9 @@ class MainActivity : ComponentActivity() {
             ) {
                 composable(AppPages.StartScreen.route) { StartScreen(navController) }
                 composable(AppPages.OnBoardingTabs.route) { OnBoardingTabs(navController) }
-                composable(BottomNavItem.Home.route) { HomeScreen(navController, postViewModel) }
-                composable(BottomNavItem.Chat.route) { ChatTabs(navController, chatViewModel, groupsViewModel) }
-                composable(AppPages.MyRooms.route) { MyRoomsScreen(navController, groupsViewModel) }
+                composable(BottomNavItem.Home.route) { HomeScreen(navController, postViewModel, userViewModel) }
+                composable(BottomNavItem.Chat.route) { ChatTabs(navController, chatViewModel, groupsViewModel, userViewModel) }
+                composable(AppPages.MyRooms.route) { MyRoomsScreen(navController, groupsViewModel, userViewModel) }
                 composable(AppPages.CreatePost.route) { CreatePostScreen(navController, userViewModel, postViewModel, groupsViewModel) }
                 composable(BottomNavItem.Friends.route) { FriendsScreen(navController, userViewModel) }
                 composable(AppPages.SignUp.route) { SignUpScreen(navController, authViewModel) }
@@ -221,10 +221,10 @@ class MainActivity : ComponentActivity() {
                 composable(AppPages.CreateAccount.route) { CreateAccountScreen(navController) }
                 composable("${AppPages.GroupsList.route}/{userId}", arguments = listOf(navArgument("userId") {type = NavType.StringType})){ backStack ->
                     val userId = backStack.arguments?.getString("userId")
-                    GroupsListScreen(navController, userId!!, groupsViewModel, userViewModel) }
+                    GroupsListScreen(navController, userId!!, groupsViewModel, userViewModel) {} }
                 composable("${AppPages.Post.route}/{postId}", arguments = listOf(navArgument("postId") {type = NavType.StringType})){ backStack ->
                 val postId = backStack.arguments?.getString("postId")
-                    PostScreen(navController, postId!!, postViewModel)
+                    PostScreen(navController, postId!!, postViewModel, userViewModel)
                 } // Composable
                 composable(BottomNavItem.Profile.route) { MyProfileScreen(navController) }
                 composable(AppPages.EditProfile.route) { EditProfileScreen(navController) }
@@ -233,8 +233,8 @@ class MainActivity : ComponentActivity() {
                 composable(AppPages.Notification.route) { NotificationScreen(navController) }
                 composable(AppPages.NotificationSettings.route) { NotificationSettingsScreen(navController) }
                 composable(AppPages.Settings.route) { SettingsScreen(navController) }
-                composable(AppPages.Favourite.route) { FavouriteScreen(navController, postViewModel) }
-                composable(AppPages.Saved.route) { SavedScreen(navController, postViewModel) }
+                composable(AppPages.Favourite.route) { FavouriteScreen(navController, postViewModel, userViewModel) }
+                composable(AppPages.Saved.route) { SavedScreen(navController, postViewModel, userViewModel) }
                 composable(AppPages.Language.route) { LanguageScreen(navController) }
                 composable(AppPages.Location.route) { LocationScreen(navController) }
                 composable(AppPages.Subscription.route) { SubscriptionScreen(navController) }
@@ -244,7 +244,7 @@ class MainActivity : ComponentActivity() {
                 composable(AppPages.FAQ.route) { FAQScreen(navController) }
                 composable("${ AppPages.InRooms.route }/{groupId}", arguments = listOf(navArgument("groupId") {type = NavType.StringType})){ backStack ->
                     val groupId = backStack.arguments?.getString("groupId")
-                    InRoomsScreen(navController, groupId!!) }
+                    InRoomsScreen(navController, groupId!!, groupsViewModel, userViewModel) }
                 composable(AppPages.MyProfileDetails.route) { MyProfileDetailsScreen(navController, userViewModel, postViewModel, groupsViewModel) }
                 composable("${AppPages.OtherUsersProfile.route}/{userId}", arguments = listOf(navArgument("userId") {type = NavType.StringType})){ backStack ->
                     val userId = backStack.arguments?.getString("userId")

@@ -22,6 +22,7 @@ val mahmodImage = R.drawable.mahmodai
 val followers1 = listOf("1", "2")
 val followers2 = listOf("4", "3", "1")
 val followers3 = listOf("1", "3", "5", "6")
+val allUsers = listOf("1", "2", "3", "4", "5", "6")
 
 val user = User("2", "Feras", ferasImage, "feras@gmail.com", "Android Developer", "Syria", emptyList(), followersList =  followers1, followingList =  followers3, groupsList = listOf("1", "3", "4"), gender = "Male", birthday =  "June, 04, 2004", isOnline =  true)
 val aiImage = "https://previews.123rf.com/images/rokastenys/rokastenys2212/rokastenys221200010/196063269-ai-conceptual-image-artificial-intelligence-ai-is-intelligence%C3%A2%E2%82%AC%E2%80%9Dperceiving-synthesizing-and.jpg"
@@ -61,12 +62,12 @@ val messageList2 = listOf(
 )
 
 val chatList = listOf(
-    ChatItem("1", "Sara", saraImage, "how are you doing", "9:28"),
-    ChatItem("2", "Feras", ferasImage, "how are you doing", "9:28", true, 2),
-    ChatItem("3", "Mahmod", mahmodImage, "how are you doing", "9:28", unSeenMessagesCount = 3),
-    ChatItem("4", "Ahmed", ahmedImage, "how are you doing", "9:28"),
-    ChatItem("5", "Omer", omerImage, "how are you doing", "9:28"),
-    ChatItem("6", "Seif", seifImage, "how are you doing", "9:28")
+    ChatItem("1", "1", "how are you doing", "9:28"),
+    ChatItem("2", "2", "how are you doing", "9:28", 2),
+    ChatItem("3", "3", "how are you doing", "9:28", unSeenMessagesCount = 3),
+    ChatItem("4", "4","how are you doing", "9:28"),
+    ChatItem("5",  "5","how are you doing", "9:28"),
+    ChatItem("6", "6","how are you doing", "9:28")
 )
 
 val friendsList = listOf(
@@ -79,28 +80,28 @@ val friendsList = listOf(
 )
 
 val commentsList = listOf(
-    Comment("1", "Sara", saraImage, "how are you doing", "2:11",false, 20),
-    Comment("2", "Feras", ferasImage, "i don't agree with you because this is not a good thing to say on internet, we should talk in private, i will text you there", "5:21", false, 2),
-    Comment("3", "Mahmod", mahmodImage, "i support this", "2:22", false, 1),
-    Comment("4", "Ahmed", ahmedImage, "amazing", "2:12", false),
-    Comment("5", "Omer", omerImage, "good", "9:11", false, 10),
-    Comment("6", "Seif", seifImage, "i think this is a good idea", "2:33", false, 3)
+    Comment("1", "1",  "how are you doing", "2:11",false, 20),
+    Comment("2", "2",  "i don't agree with you because this is not a good thing to say on internet, we should talk in private, i will text you there", "5:21", false, 2),
+    Comment("3", "3",  "i support this", "2:22", false, 1),
+    Comment("4", "4",  "amazing", "2:12", false),
+    Comment("5", "5",  "good", "9:11", false, 10),
+    Comment("6", "6",  "i think this is a good idea", "2:33", false, 3)
 )
 
 var postList = listOf(
-    PostData("1","1","2", "Java Bros", javaImage,"Feras", "","this is where every java developer started \uD83D\uDE02", codeSnippet = codeSnippet, likesCount = 20, commentsList = commentsList, postDate = "2:15 PM"),
-    PostData("2","2","6", "AI Professionals", aiImage,"Seif","", "AI is changing the world and every programmer on this earth want to learn about it, here you will find all you need and want", likesCount = 113, commentsList = commentsList, commentsCount = commentsList.size, postDate = "6:30 PM"),
-    PostData("3","3","1", "UI/UX", uiImage,"Sara","", "one of the biggest UI/UX community in the whole programming world", uiImage, likesCount = 10, commentsList = commentsList, commentsCount = commentsList.size, postDate = "10:23 AM"),
-    PostData("4","4","4", "Backend Teams", backendImage,"Ahmed","", "can anyone fix this code ? ", codeSnippet = codeSnippet1, likesCount = 31, commentsList = commentsList, commentsCount = commentsList.size, postDate = "1:43 AM"),
-    PostData("5","5","2", "Java Bros", javaImage,"Feras", "","i advice new developers to learn java before kotlin so they understand how old programming languages works", likesCount = 204, commentsList = commentsList, postDate = "2 days")
+    PostData("1","1","2", "Java Bros", javaImage,"this is where every java developer started \uD83D\uDE02", codeSnippet = codeSnippet, likesCount = 20, commentsList = commentsList, postDate = "2:15 PM"),
+    PostData("2","2","6", "AI Professionals", aiImage, "AI is changing the world and every programmer on this earth want to learn about it, here you will find all you need and want", likesCount = 113, commentsList = commentsList, commentsCount = commentsList.size, postDate = "6:30 PM"),
+    PostData("3","3","1", "UI/UX", uiImage, "one of the biggest UI/UX community in the whole programming world", uiImage, likesCount = 10, commentsList = commentsList, commentsCount = commentsList.size, postDate = "10:23 AM"),
+    PostData("4","4","4", "Backend Teams", backendImage, "can anyone fix this code ? ", codeSnippet = codeSnippet1, likesCount = 31, commentsList = commentsList, commentsCount = commentsList.size, postDate = "1:43 AM"),
+    PostData("5","5","2", "Java Bros", javaImage,"i advice new developers to learn java before kotlin so they understand how old programming languages works", likesCount = 204, commentsList = commentsList, postDate = "2 days")
 )
 
 val groupsList = listOf(
-    Group("1","AI", aiImage, 20, friendsList, 4),
-    Group("2","UX meet up", uiImage, 23, friendsList, 2),
-    Group("3","Java",  javaImage, 30, friendsList, 0),
-    Group("4","Backend", backendImage, 40, friendsList, 1),
-    Group("5","AI", aiImage, 3, friendsList, 5)
+    Group("1","AI", aiImage, 20, allUsers, 4),
+    Group("2","UX meet up", uiImage, 23, allUsers, 2),
+    Group("3","Java",  javaImage, 30, allUsers, 0),
+    Group("4","Backend", backendImage, 40, allUsers, 1),
+    Group("5","AI", aiImage, 3, allUsers, 5)
 )
 
 val todayNotificationList = listOf(

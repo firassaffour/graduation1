@@ -4,19 +4,15 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.graduation1.commentsList
 import com.example.graduation1.data.repository.PostRepository
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.Comment
 import com.example.graduation1.domain.models.PostData
-import com.example.graduation1.domain.models.User
 import com.example.graduation1.favouritePost
 import com.example.graduation1.postList
 import com.example.graduation1.savedPost
-import com.example.graduation1.user
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -47,6 +43,12 @@ class PostViewModel(private val postRepository: PostRepository, private val user
 
     private val _commentText = MutableStateFlow("")
     val commentText  = _commentText.asStateFlow()
+
+    private val _newCommentId = MutableStateFlow("")
+    val newCommentId  = _newCommentId.asStateFlow()
+
+    private val _newPostId = MutableStateFlow("")
+    val newPostId  = _newPostId.asStateFlow()
 
     init {
         getPosts()
@@ -116,8 +118,6 @@ class PostViewModel(private val postRepository: PostRepository, private val user
                     currentUser.id,
                     groupName,
                     groupImage,
-                    currentUser.name,
-                    currentUser.image.toString(),
                     _postText.value,
                     postImage!!,
                     _postCodeSnippet.value,
@@ -128,7 +128,8 @@ class PostViewModel(private val postRepository: PostRepository, private val user
                     emptyList()
 
                 )
-                _posts.value += post
+                _posts.value = listOf(post) + _posts.value
+                _newPostId.value = post.postId
 
                 _postText.value = ""
                 _postCodeSnippet.value = ""
@@ -152,6 +153,14 @@ class PostViewModel(private val postRepository: PostRepository, private val user
         _commentText.value = commentText
     }
 
+    fun updateNewPostId(postId: String){
+        _newPostId.value = postId
+    }
+
+    fun updateNewCommentId(commentId: String){
+        _newCommentId.value = commentId
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalUuidApi::class)
     fun createComment(postId: String){
@@ -162,8 +171,7 @@ class PostViewModel(private val postRepository: PostRepository, private val user
                 val formatted = time.format(formatter)
                 val comment = Comment(
                     Uuid.random().toString(),
-                    _currentUser.name,
-                    _currentUser.image,
+                    _currentUser.id,
                     _commentText.value,
                     formatted
                 )
@@ -174,6 +182,7 @@ class PostViewModel(private val postRepository: PostRepository, private val user
 
                     else it
                 }
+                _newCommentId.value = comment.commentId
                 _commentText.value = ""
             }
             catch (e: Exception){
@@ -206,7 +215,7 @@ class PostViewModel(private val postRepository: PostRepository, private val user
         _posts.value = _posts.value.map { post ->
             if (post.postId == postId) {
                 val updatedComment = post.commentsList.map {comment ->
-                    if (comment.id == commentId) {
+                    if (comment.commentId == commentId) {
                         if (!comment.isLiked)
                             comment.copy(likesCount = comment.likesCount + 1, isLiked = !comment.isLiked)
                         else

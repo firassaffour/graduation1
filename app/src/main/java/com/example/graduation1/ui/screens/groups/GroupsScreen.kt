@@ -32,9 +32,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
-import com.example.graduation1.groupsList
+import com.example.graduation1.friendsList
 import com.example.graduation1.todayNotificationList
-import com.example.graduation1.ui.designs.CircledImagesRow
+import com.example.graduation1.ui.components.CircledImagesRow
 import com.example.graduation1.ui.theme.Graduation1Theme
 
 
@@ -85,7 +85,7 @@ fun GroupsScreen(navController: NavHostController){
                                 .fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically) {
 
-                                CircledImagesRow(groupsList[0].members.take(4).map { it.image })
+                                CircledImagesRow(friendsList.take(4).map { it.image })
 
                                 Spacer(Modifier.weight(1f))
 

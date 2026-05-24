@@ -10,9 +10,7 @@ import com.example.graduation1.data.repository.ChatRepository
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.ChatItem
 import com.example.graduation1.domain.models.Message
-import com.example.graduation1.domain.models.User
 import com.example.graduation1.messageList2
-import com.example.graduation1.user
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -96,7 +94,7 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
                 _chatContent.value.map { message ->
                     if (!message.isSeen){
                         _chatsList.value.map {  user ->
-                            if (user.id == message.senderId) user.copy(unSeenMessagesCount = user.unSeenMessagesCount + 1)
+                            if (user.chatId == message.senderId) user.copy(unSeenMessagesCount = user.unSeenMessagesCount + 1)
 
                             else user
                         }

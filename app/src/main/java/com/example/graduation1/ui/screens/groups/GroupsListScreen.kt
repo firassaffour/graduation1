@@ -32,12 +32,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
-import com.example.graduation1.ui.designs.CircledImagesRow
+import com.example.graduation1.ui.components.CircledImagesRow
 import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
-fun GroupsListScreen(navController: NavHostController, userId : String, groupsViewModel: GroupsViewModel, userViewModel : UserViewModel){
+fun GroupsListScreen(navController: NavHostController, userId : String, groupsViewModel: GroupsViewModel, userViewModel : UserViewModel, onGroupClicked : () -> Unit){
 
     val user = userViewModel.getUserDetails(userId)
     LaunchedEffect(Unit) {
@@ -45,6 +45,8 @@ fun GroupsListScreen(navController: NavHostController, userId : String, groupsVi
     }
 
     val groupsList by groupsViewModel.currentUserGroups.collectAsState()
+
+    val userList by userViewModel.users.collectAsState()
 
 
 
@@ -84,6 +86,7 @@ fun GroupsListScreen(navController: NavHostController, userId : String, groupsVi
             .fillMaxWidth()) {
 
             items(groupsList){ group ->
+                val groupMembersInformation = userList.filter { it.id in group.members }
                 Column(modifier = Modifier
                     .fillMaxWidth()
                     .padding(14.dp)
@@ -124,7 +127,7 @@ fun GroupsListScreen(navController: NavHostController, userId : String, groupsVi
                                 .fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically) {
 
-                                CircledImagesRow(group.members.take(4).map { it.image })
+                                CircledImagesRow(groupMembersInformation.take(4).map { it.image })
 
                                 Spacer(Modifier.weight(1f))
                             } // Row

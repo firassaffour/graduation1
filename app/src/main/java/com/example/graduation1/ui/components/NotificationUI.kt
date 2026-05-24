@@ -1,4 +1,4 @@
-package com.example.graduation1.ui.designs
+package com.example.graduation1.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.Notification
-import com.example.graduation1.groupsList
+import com.example.graduation1.friendsList
 import com.example.graduation1.ui.theme.brown
 
 @Composable
@@ -70,7 +70,7 @@ fun NotificationUI(notification: Notification){
                     .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically) {
 
-                    CircledImagesRow(groupsList[0].members.take(4).map { it.image })
+                    CircledImagesRow(friendsList.take(4).map { it.image })
 
                     Spacer(Modifier.weight(1f))
 

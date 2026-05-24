@@ -30,7 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.graduation1.R
 import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.NotificationRepository
-import com.example.graduation1.ui.designs.NotificationUI
+import com.example.graduation1.ui.components.NotificationUI
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.viewmodel.NotificationViewModel
 import com.example.graduation1.viewmodel.NotificationViewModelFactory

@@ -13,11 +13,11 @@ interface ApiService {
     @GET("users")
     suspend fun getUsers() : List<User>
 
-    @GET("users/{id}")
+    @GET("users/{commentId}")
     suspend fun getUserDetails(
         @Path("id") id : String) : User
 
-    @PUT("users/{id}")
+    @PUT("users/{commentId}")
     suspend fun editUser(
         @Path("id") id : String,
         @Body user : User) : User
@@ -30,7 +30,7 @@ interface ApiService {
         @Body post : PostData
     ) : PostData
 
-    @PUT("posts/{id}")
+    @PUT("posts/{commentId}")
     suspend fun updateLike(
         @Path("id") id : String,
         @Body post: PostData) : PostData

@@ -46,14 +46,16 @@ import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.PostViewModelFactory
+import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
-fun FavouriteScreen(navController: NavHostController, postViewModel: PostViewModel){
+fun FavouriteScreen(navController: NavHostController, postViewModel: PostViewModel, userViewModel: UserViewModel){
 
     val favouritePostsList by postViewModel.favouritePosts.collectAsState()
     LaunchedEffect(Unit) {
         postViewModel.getFavouritePosts()
     }
+    val userList by userViewModel.users.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()) {
@@ -92,6 +94,8 @@ fun FavouriteScreen(navController: NavHostController, postViewModel: PostViewMod
             .weight(1f)) {
             items(favouritePostsList){ post ->
 
+                val user = userList.find { it.id == post.userId } ?: return@items
+
                 Column(
                     modifier = Modifier
                         .padding(8.dp)
@@ -125,7 +129,7 @@ fun FavouriteScreen(navController: NavHostController, postViewModel: PostViewMod
 
 
                             Text(
-                                text = post.publisherName,
+                                text = user.name,
                                 color = darkGray,
                                 fontSize = 14.sp,
                                 modifier = Modifier

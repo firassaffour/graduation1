@@ -55,41 +55,14 @@ class GroupsViewModel(private val repository: GroupsRepository) : ViewModel() {
         }
     }
 
-    fun getGroupMembers(groupId : String){
-        viewModelScope.launch {
-            try {
-                _groups.value.map {
-                    if (it.id == groupId)
-                        _members.value = it.members
-                }
-            }
-            catch (e: Exception){
-                Log.e("API", "GroupsViewModel: ${e.message}")
-            }
-        }
-    }
 
-    fun getOnlineMembers(groupId: String) : Int {
-        val onlineMemberCount = mutableIntStateOf(0)
-        viewModelScope.launch {
-            try {
-                _groups.value.map {
-                    if (it.id == groupId)
-                        it.members.forEach {
-                            if (it.isOnline) onlineMemberCount.intValue += 1
-                        }
-                }
-            }
-            catch (e: Exception){
-                Log.e("API", "GroupsViewModel: ${e.message}")
-            }
-        }
-        return onlineMemberCount.intValue
+    fun getOnlineMembers( membersList : List<User>) : Int {
+        return membersList.filter { it.isOnline }.size
     }
 
     fun getFriendsInGroup(group: Group, currentUserFollowingList : List<String>) : Int {
         return group.members.count {
-            it.id in currentUserFollowingList
+            it in currentUserFollowingList
         }
     }
 

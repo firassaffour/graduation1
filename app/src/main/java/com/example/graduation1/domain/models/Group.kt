@@ -5,6 +5,6 @@ data class Group(
     val name : String = "",
     val image : Any = "",
     val membersCount : Int = 0,
-    val members : List<User> = emptyList(),
+    val members : List<String> = emptyList(),
     var onlineMembers : Int = 0
 )
