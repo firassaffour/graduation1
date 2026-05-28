@@ -117,7 +117,7 @@ fun GroupsListScreen(navController: NavHostController, userId : String, groupsVi
                             )
 
                             Text(
-                                text = "${groupsViewModel.getFriendsInGroup(group, user.followingList)} ${stringResource(R.string.Friends)}   ${group.membersCount} ${stringResource(R.string.Members)}",
+                                text = "${groupsViewModel.getFriendsInGroup(group, user.followingList)} ${stringResource(R.string.Friends)}   ${group.members.count()} ${stringResource(R.string.Members)}",
                                 color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold

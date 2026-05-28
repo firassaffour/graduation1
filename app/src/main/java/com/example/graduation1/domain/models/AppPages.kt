@@ -30,4 +30,5 @@ sealed class AppPages(val route: String) {
     object InRooms : AppPages("inRoomsScreen")
     object GroupsList : AppPages("groupsListScreen")
     object Messaging : AppPages("messagingScreen")
+    object GroupDetails : AppPages("groupDetailsScreen")
 }

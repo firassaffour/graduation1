@@ -3,6 +3,7 @@ package com.example.graduation1.ui.screens.messaging
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -76,14 +77,19 @@ import com.example.graduation1.ui.theme.primaryRed
 import com.example.graduation1.user
 import com.example.graduation1.viewmodel.ChatViewModel
 import com.example.graduation1.viewmodel.ChatViewModelFactory
+import com.example.graduation1.viewmodel.UserViewModel
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun MessagingScreen(navController: NavHostController, user: User, chatViewModel: ChatViewModel){
+fun MessagingScreen(navController: NavHostController, chatId : String, chatViewModel: ChatViewModel, userViewModel: UserViewModel){
+    val chatList by chatViewModel.chatsList.collectAsState()
+    val chat = chatList.find { it.chatId == chatId } ?: return
+    val userList by userViewModel.users.collectAsState()
+    val user = userList.find { it.id == chat.userId } ?: return
 
     LaunchedEffect(Unit) {
         chatViewModel.getChatContent(user.id)
-        chatViewModel.updateMessagesSeen(user.id)
+        chatViewModel.updateMessagesSeen(chatId)
     }
 
     val currentUser = chatViewModel.currentUser
@@ -91,6 +97,10 @@ fun MessagingScreen(navController: NavHostController, user: User, chatViewModel:
     val chatContent by chatViewModel.chatContent.collectAsState()
     val listState = rememberLazyListState()
     var firstLoad by remember { mutableStateOf(true) }
+    LaunchedEffect(Unit) {
+        val test = chatContent.filter { it.senderId == user.id }
+        Log.d("TAG", "MessagingScreen is seen: $test")
+    }
 
     val messageText by chatViewModel.messageText.collectAsState()
 
@@ -284,7 +294,8 @@ fun MessagingScreen(navController: NavHostController, user: User, chatViewModel:
 
                                 if (message.senderId == currentUser.id)
                                 Text(
-                                    text = if (message.isSeen) "Seen" else "Sent",
+                                    text = if (message.isSeen) stringResource(R.string.Seen)
+                                    else stringResource(R.string.Sent),
                                     color = if (message.isSeen) darkGreen else Color.LightGray,
                                     fontSize = 11.sp,
                                     modifier = Modifier
@@ -380,9 +391,9 @@ fun MessagingScreen(navController: NavHostController, user: User, chatViewModel:
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             if (messageText.isNotEmpty() || imageIsSelected)
                                 if (selectedImageUri == null)
-                                    chatViewModel.sendMessage(messageText, null)
+                                    chatViewModel.sendMessage(user.id, messageText, null)
                                 else
-                                    chatViewModel.sendMessage(messageText, selectedImageUri.toString())
+                                    chatViewModel.sendMessage(user.id, messageText, selectedImageUri.toString())
                         }
                         chatViewModel.updateMessageText("")
                         selectedImageUri = null

@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.graduation1.data.repository.GroupsRepository
+import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.Group
 import com.example.graduation1.domain.models.User
 import com.example.graduation1.groupsList
@@ -15,7 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class GroupsViewModel(private val repository: GroupsRepository) : ViewModel() {
+class GroupsViewModel(private val groupsRepository: GroupsRepository, private val userRepository: UserRepository) : ViewModel() {
 
     private val _groups = MutableStateFlow<List<Group>>(emptyList())
     val groups = _groups.asStateFlow()
@@ -28,6 +29,9 @@ class GroupsViewModel(private val repository: GroupsRepository) : ViewModel() {
 
     private val _selectedGroup = MutableStateFlow<Group?>(null)
     val selectedGroup = _selectedGroup.asStateFlow()
+
+    private var _currentUser = userRepository.currentUser
+    val currentUser  = _currentUser
 
     init {
         getGroups()
@@ -68,5 +72,27 @@ class GroupsViewModel(private val repository: GroupsRepository) : ViewModel() {
 
     fun updateSelectedGroup(group: Group?){
         _selectedGroup.value = group
+    }
+
+    fun joinGroup(groupId : String, groupMembers : List<User>){
+        if (groupMembers.contains(currentUser)){
+            _currentUser.groupsList -= groupId
+
+            _groups.value = _groups.value.map {
+                if (it.id == groupId) it.copy(members = it.members - _currentUser.id)
+
+                else it
+            }
+        }
+
+        else {
+            _currentUser.groupsList += groupId
+
+            _groups.value = _groups.value.map {
+                if (it.id == groupId) it.copy(members = it.members + _currentUser.id)
+
+                else it
+            }
+        }
     }
 }

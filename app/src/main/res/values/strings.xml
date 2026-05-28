@@ -46,11 +46,15 @@
     <string name="Today">Today</string>
     <string name="ThisWeek">This Week</string>
     <string name="Join">Join</string>
+    <string name="Joined">Joined</string>
     <string name="Decline">Decline</string>
     <string name="MyRooms">My Rooms</string>
     <string name="Members">Members</string>
     <string name="InTheRoom">In The Room</string>
     <string name="Message">Message</string>
+    <string name="Image">Image</string>
+    <string name="Seen">Seen</string>
+    <string name="Sent">Sent</string>
     <string name="Followers">Followers</string>
     <string name="Following">Following</string>
     <string name="ViewAll">View All</string>

@@ -21,11 +21,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.graduation1.R
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.ChatItem
 import com.example.graduation1.ui.theme.darkGray
@@ -38,6 +41,8 @@ import com.example.graduation1.viewmodel.UserViewModel
 fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : ChatViewModel, userViewModel: UserViewModel){
     val userList by userViewModel.users.collectAsState()
     val user = userList.find { it.id == chat.userId } ?: return
+    val isSeenCount = chatViewModel.getUnSeenMessagesCount(chat.userId)
+    val lastMessage = chat.messagesList.lastOrNull()
 
     Column(
         modifier = Modifier
@@ -77,29 +82,34 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
 
             Column(
                 modifier = Modifier
+                    .weight(5f)
                     .padding(8.dp)
             ) {
                 Text(
                     text = user.name,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
-                    text = chat.lastMessageText,
+                    text = if (lastMessage!!.image != null && lastMessage.text.isEmpty()) stringResource(R.string.Image)
+                        else lastMessage.text ?: "",
                     color = darkGray,
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             } // Column
 
-            Spacer(Modifier.weight(1f))
-
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = chat.lastMessageTime,
-                    color = if (chat.unSeenMessagesCount == 0) MaterialTheme.colorScheme.onBackground
+                    text = lastMessage?.date ?: "",
+                    color = if (isSeenCount == 0) MaterialTheme.colorScheme.onBackground
                     else primaryRed,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
@@ -108,7 +118,7 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
 
                 Spacer(Modifier.height(10.dp))
 
-                if (chat.unSeenMessagesCount != 0) {
+                if (isSeenCount != 0) {
                     Box(
                         modifier = Modifier
                             .size(22.dp)
@@ -117,15 +127,15 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
                         contentAlignment = Alignment.Center
                     ){
                         Text(
-                            text = if (chat.unSeenMessagesCount >= 100) "+99"
-                            else chat.unSeenMessagesCount.toString(),
+                            text = if (isSeenCount >= 100) "+99"
+                            else isSeenCount.toString(),
                             color = MaterialTheme.colorScheme.background,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             lineHeight = 1.sp
                         )
                     }
-                }
+                } // if
             } // Column
         } // Row
     } // Column

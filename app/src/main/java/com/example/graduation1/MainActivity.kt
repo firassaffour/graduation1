@@ -61,6 +61,7 @@ import com.example.graduation1.ui.screens.settings.NotificationSettingsScreen
 import com.example.graduation1.ui.screens.profiles.OtherUsersProfileScreen
 import com.example.graduation1.ui.screens.settings.SettingsScreen
 import com.example.graduation1.ui.screens.authentication.StartScreen
+import com.example.graduation1.ui.screens.groups.GroupDetailsScreen
 import com.example.graduation1.ui.screens.groups.GroupsListScreen
 import com.example.graduation1.ui.screens.home.PostScreen
 import com.example.graduation1.ui.screens.settings.AboutApplicationScreen
@@ -156,7 +157,7 @@ class MainActivity : ComponentActivity() {
         )
 
         val groupsViewModel : GroupsViewModel = viewModel(
-            factory = GroupsViewModelFactory(AppModule.groupsRepository)
+            factory = GroupsViewModelFactory(AppModule.groupsRepository, AppModule.userRepository)
         )
 
         val authViewModel : AuthViewModel = viewModel(
@@ -211,7 +212,7 @@ class MainActivity : ComponentActivity() {
             ) {
                 composable(AppPages.StartScreen.route) { StartScreen(navController) }
                 composable(AppPages.OnBoardingTabs.route) { OnBoardingTabs(navController) }
-                composable(BottomNavItem.Home.route) { HomeScreen(navController, postViewModel, userViewModel) }
+                composable(BottomNavItem.Home.route) { HomeScreen(navController, postViewModel, userViewModel, notificationViewModel) }
                 composable(BottomNavItem.Chat.route) { ChatTabs(navController, chatViewModel, groupsViewModel, userViewModel) }
                 composable(AppPages.MyRooms.route) { MyRoomsScreen(navController, groupsViewModel, userViewModel) }
                 composable(AppPages.CreatePost.route) { CreatePostScreen(navController, userViewModel, postViewModel, groupsViewModel) }
@@ -230,7 +231,7 @@ class MainActivity : ComponentActivity() {
                 composable(AppPages.EditProfile.route) { EditProfileScreen(navController) }
                 composable(AppPages.ChatbotStart.route) { ChatbotStartScreen(navController) }
                 composable(AppPages.Chatbot.route) { ChatbotScreen(navController, chatbotViewModel) }
-                composable(AppPages.Notification.route) { NotificationScreen(navController) }
+                composable(AppPages.Notification.route) { NotificationScreen(navController, notificationViewModel) }
                 composable(AppPages.NotificationSettings.route) { NotificationSettingsScreen(navController) }
                 composable(AppPages.Settings.route) { SettingsScreen(navController) }
                 composable(AppPages.Favourite.route) { FavouriteScreen(navController, postViewModel, userViewModel) }
@@ -250,10 +251,13 @@ class MainActivity : ComponentActivity() {
                     val userId = backStack.arguments?.getString("userId")
                     OtherUsersProfileScreen(navController, userId!!, userViewModel, postViewModel, groupsViewModel)
                 } // Composable
-                composable("${AppPages.Messaging.route}/{userId}", arguments = listOf(navArgument("userId") {type = NavType.StringType})){ backStack ->
-                    val userId = backStack.arguments?.getString("userId")
-                    val user = friendsList.first {it.id == userId}
-                    MessagingScreen(navController, user, chatViewModel)
+                composable("${AppPages.Messaging.route}/{chatId}", arguments = listOf(navArgument("chatId") {type = NavType.StringType})){ backStack ->
+                    val chatId = backStack.arguments?.getString("chatId")
+                    MessagingScreen(navController, chatId!!, chatViewModel, userViewModel)
+                } // Composable
+                composable("${AppPages.GroupDetails.route}/{groupId}", arguments = listOf(navArgument("groupId") {type = NavType.StringType})){ backStack ->
+                    val groupId = backStack.arguments?.getString("groupId")
+                    GroupDetailsScreen(navController, groupId!!,groupsViewModel, postViewModel, userViewModel)
                 } // Composable
             }
         }

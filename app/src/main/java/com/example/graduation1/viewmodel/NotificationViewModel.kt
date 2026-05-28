@@ -13,10 +13,10 @@ import kotlinx.coroutines.launch
 
 class NotificationViewModel(private val repository: NotificationRepository) : ViewModel() {
 
-    val _todayNotifications = MutableStateFlow<List<Notification>>(emptyList())
+    private val _todayNotifications = MutableStateFlow<List<Notification>>(emptyList())
     val todayNotifications = _todayNotifications.asStateFlow()
 
-    val _lastWeekNotifications = MutableStateFlow<List<Notification>>(emptyList())
+    private val _lastWeekNotifications = MutableStateFlow<List<Notification>>(emptyList())
     val lastWeekNotifications = _lastWeekNotifications.asStateFlow()
 
     init {
@@ -34,5 +34,9 @@ class NotificationViewModel(private val repository: NotificationRepository) : Vi
                 Log.e("API", "NotificationViewModel: ${e.message}")
             }
         }
+    }
+
+    fun getNotificationCount() : Int{
+        return _todayNotifications.value.count() + _lastWeekNotifications.value.count()
     }
 }

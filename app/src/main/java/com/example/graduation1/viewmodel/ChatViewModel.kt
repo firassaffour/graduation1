@@ -36,13 +36,17 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
 
     init {
         getChats()
-        getUnSeenMessagesCount()
     }
 
-    fun getChatContent(userId: String){
+    fun getChatContent(chatId: String){
         viewModelScope.launch {
             try {
-                _chatContent.value = messageList2
+                _chatsList.value.map {
+                    if (it.chatId == chatId)
+                        _chatContent.value = it.messagesList
+
+                    else it
+                }
             }
             catch (e: Exception){
                 Log.e("API", "ChatViewModel: ${e.message}")
@@ -67,7 +71,7 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
 
      @OptIn(ExperimentalUuidApi::class)
      @RequiresApi(Build.VERSION_CODES.O)
-     fun sendMessage(messageText: String, image: String?){
+     fun sendMessage(chatId : String ,messageText: String, image: String?){
         viewModelScope.launch {
             try {
                 val time = LocalDateTime.now()
@@ -80,28 +84,12 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
                     formatted,
                     image
                     )
-                _chatContent.value = _chatContent.value + message
-            }
-            catch (e: Exception){
-                Log.e("API", "ChatViewModel: ${e.message}")
-            }
-        }
-    }
-
-    fun getUnSeenMessagesCount(){
-        viewModelScope.launch {
-            try {
-                _chatContent.value.map { message ->
-                    if (!message.isSeen){
-                        _chatsList.value.map {  user ->
-                            if (user.chatId == message.senderId) user.copy(unSeenMessagesCount = user.unSeenMessagesCount + 1)
-
-                            else user
-                        }
-                    }
-
-                    else message
+                _chatsList.value = _chatsList.value.map { chat ->
+                    if (chat.chatId == chatId)
+                        chat.copy(messagesList = chat.messagesList + message)
+                    else chat
                 }
+                _chatContent.value = _chatsList.value.first { it.chatId == chatId }.messagesList
             }
             catch (e: Exception){
                 Log.e("API", "ChatViewModel: ${e.message}")
@@ -109,14 +97,23 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
         }
     }
 
-    fun updateMessagesSeen(userId : String){
+    fun getUnSeenMessagesCount(chatId : String) : Int{
+        val chat = _chatsList.value.find { it.chatId ==  chatId}
+        return chat?.messagesList?.count { it.senderId != currentUser.id && !it.isSeen } ?: 0
+    }
+
+    fun updateMessagesSeen(chatId: String){
         viewModelScope.launch {
             try {
-                _chatContent.value.map {
-                    if (it.senderId == userId)
-                        it.copy(isSeen = true)
-
-                    else it
+                _chatsList.value = _chatsList.value.map { chat ->
+                    if (chat.chatId == chatId){
+                        chat.copy(messagesList = chat.messagesList.map { message ->
+                            if (message.senderId != currentUser.id)
+                                message.copy(isSeen = true)
+                            else message
+                        })
+                    }
+                    else chat
                 }
             }
             catch (e: Exception){

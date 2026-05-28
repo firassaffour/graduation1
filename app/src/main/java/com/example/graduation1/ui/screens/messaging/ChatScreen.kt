@@ -26,7 +26,7 @@ fun ChatScreen(navController: NavHostController, chatViewModel: ChatViewModel, u
 
         LazyColumn(modifier = Modifier
             .fillMaxWidth()) {
-            items(chatsList){ chat ->
+            items(chatsList, key = {it.chatId}){ chat ->
                ChatUI(navController, chat, chatViewModel, userViewModel)
             } // items
         } // LazyColumn

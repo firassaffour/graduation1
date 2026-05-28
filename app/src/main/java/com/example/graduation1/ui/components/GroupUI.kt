@@ -69,7 +69,7 @@ fun GroupUI(navController: NavHostController, room: Group, groupsViewModel: Grou
         )
 
         Text(
-            text = "${room.membersCount} ${stringResource(R.string.Members)}",
+            text = "${room.members.count()} ${stringResource(R.string.Members)}",
             color = gray,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold

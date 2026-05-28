@@ -37,14 +37,10 @@ import com.example.graduation1.viewmodel.NotificationViewModelFactory
 
 
 @Composable
-fun NotificationScreen(navController: NavHostController){
+fun NotificationScreen(navController: NavHostController, notificationViewModel: NotificationViewModel){
 
-    val viewModel : NotificationViewModel = viewModel(
-        factory = NotificationViewModelFactory(NotificationRepository(RetrofitInstance.api))
-    )
-
-    val todayNotifications by viewModel.todayNotifications.collectAsState()
-    val lastWeekNotification by viewModel.lastWeekNotifications.collectAsState()
+    val todayNotifications by notificationViewModel.todayNotifications.collectAsState()
+    val lastWeekNotification by notificationViewModel.lastWeekNotifications.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -117,6 +113,5 @@ fun NotificationScreen(navController: NavHostController){
 fun NotificationScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
         val nav = rememberNavController()
-        NotificationScreen(nav)
     }
 }

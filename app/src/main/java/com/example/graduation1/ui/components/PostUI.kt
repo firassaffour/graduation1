@@ -54,7 +54,7 @@ import com.example.graduation1.viewmodel.UserViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, postViewModel: PostViewModel, userViewModel: UserViewModel, onPostClicked : () -> Unit, onCommentClicked : () -> Unit){
+fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, postViewModel: PostViewModel, userViewModel: UserViewModel, onPostClicked : () -> Unit, onCommentClicked : () -> Unit, onGroupClicked : () -> Unit){
 
     val userList by userViewModel.users.collectAsState()
     val user = userList.find { it.id == post.userId } ?: return
@@ -80,7 +80,7 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
         modifier = Modifier
             .background(backgroundColor)
             .padding(8.dp)
-            .clickable {onPostClicked()},
+            .clickable { onPostClicked() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -95,6 +95,7 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
                 modifier = Modifier
                     .size(50.dp)
                     .clip(shape = CircleShape)
+                    .clickable { onGroupClicked() }
             )
 
             Spacer(Modifier.width(10.dp))
@@ -103,7 +104,9 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
                 Text(
                     text = post.groupName,
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .clickable { onGroupClicked() }
                 )
 
 

@@ -266,7 +266,7 @@ fun InRoomsScreen(navController: NavHostController, groupId : String, groupsView
                         )
 
                         Text(
-                            text = "${group.membersCount} ${stringResource(R.string.Members)}",
+                            text = "${group.members.count()} ${stringResource(R.string.Members)}",
                             color = gray,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold

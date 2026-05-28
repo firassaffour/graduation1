@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.graduation1.R
+import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.language
 import com.example.graduation1.ui.components.CommentUI
 import com.example.graduation1.ui.components.PostUI
@@ -103,7 +104,8 @@ fun PostScreen(navController: NavHostController, postId: String, postViewModel: 
             item {
                 PostUI(navController, post, post.postId == newPostId, postViewModel, userViewModel,
                     onPostClicked = {},
-                    onCommentClicked = {})
+                    onCommentClicked = {},
+                    onGroupClicked = {navController.navigate("${AppPages.GroupDetails.route}/${post.groupId}")})
                 Spacer(Modifier.height(10.dp))
             } // item
             items(commentList, key = {it.commentId}){ comment ->

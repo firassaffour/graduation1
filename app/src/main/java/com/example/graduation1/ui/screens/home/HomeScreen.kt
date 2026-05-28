@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -40,6 +41,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +56,7 @@ import com.example.graduation1.selectedPostPage
 import com.example.graduation1.ui.components.PostUI
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.primaryRed
+import com.example.graduation1.viewmodel.NotificationViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
@@ -61,7 +64,7 @@ import com.example.graduation1.viewmodel.UserViewModel
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel, userViewModel: UserViewModel){
+fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel, userViewModel: UserViewModel, notificationViewModel: NotificationViewModel){
 
     val postsList by postViewModel.posts.collectAsState()
     val newPostId by postViewModel.newPostId.collectAsState()
@@ -75,6 +78,8 @@ fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel, u
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedPost by remember { mutableStateOf<PostData?>(null) }
+
+    val notificationCount = notificationViewModel.getNotificationCount()
 
     val listState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
     LaunchedEffect(newPostId) {
@@ -117,13 +122,35 @@ fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel, u
 
                     Spacer(Modifier.weight(1f))
 
-                    IconButton(onClick = { navController.navigate(AppPages.Notification.route) }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.notification),
-                            contentDescription = "notification",
-                            tint = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.size(25.dp)
-                        )
+                    Box {
+                        IconButton(onClick = { navController.navigate(AppPages.Notification.route) }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.notification),
+                                contentDescription = "notification",
+                                tint = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.size(25.dp)
+                            )
+                        }
+
+                        if (notificationCount != 0) {
+                            Box(
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .align(Alignment.BottomEnd)
+                                    .clip(CircleShape)
+                                    .background(primaryRed),
+                                contentAlignment = Alignment.Center
+                            ){
+                                Text(
+                                    text = if (notificationCount >= 100) "+99"
+                                    else notificationCount.toString(),
+                                    color = MaterialTheme.colorScheme.background,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    lineHeight = 1.sp
+                                )
+                            }
+                        } // if
                     }
 
                     IconButton(onClick = { navController.navigate(AppPages.MyRooms.route) }) {
@@ -187,6 +214,9 @@ fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel, u
                         onCommentClicked = {
                             selectedPost = post
                             showBottomSheet = true
+                        },
+                        onGroupClicked = {
+                            navController.navigate("${AppPages.GroupDetails.route}/${post.groupId}")
                         })
                 } // items
             } // LazyColumn
