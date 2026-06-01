@@ -44,10 +44,10 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 _users.value = friendsList
-                Log.d("TAG", "loadUsers: $users")
+                Log.d("userViewModel", "loadUsers: $users")
             }
             catch (e: Exception){
-                Log.e("API", "loadUsers: ${e.message}")
+                Log.e("userViewModel", "loadUsers: ${e.message}")
             }
         }
     }
@@ -55,10 +55,10 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     private fun getCurrentUser(){
         viewModelScope.launch {
             try {
-                Log.d("TAG", "loadUsers: $users")
+                Log.d("userViewModel", "loadUsers: $users")
             }
             catch (e: Exception){
-                Log.e("API", "loadUsers: ${e.message}")
+                Log.e("userViewModel", "loadUsers: ${e.message}")
             }
         }
     }
@@ -67,10 +67,10 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 _followers.value = _users.value.filter { it.id in followersList }
-                Log.d("TAG", "loadUsers: $users")
             }
             catch (e: Exception){
-                Log.e("API", "loadUsers: ${e.message}")
+                Log.d("userViewModel", "loadUsers: $users")
+                Log.e("userViewModel", "loadUsers: ${e.message}")
             }
         }
     }
@@ -79,10 +79,10 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 _following.value = _users.value.filter { it.id in followingList }
-                Log.d("TAG", "loadUsers: $users")
+                Log.d("userViewModel", "loadUsers: $users")
             }
             catch (e: Exception){
-                Log.e("API", "loadUsers: ${e.message}")
+                Log.e("userViewModel", "loadUsers: ${e.message}")
             }
         }
     }
@@ -97,7 +97,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
                 userRepository.editUser(id, user)
             }
             catch (e: Exception){
-                Log.e("API", "friendsViewModel: ${e.message}")
+                Log.e("userViewModel", "friendsViewModel: ${e.message}")
             }
         }
     }
@@ -124,7 +124,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
                 )
             }
             catch (e: Exception){
-                Log.e("API", "friendsViewModel: ${e.message}")
+                Log.e("userViewModel", "friendsViewModel: ${e.message}")
             }
         }
     }

@@ -23,6 +23,7 @@
     <string name="Login">تسجيل دخول</string>
     <string name="Search">بحث</string>
     <string name="Comments">التعليقات</string>
+    <string name="Comment">تقليق</string>
     <string name="Friends">الأصدقاء</string>
     <string name="Follow">متابعة</string>
     <string name="UnFollow">إلغاء المتابعة</string>

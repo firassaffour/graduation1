@@ -103,7 +103,7 @@ fun CommentUI(navController : NavHostController, comment: Comment, isNew : Boole
             Spacer(Modifier.width(10.dp))
 
             Text(
-                text = comment.date,
+                text = postViewModel.getTimeAgo(comment.createdAt),
                 color = darkGray,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold

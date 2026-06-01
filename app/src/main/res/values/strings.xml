@@ -23,6 +23,7 @@
     <string name="Login"> Log In</string>
     <string name="Search">Search</string>
     <string name="Comments">Comments</string>
+    <string name="Comment">Comment</string>
     <string name="Friends">Friends</string>
     <string name="Follow">Follow</string>
     <string name="UnFollow">unfollow</string>

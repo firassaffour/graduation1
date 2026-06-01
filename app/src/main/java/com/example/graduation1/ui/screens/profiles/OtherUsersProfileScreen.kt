@@ -439,6 +439,7 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String, u
                         modifier = Modifier
                             .size(90.dp)
                             .clip(shape = CircleShape)
+                            .clickable { navController.navigate("${AppPages.GroupDetails.route}/${group.id}") }
                     )
                 }
             } // items

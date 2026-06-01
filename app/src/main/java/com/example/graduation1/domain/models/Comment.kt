@@ -4,7 +4,7 @@ data class Comment (
     val commentId : String = "",
     val userId : String = "",
     val text : String = "",
-    val date : String = "",
+    val createdAt : Long = 0,
     var isLiked : Boolean = false,
     val likesCount : Int = 0
 )

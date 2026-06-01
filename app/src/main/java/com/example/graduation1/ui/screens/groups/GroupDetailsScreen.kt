@@ -114,7 +114,7 @@ fun GroupDetailsScreen(navController: NavHostController, groupId : String, group
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    Column() {
+                    Column(Modifier.padding(start = 16.dp)) {
                         Text(
                             text = group.name,
                             color = MaterialTheme.colorScheme.onBackground,
@@ -134,7 +134,7 @@ fun GroupDetailsScreen(navController: NavHostController, groupId : String, group
 
                 Button(
                     onClick = {
-                        groupsViewModel.joinGroup(groupId, groupMembers)
+                        groupsViewModel.joinGroup(groupId)
                     },
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -153,6 +153,7 @@ fun GroupDetailsScreen(navController: NavHostController, groupId : String, group
                         fontSize = 18.sp
                     )
                 }
+                Spacer(Modifier.height(20.dp))
             } // item
 
             items(groupPosts,

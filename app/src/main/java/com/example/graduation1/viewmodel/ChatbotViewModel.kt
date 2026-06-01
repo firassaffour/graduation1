@@ -41,14 +41,12 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
     fun sendMessage(messageText: String, image: String?){
         viewModelScope.launch {
             try {
-                val time = LocalDateTime.now()
-                val formatter = DateTimeFormatter.ofPattern("hh:mm")
-                val formatted = time.format(formatter)
+                val createdAt = System.currentTimeMillis()
                 val message = Message(
                     Uuid.random().toString(),
                     messageText,
                     currentUser.id,
-                    formatted,
+                    createdAt,
                     image
                 )
                 _chatContent.value = _chatContent.value + message

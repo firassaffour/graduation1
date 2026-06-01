@@ -58,6 +58,7 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
 
     val userList by userViewModel.users.collectAsState()
     val user = userList.find { it.id == post.userId } ?: return
+    val currentUser = userViewModel.currentUser
 
     val clipboard = LocalClipboardManager.current
 
@@ -132,7 +133,7 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
                 }
 
                 Text(
-                    text = post.postDate,
+                    text = postViewModel.getTimeAgo(post.createdAt),
                     color = darkGray,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
@@ -216,16 +217,16 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { postViewModel.toggleLike(post.postId) }) {
                     Icon(
-                        painter = if (!post.isLiked) painterResource(id = R.drawable.heart2)
+                        painter = if (!post.likesCount.contains(currentUser.id)) painterResource(id = R.drawable.heart2)
                         else painterResource(id = R.drawable.heart2red),
                         contentDescription = "heart",
-                        tint = if (darkMode && !post.isLiked) Color.White else Color.Unspecified,
+                        tint = if (darkMode && !post.likesCount.contains(currentUser.id)) Color.White else Color.Unspecified,
                         modifier = Modifier.size(26.dp)
                     )
                 }
 
                 Text(
-                    text = post.likesCount.toString(),
+                    text = post.likesCount.count().toString(),
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,

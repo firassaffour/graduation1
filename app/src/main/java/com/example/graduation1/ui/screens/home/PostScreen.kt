@@ -121,7 +121,7 @@ fun PostScreen(navController: NavHostController, postId: String, postViewModel: 
             OutlinedTextField(
                 value = commentText,
                 onValueChange = { postViewModel.updateCommentText(it) },
-                placeholder = { Text(stringResource(R.string.Message), maxLines = 1, fontSize = 18.sp) },
+                placeholder = { Text(stringResource(R.string.Comment), maxLines = 1, fontSize = 18.sp) },
                 shape = RoundedCornerShape(30.dp),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.surface,

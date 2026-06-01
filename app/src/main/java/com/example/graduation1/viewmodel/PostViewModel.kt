@@ -11,6 +11,7 @@ import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.Comment
 import com.example.graduation1.domain.models.PostData
 import com.example.graduation1.favouritePost
+import com.example.graduation1.language
 import com.example.graduation1.postList
 import com.example.graduation1.savedPost
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -109,9 +110,6 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     fun createPost(groupId : String, groupName : String, groupImage : String , postImage : String?){
         viewModelScope.launch {
             try {
-                val time = LocalDateTime.now()
-                val formatter = DateTimeFormatter.ofPattern("hh:mm")
-                val formatted = time.format(formatter)
                 val post = PostData(
                     Uuid.random().toString(),
                     groupId,
@@ -121,11 +119,10 @@ class PostViewModel(private val postRepository: PostRepository, private val user
                     _postText.value,
                     postImage!!,
                     _postCodeSnippet.value,
-                    formatted,
+                    System.currentTimeMillis(),
+                    emptyList(),
                     false,
-                    false,
-                    0,
-                    emptyList()
+                    emptyList(),
 
                 )
                 _posts.value = listOf(post) + _posts.value
@@ -138,6 +135,28 @@ class PostViewModel(private val postRepository: PostRepository, private val user
             catch (e: Exception){
                 Log.e("API", "postViewModel create post: ${e.message}")
             }
+        }
+    }
+
+    fun getTimeAgo(createdAt : Long) : String{
+        val diff = System.currentTimeMillis() - createdAt
+
+        val seconds = diff / 1000
+        val minutes = diff / (1000 * 60)
+        val hours = diff / (1000 * 60 * 60)
+        val days = diff / (1000 * 60 * 60 * 24)
+
+        val secondsText = if (language == "en") "now" else "الأن"
+        val minutesText = if (language == "en") "$minutes minutes" else "$minutes دقيقة "
+        val hoursText = if (language == "en") "$hours hours" else "$hours ساعة "
+        val daysText = if (language == "en") "$days days" else "$days يوم "
+
+        return when{
+            seconds < 60 -> secondsText
+            minutes < 60 -> minutesText
+            hours < 24 -> hoursText
+            days < 7 -> daysText
+            else -> daysText
         }
     }
 
@@ -166,14 +185,11 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     fun createComment(postId: String){
         viewModelScope.launch {
             try {
-                val time = LocalDateTime.now()
-                val formatter = DateTimeFormatter.ofPattern("hh:mm")
-                val formatted = time.format(formatter)
                 val comment = Comment(
                     Uuid.random().toString(),
                     _currentUser.id,
                     _commentText.value,
-                    formatted
+                    System.currentTimeMillis()
                 )
 
                 _posts.value = _posts.value.map {
@@ -194,10 +210,10 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     fun toggleLike(postId: String){
         _posts.value = _posts.value.map {
             if (it.postId == postId)
-                if (!it.isLiked)
-                    it.copy(likesCount = it.likesCount + 1, isLiked = !it.isLiked)
+                if (!it.likesCount.contains(_currentUser.id))
+                    it.copy(likesCount = it.likesCount + _currentUser.id)
                 else
-                    it.copy(likesCount = it.likesCount - 1, isLiked = !it.isLiked)
+                    it.copy(likesCount = it.likesCount - _currentUser.id)
             else it
         }
     }

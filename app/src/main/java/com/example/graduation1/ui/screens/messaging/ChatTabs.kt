@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,8 +22,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -52,68 +56,43 @@ fun ChatTabs(navController: NavHostController, chatViewModel: ChatViewModel, gro
         stringResource(R.string.Contacts))
     var selectedTab by rememberSaveable { mutableStateOf(0) }
 
+    val chatSearchQuery by chatViewModel.chatSearchQuery.collectAsState()
+
     Column(modifier = Modifier.padding(8.dp)) {
 
         when (selectedTab){
             0 -> {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Hello,",
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-
-                    )
-
-                    Spacer(Modifier.weight(1f))
-
-                    Card(shape = CircleShape,
-                        border = BorderStroke(1.dp, Color.Black,),
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .height(40.dp)
-                    ) {
-                        IconButton(
-                            modifier = Modifier.background(MaterialTheme.colorScheme.surface),
-                            onClick = {}) {
+                Row {
+                    OutlinedTextField(
+                        value = chatSearchQuery,
+                        onValueChange = { chatViewModel.updateChatSearchQuery(it) },
+                        placeholder = {
+                            Text(
+                                stringResource(R.string.Search),
+                                maxLines = 1,
+                                fontSize = 16.sp
+                            )
+                        },
+                        leadingIcon = {
                             Icon(
-                                painter = painterResource(id = R.drawable.search),
+                                painterResource(id = R.drawable.search),
                                 contentDescription = "search",
                                 tint = MaterialTheme.colorScheme.onBackground,
                                 modifier = Modifier
-                                    .size(23.dp)
+                                    .size(20.dp)
                             )
-                        }
-                    } // Card
-
-                    Spacer(Modifier.width(10.dp))
-
-                    Card(shape = CircleShape,
-                        border = BorderStroke(1.dp, Color.Black,),
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.background,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.background
+                        ),
                         modifier = Modifier
-                            .wrapContentWidth()
-                            .height(40.dp)
-                    ) {
-                        IconButton(
-                            modifier = Modifier.background(MaterialTheme.colorScheme.surface),
-                            onClick = {}) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.menudots),
-                                contentDescription = "menu",
-                                tint = MaterialTheme.colorScheme.onBackground,
-                                modifier = Modifier
-                                    .size(23.dp)
-                            )
-                        }
-                    } // Card
+                            .weight(1f)
+                            .wrapContentHeight()
+                            .padding(16.dp)
+                    )
                 } // Row
-
-                Spacer(Modifier.height(10.dp))
             }
             1 -> {
                 Button(onClick = {},

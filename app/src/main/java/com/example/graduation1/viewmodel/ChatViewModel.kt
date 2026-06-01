@@ -10,12 +10,14 @@ import com.example.graduation1.data.repository.ChatRepository
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.ChatItem
 import com.example.graduation1.domain.models.Message
-import com.example.graduation1.messageList2
+import com.example.graduation1.language
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import java.time.Instant
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -33,6 +35,9 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
 
     private val _currentUser = userRepository.currentUser
     val currentUser  = _currentUser
+
+    private val _chatSearchQuery = MutableStateFlow<String>("")
+    val chatSearchQuery = _chatSearchQuery.asStateFlow()
 
     init {
         getChats()
@@ -69,19 +74,21 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
         _messageText.value = messageText
     }
 
+    fun updateChatSearchQuery(query : String){
+        _chatSearchQuery.value = query
+    }
+
      @OptIn(ExperimentalUuidApi::class)
      @RequiresApi(Build.VERSION_CODES.O)
      fun sendMessage(chatId : String ,messageText: String, image: String?){
         viewModelScope.launch {
             try {
-                val time = LocalDateTime.now()
-                val formatter = DateTimeFormatter.ofPattern("hh:mm")
-                val formatted = time.format(formatter)
+                val createdAt = System.currentTimeMillis()
                 val message = Message(
                     Uuid.random().toString(),
                     messageText,
                     _currentUser.id,
-                    formatted,
+                    createdAt,
                     image
                     )
                 _chatsList.value = _chatsList.value.map { chat ->
@@ -95,6 +102,19 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
                 Log.e("API", "ChatViewModel: ${e.message}")
             }
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getMessageTime(createdAt : Long) : String{
+        val locale = if (language == "en") Locale.ENGLISH else Locale("ar")
+        val formatter = DateTimeFormatter.ofPattern("hh:mm a", locale)
+
+        val dateTime = Instant.ofEpochMilli(createdAt)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime()
+
+        return dateTime.format(formatter)
+
     }
 
     fun getUnSeenMessagesCount(chatId : String) : Int{

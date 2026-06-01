@@ -47,18 +47,18 @@ val codeSnippet1 = """
 
 
 val messageList = listOf(
-    Message("1", "hey there", "2", "2:10"),
-    Message("2", "hey, i'm navigator, what should  call you ?", "AI", "2:11"),
-    Message("3", "Feras", "2", "2:11"),
-    Message("4", "nice to meet you Feras", "AI", "2:12"),
+    Message("1", "hey there", "2", 1780345172462),
+    Message("2", "hey, i'm navigator, what should  call you ?", "AI", 1780345172462),
+    Message("3", "Feras", "2", 1780345172462),
+    Message("4", "nice to meet you Feras", "AI", 1780345172462),
 )
 
 val messageList2 = listOf(
-    Message("1", "hey there", "2", "2:10", isSeen = true),
-    Message("2", "hey how you doing ?", "AI", "2:11"),
-    Message("3", "fine, and you", "2", "2:11", isSeen = true),
-    Message("4", "fine thank you", "AI", "2:12"),
-    Message("5", "look at this image i found on internet", "AI", "2:13", javaImage),
+    Message("1", "hey there", "2", 1780345172462, isSeen = true),
+    Message("2", "hey how you doing ?", "AI", 1780345172462),
+    Message("3", "fine, and you", "2", 1780345172462, isSeen = true),
+    Message("4", "fine thank you", "AI", 1780345172462),
+    Message("5", "look at this image i found on internet", "AI", 1780345172462, javaImage),
 )
 
 val chatList = listOf(
@@ -72,7 +72,7 @@ val chatList = listOf(
 
 val friendsList = listOf(
     User("1", "Sara", saraImage, "sara@gmail.com", "UI/UX", "Egypt", followersList =   followers1, followingList =  followers2, groupsList = listOf("2","3"), gender =  "Female", birthday = "June, 17, 2004"),
-    User("2", "Feras", ferasImage, "feras@gmail.com", "Android Developer", "Syria", followersList =  followers2, followingList =  followers3, groupsList = listOf("2","3","1"), gender = "Male", birthday ="June, 4, 2004", isOnline = true),
+    User("2", "Feras", ferasImage, "feras@gmail.com", "Android Developer", "Syria", followersList =  followers2, followingList =  followers3, groupsList = listOf("1","3","4"), gender = "Male", birthday ="June, 4, 2004", isOnline = true),
     User("3", "Mahmod", mahmodImage, "mohammed@gmail.com", "Backend Engineer", "Egypt", followersList =  followers3, followingList =  followers1, groupsList = listOf("2","1"), gender =  "Male", birthday =  "June, 17, 2004"),
     User("4", "Ahmed", ahmedImage, "ahmed@gmail.com", "Backend Engineer", "Egypt", followersList =  followers2, followingList =  followers3, groupsList = listOf("5","3"), gender =  "Male", birthday =  "June, 17, 2004"),
     User("5", "Omer", omerImage, "omer@gmail.com", "AI Trainer", "Egypt", followersList =  followers1, followingList =  followers3, groupsList = listOf("2","1","5"), gender =  "Male", birthday =  "June, 17, 2004"),
@@ -80,20 +80,20 @@ val friendsList = listOf(
 )
 
 val commentsList = listOf(
-    Comment("1", "1",  "how are you doing", "2:11",false, 20),
-    Comment("2", "2",  "i don't agree with you because this is not a good thing to say on internet, we should talk in private, i will text you there", "5:21", false, 2),
-    Comment("3", "3",  "i support this", "2:22", false, 1),
-    Comment("4", "4",  "amazing", "2:12", false),
-    Comment("5", "5",  "good", "9:11", false, 10),
-    Comment("6", "6",  "i think this is a good idea", "2:33", false, 3)
+    Comment("1", "1",  "how are you doing", 23414,false, 20),
+    Comment("2", "2",  "i don't agree with you because this is not a good thing to say on internet, we should talk in private, i will text you there", 234421342, false, 2),
+    Comment("3", "3",  "i support this", 2341424, false, 1),
+    Comment("4", "4",  "amazing", 2343142, false),
+    Comment("5", "5",  "good", 23412334, false, 10),
+    Comment("6", "6",  "i think this is a good idea", 2421412424, false, 3)
 )
 
 var postList = listOf(
-    PostData("1","3","2", "Java Bros", javaImage,"this is where every java developer started \uD83D\uDE02", codeSnippet = codeSnippet, likesCount = 20, commentsList = commentsList, postDate = "2:15 PM"),
-    PostData("2","5","6", "AI Professionals", aiImage, "AI is changing the world and every programmer on this earth want to learn about it, here you will find all you need and want", likesCount = 113, commentsList = commentsList, commentsCount = commentsList.size, postDate = "6:30 PM"),
-    PostData("3","2","1", "UI/UX", uiImage, "one of the biggest UI/UX community in the whole programming world", uiImage, likesCount = 10, commentsList = commentsList, commentsCount = commentsList.size, postDate = "10:23 AM"),
-    PostData("4","4","4", "Backend Teams", backendImage, "can anyone fix this code ? ", codeSnippet = codeSnippet1, likesCount = 31, commentsList = commentsList, commentsCount = commentsList.size, postDate = "1:43 AM"),
-    PostData("5","3","2", "Java Bros", javaImage,"i advice new developers to learn java before kotlin so they understand how old programming languages works", likesCount = 204, commentsList = commentsList, postDate = "2 days")
+    PostData("1","3","2", "Java Bros", javaImage,"this is where every java developer started \uD83D\uDE02", codeSnippet = codeSnippet, likesCount = followers1, commentsList = commentsList, createdAt = 1780345172462),
+    PostData("2","5","6", "AI Professionals", aiImage, "AI is changing the world and every programmer on this earth want to learn about it, here you will find all you need and want", likesCount = followers3, commentsList = commentsList, commentsCount = commentsList.size, createdAt = 1779911111111),
+    PostData("3","2","1", "UI/UX", uiImage, "one of the biggest UI/UX community in the whole programming world", uiImage, likesCount = followers2, commentsList = commentsList, commentsCount = commentsList.size, createdAt = 1771111111111),
+    PostData("4","4","4", "Backend Teams", backendImage, "can anyone fix this code ? ", codeSnippet = codeSnippet1, likesCount = followers1, commentsList = commentsList, commentsCount = commentsList.size, createdAt = 1761111111111),
+    PostData("5","3","2", "Java Bros", javaImage,"i advice new developers to learn java before kotlin so they understand how old programming languages works", likesCount = followers3, commentsList = commentsList, createdAt = 1761111111111)
 )
 
 val groupsList = listOf(
@@ -105,15 +105,15 @@ val groupsList = listOf(
 )
 
 val todayNotificationList = listOf(
-    Notification("1", "Website Developers", aiImage, "2:11"),
-    Notification("2", "Android Developers", uiImage, "3:32"),
-    Notification("3", "Backend Developers", backendImage, "11:23"),
+    Notification("1", "Website Developers", aiImage, 214213424214),
+    Notification("2", "Android Developers", uiImage, 241223424),
+    Notification("3", "Backend Developers", backendImage, 23452534525),
 )
 
 val lastWeekNotificationList = listOf(
-    Notification("1", "Website Developers", aiImage, "2:11"),
-    Notification("2", "Android Developers", uiImage, "3:32"),
-    Notification("3", "Backend Developers", backendImage, "11:23"),
+    Notification("1", "Website Developers", aiImage, 342524534535),
+    Notification("2", "Android Developers", uiImage, 34253532535),
+    Notification("3", "Backend Developers", backendImage, 3634653636346),
 )
 
 val favouritePost = listOf(postList[0], postList[1])

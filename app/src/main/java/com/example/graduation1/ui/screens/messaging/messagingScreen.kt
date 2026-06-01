@@ -6,6 +6,7 @@ import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -79,6 +80,7 @@ import com.example.graduation1.viewmodel.ChatViewModel
 import com.example.graduation1.viewmodel.ChatViewModelFactory
 import com.example.graduation1.viewmodel.UserViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun MessagingScreen(navController: NavHostController, chatId : String, chatViewModel: ChatViewModel, userViewModel: UserViewModel){
@@ -285,7 +287,7 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
                                 verticalAlignment = Alignment.CenterVertically) {
 
                                 Text(
-                                    text = message.date,
+                                    text = chatViewModel.getMessageTime(message.createdAt),
                                     color = Color.LightGray,
                                     fontSize = 11.sp,
                                     modifier = Modifier

@@ -153,15 +153,6 @@ fun CreatePostScreen(navController: NavHostController, userViewModel: UserViewMo
 
             Spacer(Modifier.weight(1f))
 
-            IconButton(onClick = {}) {
-                Icon(
-                    painter = painterResource(id = R.drawable.hour),
-                    contentDescription = "hour",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(25.dp)
-                )
-            }
-
             Button(onClick = {
                     when {
                         postText.isEmpty() || postText.isBlank() -> Toast.makeText(context, emptyPostTextMessage, Toast.LENGTH_SHORT).show()

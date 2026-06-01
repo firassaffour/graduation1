@@ -1,5 +1,6 @@
 package com.example.graduation1.viewmodel
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
@@ -74,25 +75,20 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
         _selectedGroup.value = group
     }
 
-    fun joinGroup(groupId : String, groupMembers : List<User>){
-        if (groupMembers.contains(currentUser)){
-            _currentUser.groupsList -= groupId
+    @SuppressLint("SuspiciousIndentation")
+    fun joinGroup(groupId : String){
+        if (_currentUser.groupsList.contains(groupId)) _currentUser.copy(groupsList = _currentUser.groupsList - groupId)
+
+            else _currentUser = _currentUser.copy(groupsList = _currentUser.groupsList + groupId)
 
             _groups.value = _groups.value.map {
-                if (it.id == groupId) it.copy(members = it.members - _currentUser.id)
+                if (it.id == groupId){
+                    it.copy(members =
+                        if (_currentUser.groupsList.contains(groupId)) it.members + _currentUser.id
+                        else it.members - _currentUser.id)
+                }
 
                 else it
             }
-        }
-
-        else {
-            _currentUser.groupsList += groupId
-
-            _groups.value = _groups.value.map {
-                if (it.id == groupId) it.copy(members = it.members + _currentUser.id)
-
-                else it
-            }
-        }
     }
 }

@@ -393,6 +393,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
                         modifier = Modifier
                             .size(90.dp)
                             .clip(shape = CircleShape)
+                            .clickable { navController.navigate("${AppPages.GroupDetails.route}/${group.id}") }
                     )
                 }
             } // items

@@ -1,5 +1,7 @@
 package com.example.graduation1.ui.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,6 +39,7 @@ import com.example.graduation1.ui.theme.primaryRed
 import com.example.graduation1.viewmodel.ChatViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : ChatViewModel, userViewModel: UserViewModel){
     val userList by userViewModel.users.collectAsState()
@@ -108,12 +111,12 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
             Column(modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = lastMessage?.date ?: "",
+                    text = chatViewModel.getMessageTime(lastMessage!!.createdAt),
                     color = if (isSeenCount == 0) MaterialTheme.colorScheme.onBackground
                     else primaryRed,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    lineHeight = 2.sp
+                    maxLines = 1
                 )
 
                 Spacer(Modifier.height(10.dp))
@@ -130,7 +133,7 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
                             text = if (isSeenCount >= 100) "+99"
                             else isSeenCount.toString(),
                             color = MaterialTheme.colorScheme.background,
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             lineHeight = 1.sp
                         )

@@ -4,5 +4,5 @@ data class Notification(
     val notificationId : String = "",
     val text : String = "",
     val image : String = "",
-    val date : String = ""
+    val createdAt : Long = 0
 )

@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -20,13 +21,26 @@ import com.example.graduation1.viewmodel.UserViewModel
 fun ChatScreen(navController: NavHostController, chatViewModel: ChatViewModel, userViewModel: UserViewModel){
 
     val chatsList by chatViewModel.chatsList.collectAsState()
+    val chatSearchQuery by chatViewModel.chatSearchQuery.collectAsState()
+
+    val userList by userViewModel.users.collectAsState()
+    val userMap = remember(userList) { userList.associateBy { it.id } }
+
+    val filteredChatList = remember (chatSearchQuery, chatsList, userMap) {
+        if (chatSearchQuery.isBlank()) chatsList
+        else {
+            chatsList.filter { chat ->
+                userMap[chat.userId]?.name?.contains(chatSearchQuery, ignoreCase = true) == true }
+        }
+    }
+
 
     Column(modifier = Modifier
         .fillMaxSize()) {
 
         LazyColumn(modifier = Modifier
             .fillMaxWidth()) {
-            items(chatsList, key = {it.chatId}){ chat ->
+            items(filteredChatList, key = {it.chatId}){ chat ->
                ChatUI(navController, chat, chatViewModel, userViewModel)
             } // items
         } // LazyColumn

@@ -9,10 +9,9 @@ data class PostData(
     val postText : String = "",
     val postImage : Any = "",
     val codeSnippet : String = "",
-    val postDate : String = "",
-    var isLiked : Boolean = false,
+    val createdAt : Long = 0,
+    val likesCount : List<String> = emptyList(),
     var isSaved : Boolean = false,
-    var likesCount : Int = 0,
     val commentsList : List<Comment> = emptyList(),
     var commentsCount : Int = commentsList.size
 
