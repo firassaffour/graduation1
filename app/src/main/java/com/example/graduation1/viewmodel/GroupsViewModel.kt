@@ -31,6 +31,9 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
     private val _selectedGroup = MutableStateFlow<Group?>(null)
     val selectedGroup = _selectedGroup.asStateFlow()
 
+    private val _groupName = MutableStateFlow("")
+    val groupName  = _groupName.asStateFlow()
+
     private var _currentUser = userRepository.currentUser
     val currentUser  = _currentUser
 
@@ -73,6 +76,10 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
 
     fun updateSelectedGroup(group: Group?){
         _selectedGroup.value = group
+    }
+
+    fun updateGroupName(groupName : String){
+        _groupName.value = groupName
     }
 
     @SuppressLint("SuspiciousIndentation")

@@ -236,7 +236,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = currentUser.followers,
+                        text = currentUser.followersList.count().toString(),
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -267,7 +267,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = currentUser.following,
+                        text = currentUser.followingList.count().toString(),
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -368,14 +368,6 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
             )
 
             Spacer(Modifier.weight(1f))
-
-            Text(
-                text = stringResource(R.string.ViewAll),
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp,
-                modifier = Modifier
-                    .clickable { navController.navigate("${AppPages.GroupsList.route}/${currentUser!!.id}") }
-            )
         } // Row
 
         LazyRow(modifier = Modifier

@@ -28,6 +28,7 @@
     <string name="Follow">متابعة</string>
     <string name="UnFollow">إلغاء المتابعة</string>
     <string name="Post">نشر</string>
+    <string name="GroupName">اسم المجموعة</string>
     <string name="Share_thoughts">شارك أفكارك</string>
     <string name="Write_Code">اكتب الكود هنا : print("Hello World")</string>
     <string name="Allchats">المحادثات</string>
@@ -41,7 +42,7 @@
     <string name="Location">الموقع</string>
     <string name="Subscription">الأشتراكات</string>
     <string name="ClearCache">حذف الذاكرة المؤقتة</string>
-    <string name="ClearHistory">حذف السجل</string>
+    <string name="History">السجل</string>
     <string name="Logout">تسجيل خروج</string>
     <string name="Notifications">الأشعارات</string>
     <string name="Today">اليوم</string>
@@ -71,6 +72,7 @@
     <string name="AskWhatsOnMind">اسأل اي شئ في بالك</string>
     <string name="GeneralNotifications">إشعارات عامة</string>
     <string name="Sound">صوت</string>
+    <string name="Mute">كتم</string>
     <string name="Vibrate">إهتزاز</string>
     <string name="AppUpdates">تحديثات التطبيق</string>
     <string name="NewServicesAvailable">خدمات جديدة</string>
@@ -111,5 +113,17 @@
     <string name="Write_Code_Please">ارجوك اكتب الكود</string>
     <string name="Please_Select_Group">ارجوك اختر مجموعة</string>
     <string name="Are_your_sure_close_post">هل انت متأكد انك تريد الغاء هذا المنشور</string>
+    <string name="Are_your_sure_close_group">هل انت متأكد انك تريد الغاء هذا المجموعة</string>
     <string name="Posted_Successfully">تم نشر المنشور بنجاح</string>
+    <string name="AddFriend">اضف صديق</string>
+    <string name="Create">إنشاء</string>
+    <string name="AddImage">اضف صورة</string>
+    <string name="Syria">سوريا</string>
+    <string name="Egypt">مصر</string>
+    <string name="Sudan">السودان</string>
+    <string name="Libya">ليبيا</string>
+    <string name="Lebanon">لبنان</string>
+    <string name="SaudiArabia">السعودية</string>
+    <string name="Palestine">فلسطين</string>
+    <string name="Admin">قائد</string>
 </resources>

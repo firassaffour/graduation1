@@ -166,7 +166,7 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
                     )
                 }
 
-                Spacer(Modifier.weight(1f))
+                Spacer(Modifier.width(20.dp))
 
                 Image(
                     rememberAsyncImagePainter(user.image),
@@ -177,7 +177,7 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
                         .clip(shape = CircleShape)
                 )
 
-                Spacer(Modifier.weight(1f))
+                Spacer(Modifier.width(10.dp))
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
@@ -197,47 +197,6 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
 
                 Spacer(Modifier.weight(3f))
 
-                Card(
-                    shape = CircleShape,
-                    border = BorderStroke(1.dp, Color.Black,),
-                    modifier = Modifier
-                        .width(40.dp)
-                        .height(40.dp)
-                ) {
-                    IconButton(
-                        modifier = Modifier.background(MaterialTheme.colorScheme.surface),
-                        onClick = {}) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.videocam),
-                            contentDescription = "video call",
-                            tint = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier
-                                .size(25.dp)
-                        )
-                    }
-                } // Card
-
-                Spacer(Modifier.width(10.dp))
-
-                Card(
-                    shape = CircleShape,
-                    border = BorderStroke(1.dp, Color.Black,),
-                    modifier = Modifier
-                        .width(40.dp)
-                        .height(40.dp)
-                ) {
-                    IconButton(
-                        modifier = Modifier.background(MaterialTheme.colorScheme.surface),
-                        onClick = {}) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.phonecall),
-                            contentDescription = "phone call",
-                            tint = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier
-                                .size(25.dp)
-                        )
-                    }
-                } // Card
             } // Row
         } // Card
 
@@ -362,15 +321,6 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface
                     ),
-                    leadingIcon = {
-                        Icon(
-                            painterResource(id = R.drawable.mic),
-                            contentDescription = "mic",
-                            tint = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier
-                                .size(18.dp)
-                        )
-                    },
                     trailingIcon = {
                         Icon(
                             painterResource(id = R.drawable.clip),

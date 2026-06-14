@@ -32,12 +32,15 @@ import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.NotificationRepository
 import com.example.graduation1.ui.components.NotificationUI
 import com.example.graduation1.ui.theme.Graduation1Theme
+import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.NotificationViewModel
 import com.example.graduation1.viewmodel.NotificationViewModelFactory
+import com.example.graduation1.viewmodel.PostViewModel
+import com.example.graduation1.viewmodel.UserViewModel
 
 
 @Composable
-fun NotificationScreen(navController: NavHostController, notificationViewModel: NotificationViewModel){
+fun NotificationScreen(navController: NavHostController, notificationViewModel: NotificationViewModel, groupsViewModel: GroupsViewModel, postViewModel: PostViewModel, userViewModel: UserViewModel){
 
     val todayNotifications by notificationViewModel.todayNotifications.collectAsState()
     val lastWeekNotification by notificationViewModel.lastWeekNotifications.collectAsState()
@@ -86,7 +89,7 @@ fun NotificationScreen(navController: NavHostController, notificationViewModel: 
             }
 
             items(todayNotifications){ notification ->
-                NotificationUI(notification)
+                NotificationUI(notification, groupsViewModel, postViewModel, userViewModel)
             } // items
 
             item{
@@ -102,7 +105,7 @@ fun NotificationScreen(navController: NavHostController, notificationViewModel: 
             }
 
             items(lastWeekNotification){ notification ->
-                NotificationUI(notification)
+                NotificationUI(notification, groupsViewModel, postViewModel, userViewModel)
             } // items
         } // LazyColumn
     } // Column

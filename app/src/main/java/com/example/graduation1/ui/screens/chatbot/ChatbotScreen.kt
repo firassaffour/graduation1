@@ -64,6 +64,7 @@ import com.example.graduation1.R
 import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.ChatRepository
 import com.example.graduation1.data.repository.ChatbotRepository
+import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.language
 import com.example.graduation1.messageList
 import com.example.graduation1.ui.theme.Graduation1Theme
@@ -122,16 +123,15 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
             .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically) {
 
-            IconButton(onClick = {}) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.menu),
-                    contentDescription = "menu",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(35.dp)
+                    painter = painterResource(id = R.drawable.back),
+                    contentDescription = "back",
+                    modifier = Modifier.size(30.dp)
                 )
             }
             
-            Spacer(Modifier.weight(2f))
+            Spacer(Modifier.weight(1f))
 
             Image(
                 painter = painterResource(id = R.drawable.chatbotlogo),
@@ -141,23 +141,13 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
                     .offset(y = 20.dp)
             )
 
-            Spacer(Modifier.weight(1.5f))
+            Spacer(Modifier.weight(1f))
 
-            IconButton(onClick = {}) {
+            IconButton(onClick = { navController.navigate(AppPages.ChatbotHistory.route) }) {
                 Icon(
                     painter = painterResource(id = R.drawable.history),
-                    contentDescription = "notification",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(25.dp)
-                )
-            }
-
-            IconButton(onClick = {}) {
-                Icon(
-                    painter = painterResource(id = R.drawable.menudots),
-                    contentDescription = "notification",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(25.dp)
+                    contentDescription = "history",
+                    modifier = Modifier.size(30.dp)
                 )
             }
         } // Row
@@ -211,60 +201,11 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
         } // LazyColumn
 
         Column {
-            if (imageIsSelected) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier.size(100.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = rememberAsyncImagePainter(selectedImageUri),
-                            contentDescription = "image",
-                            Modifier.size(100.dp)
-                        )
-
-                        IconButton(
-                            onClick = {
-                                imageIsSelected = false
-                                selectedImageUri = null
-                            },
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                        ) {
-                            Icon(
-                                painterResource(id = R.drawable.close),
-                                contentDescription = "x",
-                                tint = Color.Black,
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(Color.White)
-                            )
-                        }
-                    }
-                    Spacer(Modifier.weight(1f))
-                } // Row
-            } // if
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                IconButton(
-                    modifier = Modifier
-                        .size(40.dp),
-                    onClick = {}) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.plusbutton),
-                        contentDescription = "add",
-                        tint = Color.Unspecified,
-                        modifier = Modifier
-                            .size(225.dp)
-                            .clickable { launcher.launch("image/*") }
-                    )
-                }
-
                 OutlinedTextField(
                     value = messageText,
                     onValueChange = { chatbotViewModel.updateMessageText(it) },
@@ -286,22 +227,6 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
                 )
 
                 Spacer(Modifier.width(5.dp))
-
-                if (messageText.isEmpty()) {
-                    IconButton(
-                        modifier = Modifier
-                            .size(40.dp),
-                        onClick = {}) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.micbutton),
-                            contentDescription = "mic",
-                            tint = Color.Unspecified,
-                            modifier = Modifier.size(170.dp)
-                        )
-                    }
-                }
-
-                if (messageText.isNotEmpty()) {
                     IconButton(
                         onClick = {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -327,7 +252,6 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
                                 .rotate(if (language == "ar") 180f else 0f)
                         )
                     }
-                }
 
             } // Row
         } // Column

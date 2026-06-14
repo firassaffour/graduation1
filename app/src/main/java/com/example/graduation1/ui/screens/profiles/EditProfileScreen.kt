@@ -26,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -56,15 +57,18 @@ import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.BottomNavItem
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.user
+import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
-fun EditProfileScreen(navController: NavHostController){
-    var name by remember { mutableStateOf(user.name) }
-    var email by remember { mutableStateOf(user.email) }
-    var username by remember { mutableStateOf(user.name) }
-    var password by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    var isVisible by remember { mutableStateOf(false) }
+fun EditProfileScreen(navController: NavHostController, userViewModel: UserViewModel){
+    val currentUser = userViewModel.currentUser
+    var name by remember { mutableStateOf(currentUser.name) }
+    var email by remember { mutableStateOf(currentUser.email) }
+    var username by remember { mutableStateOf(user.userName) }
+    var phoneNumber by remember { mutableStateOf(currentUser.phone) }
+    var birthday by remember { mutableStateOf(currentUser.birthday) }
+    val options = listOf(stringResource(R.string.Male), stringResource(R.string.Female))
+    var selectedGender by remember { mutableStateOf(currentUser.gender) }
 
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
@@ -263,6 +267,26 @@ fun EditProfileScreen(navController: NavHostController){
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
             )
 
+            Spacer(Modifier.height(20.dp))
+
+            options.forEach { gender ->
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    RadioButton(
+                        selected = selectedGender == gender,
+                        onClick = {
+                            selectedGender = gender
+                        }
+
+                    )
+
+                    Text(gender)
+                }
+            }
+
             Spacer(Modifier.height(40.dp))
 
             Button(onClick = {
@@ -282,13 +306,4 @@ fun EditProfileScreen(navController: NavHostController){
             }
         } // Column
     } // Column
-}
-
-@Composable
-@Preview(showBackground = true)
-fun EditProfileScreenPreview(){
-    Graduation1Theme(dynamicColor = false) {
-        val nav = rememberNavController()
-        EditProfileScreen(nav)
-    }
 }

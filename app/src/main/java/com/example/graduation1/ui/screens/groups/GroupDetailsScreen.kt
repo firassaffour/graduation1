@@ -158,7 +158,7 @@ fun GroupDetailsScreen(navController: NavHostController, groupId : String, group
 
             items(groupPosts,
                 key = {it.postId}) { post ->
-                PostUI(navController, post, post.postId == newPostId, postViewModel, userViewModel,
+                PostUI(navController, post, post.postId == newPostId, postViewModel, userViewModel, groupsViewModel,
                     onPostClicked = {
                         selectedPostPage = post
                         navController.navigate("${AppPages.Post.route}/${post.postId}")},

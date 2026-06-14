@@ -287,38 +287,6 @@ fun MyProfileScreen(navController: NavHostController){
                 )
             } // Row
 
-            Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable { navController.navigate(AppPages.Subscription.route) }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.subsicribtion),
-                    contentDescription = "subscription",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(25.dp)
-                )
-
-                Spacer(Modifier.width(20.dp))
-
-                Text(
-                    text = stringResource(R.string.Subscription),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(Modifier.weight(1f))
-
-                Icon(
-                    painter = painterResource(id = R.drawable.rightarrow),
-                    contentDescription = "right arrow",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier
-                        .size(30.dp)
-                        .rotate(if (language == "ar") 180f else 0f)
-                )
-            } // Row
-
             Spacer(Modifier.height(20.dp))
 
             Divider(
@@ -329,70 +297,6 @@ fun MyProfileScreen(navController: NavHostController){
             )
 
             Spacer(Modifier.height(20.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable { showClearCacheDialog = true }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.clearcahce),
-                    contentDescription = "clear cache",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(25.dp)
-                )
-
-                Spacer(Modifier.width(20.dp))
-
-                Text(
-                    text = stringResource(R.string.ClearCache),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(Modifier.weight(1f))
-
-                Icon(
-                    painter = painterResource(id = R.drawable.rightarrow),
-                    contentDescription = "right arrow",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier
-                        .size(30.dp)
-                        .rotate(if (language == "ar") 180f else 0f)
-                )
-            } // Row
-
-            Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .clickable { showClearHistoryDialog = true }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.clearhitory),
-                    contentDescription = "clear history",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.size(25.dp)
-                )
-
-                Spacer(Modifier.width(20.dp))
-
-                Text(
-                    text = stringResource(R.string.ClearHistory),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(Modifier.weight(1f))
-
-                Icon(
-                    painter = painterResource(id = R.drawable.rightarrow),
-                    contentDescription = "right arrow",
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier
-                        .size(30.dp)
-                        .rotate(if (language == "ar") 180f else 0f)
-                )
-            } // Row
 
             Row(verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier

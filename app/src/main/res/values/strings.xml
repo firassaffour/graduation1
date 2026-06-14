@@ -28,6 +28,7 @@
     <string name="Follow">Follow</string>
     <string name="UnFollow">unfollow</string>
     <string name="Post">Post</string>
+    <string name="GroupName">Group Name</string>
     <string name="Share_thoughts">Share your Thoughts...</string>
     <string name="Write_Code">Write your code here EX : print("Hello World")</string>
     <string name="Allchats">All Chats</string>
@@ -41,7 +42,7 @@
     <string name="Location">Location</string>
     <string name="Subscription">Subscription</string>
     <string name="ClearCache">Clear Cache</string>
-    <string name="ClearHistory">Clear History</string>
+    <string name="History">History</string>
     <string name="Logout">Log out</string>
     <string name="Notifications">Notifications</string>
     <string name="Today">Today</string>
@@ -71,6 +72,7 @@
     <string name="AskWhatsOnMind">Ask What\'s on Mind</string>
     <string name="GeneralNotifications">General Notifications</string>
     <string name="Sound">Sound</string>
+    <string name="Mute">Mute</string>
     <string name="Vibrate">Vibrate</string>
     <string name="AppUpdates">App Updates</string>
     <string name="NewServicesAvailable">New Services Available</string>
@@ -111,5 +113,17 @@
     <string name="Write_Code_Please">please write your code</string>
     <string name="Please_Select_Group">please select a group</string>
     <string name="Are_your_sure_close_post">are you sure you want to cancel this post</string>
+    <string name="Are_your_sure_close_group">are you sure you want to cancel this group</string>
     <string name="Posted_Successfully">the post is published successfully</string>
+    <string name="AddFriend">Add Friend</string>
+    <string name="Create">Create</string>
+    <string name="AddImage">Add Image</string>
+    <string name="Syria">Syria</string>
+    <string name="Egypt">Egypt</string>
+    <string name="Sudan">Sudan</string>
+    <string name="Libya">Libya</string>
+    <string name="Lebanon">Lebanon</string>
+    <string name="SaudiArabia">Saudi Arabia</string>
+    <string name="Palestine">Palestine</string>
+    <string name="Admin">Admin</string>
 </resources>

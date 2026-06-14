@@ -61,6 +61,9 @@ import com.example.graduation1.ui.screens.settings.NotificationSettingsScreen
 import com.example.graduation1.ui.screens.profiles.OtherUsersProfileScreen
 import com.example.graduation1.ui.screens.settings.SettingsScreen
 import com.example.graduation1.ui.screens.authentication.StartScreen
+import com.example.graduation1.ui.screens.chatbot.ChatbotHistoryScreen
+import com.example.graduation1.ui.screens.friends.AddFriendsScreen
+import com.example.graduation1.ui.screens.groups.CreateGroupScreen
 import com.example.graduation1.ui.screens.groups.GroupDetailsScreen
 import com.example.graduation1.ui.screens.groups.GroupsListScreen
 import com.example.graduation1.ui.screens.home.PostScreen
@@ -212,11 +215,13 @@ class MainActivity : ComponentActivity() {
             ) {
                 composable(AppPages.StartScreen.route) { StartScreen(navController) }
                 composable(AppPages.OnBoardingTabs.route) { OnBoardingTabs(navController) }
-                composable(BottomNavItem.Home.route) { HomeScreen(navController, postViewModel, userViewModel, notificationViewModel) }
+                composable(BottomNavItem.Home.route) { HomeScreen(navController, postViewModel, userViewModel, groupsViewModel, notificationViewModel) }
                 composable(BottomNavItem.Chat.route) { ChatTabs(navController, chatViewModel, groupsViewModel, userViewModel) }
                 composable(AppPages.MyRooms.route) { MyRoomsScreen(navController, groupsViewModel, userViewModel) }
                 composable(AppPages.CreatePost.route) { CreatePostScreen(navController, userViewModel, postViewModel, groupsViewModel) }
                 composable(BottomNavItem.Friends.route) { FriendsScreen(navController, userViewModel) }
+                composable(AppPages.AddFriends.route) { AddFriendsScreen(navController, userViewModel) }
+                composable(AppPages.CreateGroup.route) { CreateGroupScreen(navController, groupsViewModel) }
                 composable(AppPages.SignUp.route) { SignUpScreen(navController, authViewModel) }
                 composable(AppPages.Login.route) { LoginScreen(navController, authViewModel) }
                 composable(AppPages.CreateAccount.route) { CreateAccountScreen(navController) }
@@ -225,19 +230,20 @@ class MainActivity : ComponentActivity() {
                     GroupsListScreen(navController, userId!!, groupsViewModel, userViewModel) {} }
                 composable("${AppPages.Post.route}/{postId}", arguments = listOf(navArgument("postId") {type = NavType.StringType})){ backStack ->
                 val postId = backStack.arguments?.getString("postId")
-                    PostScreen(navController, postId!!, postViewModel, userViewModel)
+                    PostScreen(navController, postId!!, postViewModel, userViewModel, groupsViewModel)
                 } // Composable
                 composable(BottomNavItem.Profile.route) { MyProfileScreen(navController) }
-                composable(AppPages.EditProfile.route) { EditProfileScreen(navController) }
+                composable(AppPages.EditProfile.route) { EditProfileScreen(navController, userViewModel) }
                 composable(AppPages.ChatbotStart.route) { ChatbotStartScreen(navController) }
                 composable(AppPages.Chatbot.route) { ChatbotScreen(navController, chatbotViewModel) }
-                composable(AppPages.Notification.route) { NotificationScreen(navController, notificationViewModel) }
+                composable(AppPages.ChatbotHistory.route) { ChatbotHistoryScreen(navController, chatbotViewModel) }
+                composable(AppPages.Notification.route) { NotificationScreen(navController, notificationViewModel, groupsViewModel, postViewModel, userViewModel) }
                 composable(AppPages.NotificationSettings.route) { NotificationSettingsScreen(navController) }
                 composable(AppPages.Settings.route) { SettingsScreen(navController) }
-                composable(AppPages.Favourite.route) { FavouriteScreen(navController, postViewModel, userViewModel) }
-                composable(AppPages.Saved.route) { SavedScreen(navController, postViewModel, userViewModel) }
+                composable(AppPages.Favourite.route) { FavouriteScreen(navController, postViewModel, userViewModel, groupsViewModel) }
+                composable(AppPages.Saved.route) { SavedScreen(navController, postViewModel, userViewModel, groupsViewModel) }
                 composable(AppPages.Language.route) { LanguageScreen(navController) }
-                composable(AppPages.Location.route) { LocationScreen(navController) }
+                composable(AppPages.Location.route) { LocationScreen(navController, userViewModel) }
                 composable(AppPages.Subscription.route) { SubscriptionScreen(navController) }
                 composable(AppPages.ReportTabs.route) { ReportTabs(navController) }
                 composable(AppPages.Password.route) { PasswordScreen(navController) }

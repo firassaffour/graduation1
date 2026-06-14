@@ -49,16 +49,20 @@ import com.example.graduation1.darkMode
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.PostData
 import com.example.graduation1.ui.theme.darkGray
+import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, postViewModel: PostViewModel, userViewModel: UserViewModel, onPostClicked : () -> Unit, onCommentClicked : () -> Unit, onGroupClicked : () -> Unit){
+fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, postViewModel: PostViewModel, userViewModel: UserViewModel, groupsViewModel: GroupsViewModel, onPostClicked : () -> Unit, onCommentClicked : () -> Unit, onGroupClicked : () -> Unit){
 
     val userList by userViewModel.users.collectAsState()
     val user = userList.find { it.id == post.userId } ?: return
     val currentUser = userViewModel.currentUser
+
+    val groupList by groupsViewModel.groups.collectAsState()
+    val group = groupList.find { it.id == post.groupId } ?: return
 
     val clipboard = LocalClipboardManager.current
 
@@ -90,7 +94,7 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
         ) {
 
             Image(
-                painter = rememberAsyncImagePainter(post.groupImage),
+                painter = rememberAsyncImagePainter(group.image),
                 contentDescription = "GroupImage",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -103,7 +107,7 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
 
             Column {
                 Text(
-                    text = post.groupName,
+                    text = group.name,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 16.sp,
                     modifier = Modifier
@@ -123,14 +127,6 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
             Spacer(Modifier.weight(1f))
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                IconButton(onClick = {}) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.menudotshoriz),
-                        contentDescription = "menuDots",
-                        tint = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
 
                 Text(
                     text = postViewModel.getTimeAgo(post.createdAt),
@@ -247,7 +243,7 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
                 }
 
                 Text(
-                    text = post.commentsCount.toString(),
+                    text = post.commentsList.count().toString(),
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,

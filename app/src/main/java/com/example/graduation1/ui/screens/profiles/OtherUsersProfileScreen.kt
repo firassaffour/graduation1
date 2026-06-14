@@ -280,7 +280,7 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String, u
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = user.followers,
+                        text = user.followersList.count().toString(),
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -311,7 +311,7 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String, u
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = user.following,
+                        text = user.followingList.count().toString(),
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -412,14 +412,6 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String, u
             )
 
             Spacer(Modifier.weight(1f))
-
-            Text(
-                text = stringResource(R.string.ViewAll),
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp,
-                modifier = Modifier
-                    .clickable { navController.navigate("${AppPages.GroupsList.route}/${user.id}") }
-            )
         } // Row
 
         Spacer(Modifier.height(10.dp))

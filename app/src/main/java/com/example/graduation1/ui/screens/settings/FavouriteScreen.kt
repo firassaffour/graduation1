@@ -44,18 +44,21 @@ import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.selectedPostPage
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGray
+import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.PostViewModelFactory
 import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
-fun FavouriteScreen(navController: NavHostController, postViewModel: PostViewModel, userViewModel: UserViewModel){
+fun FavouriteScreen(navController: NavHostController, postViewModel: PostViewModel, userViewModel: UserViewModel, groupsViewModel: GroupsViewModel){
 
     val favouritePostsList by postViewModel.favouritePosts.collectAsState()
     LaunchedEffect(Unit) {
         postViewModel.getFavouritePosts()
     }
     val userList by userViewModel.users.collectAsState()
+
+    val groupList by groupsViewModel.groups.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()) {
@@ -95,6 +98,7 @@ fun FavouriteScreen(navController: NavHostController, postViewModel: PostViewMod
             items(favouritePostsList){ post ->
 
                 val user = userList.find { it.id == post.userId } ?: return@items
+                val group = groupList.find { it.id == post.groupId } ?: return@items
 
                 Column(
                     modifier = Modifier
@@ -110,7 +114,7 @@ fun FavouriteScreen(navController: NavHostController, postViewModel: PostViewMod
                     ) {
 
                         Image(
-                            painter = rememberAsyncImagePainter(post.groupImage),
+                            painter = rememberAsyncImagePainter(group.image),
                             contentDescription = "groupImage",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -122,7 +126,7 @@ fun FavouriteScreen(navController: NavHostController, postViewModel: PostViewMod
 
                         Column {
                             Text(
-                                text = post.groupName,
+                                text = group.name,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 16.sp
                             )

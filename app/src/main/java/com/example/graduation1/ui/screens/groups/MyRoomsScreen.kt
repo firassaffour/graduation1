@@ -1,6 +1,7 @@
 package com.example.graduation1.ui.screens.groups
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.graduation1.R
+import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.ui.components.GroupUI
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.gray
@@ -60,36 +62,16 @@ fun MyRoomsScreen(navController: NavHostController, groupsViewModel: GroupsViewM
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Card(shape = CircleShape) {
-                IconButton(
-                    modifier = Modifier.background(primaryRed),
-                    onClick = {}) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.menu),
-                        contentDescription = "menu",
-                        tint = MaterialTheme.colorScheme.background,
-                        modifier = Modifier
-                            .size(23.dp)
-                    )
-                }
-            } // Card
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.back),
+                    contentDescription = "back",
+                    modifier = Modifier.size(30.dp)
+                )
+            }
 
             Spacer(Modifier.weight(1f))
-
-            Card(shape = CircleShape) {
-                IconButton(
-                    modifier = Modifier.background(primaryRed),
-                    onClick = {}) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.search),
-                        contentDescription = "search",
-                        tint = MaterialTheme.colorScheme.background,
-                        modifier = Modifier
-                            .size(23.dp)
-                    )
-                }
-            } // Card
-        } // Row
+        }
 
         Spacer(Modifier.height(10.dp))
 
@@ -135,6 +117,7 @@ fun MyRoomsScreen(navController: NavHostController, groupsViewModel: GroupsViewM
                 tint = Color.Unspecified,
                 modifier = Modifier
                     .size(30.dp)
+                    .clickable { navController.navigate(AppPages.CreateGroup.route) }
             )
         }
     } // Column

@@ -11,8 +11,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -25,9 +30,22 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.graduation1.R
 import com.example.graduation1.ui.theme.Graduation1Theme
+import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
-fun LocationScreen(navController: NavHostController){
+fun LocationScreen(navController: NavHostController, userViewModel: UserViewModel){
+
+    val currentUser = userViewModel.currentUser
+    var selected by remember { mutableStateOf(currentUser.location) }
+    val options = listOf(
+        stringResource(R.string.Egypt),
+        stringResource(R.string.Syria),
+        stringResource(R.string.Libya),
+        stringResource(R.string.Sudan),
+        stringResource(R.string.Lebanon),
+        stringResource(R.string.SaudiArabia),
+        stringResource(R.string.Palestine),
+    )
 
     Column(modifier = Modifier
         .fillMaxSize()) {
@@ -61,14 +79,22 @@ fun LocationScreen(navController: NavHostController){
 
         Spacer(Modifier.height(20.dp))
 
-    } // Column
-}
+        options.forEach { location ->
 
-@Composable
-@Preview(showBackground = true)
-fun LocationScreenPreview(){
-    Graduation1Theme(dynamicColor = false) {
-        val nav = rememberNavController()
-        LocationScreen(nav)
-    }
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                RadioButton(
+                    selected = selected == location,
+                    onClick = {
+                        selected = location
+
+                    }
+                )
+
+                Text(location)
+            }
+        }
+    } // Column
 }

@@ -114,8 +114,6 @@ class PostViewModel(private val postRepository: PostRepository, private val user
                     Uuid.random().toString(),
                     groupId,
                     currentUser.id,
-                    groupName,
-                    groupImage,
                     _postText.value,
                     postImage!!,
                     _postCodeSnippet.value,
@@ -194,7 +192,7 @@ class PostViewModel(private val postRepository: PostRepository, private val user
 
                 _posts.value = _posts.value.map {
                     if (it.postId == postId)
-                        it.copy(commentsList = listOf(comment) + it.commentsList, commentsCount = it.commentsCount + 1)
+                        it.copy(commentsList = listOf(comment) + it.commentsList)
 
                     else it
                 }
@@ -232,10 +230,10 @@ class PostViewModel(private val postRepository: PostRepository, private val user
             if (post.postId == postId) {
                 val updatedComment = post.commentsList.map {comment ->
                     if (comment.commentId == commentId) {
-                        if (!comment.isLiked)
-                            comment.copy(likesCount = comment.likesCount + 1, isLiked = !comment.isLiked)
+                        if (!comment.likesCount.contains(_currentUser.id))
+                            comment.copy(likesCount = comment.likesCount + _currentUser.id)
                         else
-                            comment.copy(likesCount = comment.likesCount - 1, isLiked = !comment.isLiked)
+                            comment.copy(likesCount = comment.likesCount - _currentUser.id)
                     }
                     else comment
                 }

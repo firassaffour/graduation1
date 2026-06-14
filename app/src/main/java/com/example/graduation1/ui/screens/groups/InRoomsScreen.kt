@@ -50,6 +50,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.AppPages
+import com.example.graduation1.domain.models.User
 import com.example.graduation1.ui.components.CircledImagesRow
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGreen
@@ -68,7 +69,20 @@ fun InRoomsScreen(navController: NavHostController, groupId : String, groupsView
     val groupMembers by groupsViewModel.members.collectAsState()
 
     val userList by userViewModel.users.collectAsState()
-    val groupMembersInformation = userList.filter { it.id in group.members }
+    val currentUser = userViewModel.currentUser
+    val groupMembersInformation = userList
+        .filter { it.id in group.members }
+        .sortedWith(
+            compareBy<User> (
+                {
+                when (it.id){
+                    currentUser.id -> 0
+                    group.admin -> 1
+                    else -> 2
+                }
+            }, {it.name}
+            )
+        )
 
     val onlineMembersCount by remember { mutableStateOf(groupsViewModel.getOnlineMembers(groupMembersInformation).toString()) }
 
@@ -82,35 +96,30 @@ fun InRoomsScreen(navController: NavHostController, groupId : String, groupsView
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Card(shape = CircleShape) {
-                IconButton(
-                    modifier = Modifier.background(primaryRed),
-                    onClick = {}) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.menu),
-                        contentDescription = "menu",
-                        tint = MaterialTheme.colorScheme.background,
-                        modifier = Modifier
-                            .size(25.dp)
-                    )
-                }
-            } // Card
+
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.back),
+                    contentDescription = "back",
+                    modifier = Modifier.size(30.dp)
+                )
+            }
 
             Spacer(Modifier.weight(1f))
 
-            Card(shape = CircleShape) {
-                IconButton(
-                    modifier = Modifier.background(primaryRed),
-                    onClick = {}) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.search),
-                        contentDescription = "search",
-                        tint = MaterialTheme.colorScheme.background,
-                        modifier = Modifier
-                            .size(25.dp)
-                    )
-                }
-            } // Card
+            Button(onClick = {navController.navigate(AppPages.AddFriends.route)},
+                shape = RoundedCornerShape(17.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .height(40.dp)) {
+                Text(text = stringResource(R.string.AddFriend),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold)
+            }
         } // Row
 
         Spacer(Modifier.height(10.dp))
@@ -131,11 +140,6 @@ fun InRoomsScreen(navController: NavHostController, groupId : String, groupsView
                 modifier = Modifier.padding(start = 30.dp))
 
             Spacer(Modifier.weight(1f))
-
-            Text(text = stringResource(R.string.SeeMore),
-                color = Color(71, 155, 160, 255),
-                fontSize = 14.sp,
-                modifier = Modifier.padding(end = 20.dp))
         } // Row
 
         Spacer(Modifier.height(10.dp))
@@ -180,10 +184,21 @@ fun InRoomsScreen(navController: NavHostController, groupId : String, groupsView
                             }
                         }
 
-                        Text(
-                                modifier = Modifier
-                                    .weight(5f)
-                                    .padding(start = 16.dp),
+                        Spacer(Modifier.width(10.dp))
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+                            if (member.id == group.admin) {
+                                Text(
+                                    text = stringResource(R.string.Admin),
+                                    color = darkGreen,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                )
+                            }
+
+                            Text(
+                                modifier = Modifier,
                                 text = member.name,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 18.sp,
@@ -191,25 +206,31 @@ fun InRoomsScreen(navController: NavHostController, groupId : String, groupsView
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
+                        }
 
                         Spacer(Modifier.weight(1f))
 
-                        Button(onClick = { navController.navigate("${AppPages.Messaging.route}/${member.id}") },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.background
-                            ),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .height(37.dp)) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.chatred),
-                                contentDescription = "chat",
-                                tint = Color.Unspecified,
+                        if (member.id != currentUser.id) {
+
+                            Button(
+                                onClick = { navController.navigate("${AppPages.Messaging.route}/${member.id}") },
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.background
+                                ),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                                 modifier = Modifier
-                                    .size(35.dp)
-                            )
+                                    .wrapContentWidth()
+                                    .height(37.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.chatred),
+                                    contentDescription = "chat",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier
+                                        .size(35.dp)
+                                )
+                            }
                         }
                     } // Row
                 } // Column
@@ -226,11 +247,6 @@ fun InRoomsScreen(navController: NavHostController, groupId : String, groupsView
                 modifier = Modifier.padding(start = 30.dp))
 
             Spacer(Modifier.weight(1f))
-
-            Text(text = stringResource(R.string.SeeMore),
-                color = Color(71, 155, 160, 255),
-                fontSize = 14.sp,
-                modifier = Modifier.padding(end = 20.dp))
         } // Row
 
         Spacer(Modifier.height(10.dp))

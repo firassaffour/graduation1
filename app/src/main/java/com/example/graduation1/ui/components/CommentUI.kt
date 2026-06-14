@@ -48,6 +48,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun CommentUI(navController : NavHostController, comment: Comment, isNew : Boolean, postId : String, postViewModel : PostViewModel, userViewModel: UserViewModel){
 
+    val currentUser = userViewModel.currentUser
     val userList by userViewModel.users.collectAsState()
     val user = userList.find { it.id == comment.userId } ?: return
 
@@ -125,16 +126,16 @@ fun CommentUI(navController : NavHostController, comment: Comment, isNew : Boole
                 modifier = Modifier.weight(1f)) {
                 IconButton(onClick = {postViewModel.toggleLikeComment(comment.commentId, postId)}) {
                     Icon(
-                        painter = if (!comment.isLiked) painterResource(id = R.drawable.heart2)
-                        else painterResource(id = R.drawable.heart2red) ,
+                        painter = if (!comment.likesCount.contains(currentUser.id)) painterResource(id = R.drawable.heart2)
+                        else painterResource(id = R.drawable.heart2red),
                         contentDescription = "heart",
-                        tint = if (darkMode && !comment.isLiked) Color.White else Color.Unspecified,
+                        tint = if (darkMode && !comment.likesCount.contains(currentUser.id)) Color.White else Color.Unspecified,
                         modifier = Modifier.size(15.dp)
                     )
                 }
 
                 Text(
-                    text = comment.likesCount.toString(),
+                    text = comment.likesCount.count().toString(),
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,

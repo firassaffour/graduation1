@@ -56,6 +56,7 @@ import com.example.graduation1.selectedPostPage
 import com.example.graduation1.ui.components.PostUI
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.primaryRed
+import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.NotificationViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
@@ -64,7 +65,7 @@ import com.example.graduation1.viewmodel.UserViewModel
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel, userViewModel: UserViewModel, notificationViewModel: NotificationViewModel){
+fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel, userViewModel: UserViewModel, groupsViewModel: GroupsViewModel, notificationViewModel: NotificationViewModel){
 
     val postsList by postViewModel.posts.collectAsState()
     val newPostId by postViewModel.newPostId.collectAsState()
@@ -207,7 +208,7 @@ fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel, u
                 items(
                     filteredPosts,
                     key = {it.postId}) { post ->
-                    PostUI(navController, post, post.postId == newPostId, postViewModel, userViewModel,
+                    PostUI(navController, post, post.postId == newPostId, postViewModel, userViewModel, groupsViewModel,
                         onPostClicked = {
                             selectedPostPage = post
                             navController.navigate("${AppPages.Post.route}/${post.postId}")},

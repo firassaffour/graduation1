@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.graduation1.R
-import com.example.graduation1.ui.screens.groups.GroupsScreen
 import com.example.graduation1.ui.theme.primaryRed
 import com.example.graduation1.viewmodel.ChatViewModel
 import com.example.graduation1.viewmodel.GroupsViewModel
@@ -94,94 +93,10 @@ fun ChatTabs(navController: NavHostController, chatViewModel: ChatViewModel, gro
                     )
                 } // Row
             }
-            1 -> {
-                Button(onClick = {},
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .height(40.dp)
-                        .align(Alignment.End)) {
-
-                    Text(text = "+",
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        lineHeight = 2.sp)
-
-                    Spacer(Modifier.width(10.dp))
-
-                    Text(text = "Create Group",
-                        color = MaterialTheme.colorScheme.background,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        lineHeight = 2.sp)
-                }
-
-                Spacer(Modifier.height(40.dp))
-            }
-            2 -> {
-                Button(onClick = {},
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .height(40.dp)
-                        .align(Alignment.End)) {
-
-                    Text(text = "+",
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        lineHeight = 2.sp)
-
-                    Spacer(Modifier.width(10.dp))
-
-                    Text(text = "Create Group",
-                        color = MaterialTheme.colorScheme.background,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        lineHeight = 2.sp)
-                }
-
-                Spacer(Modifier.height(40.dp))
-            }
         }
 
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(50))
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-            tabs.forEachIndexed { index, title ->
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(50))
-                        .background(
-                            if (selectedTab == index) primaryRed
-                            else MaterialTheme.colorScheme.surface
-                        )
-                        .clickable { selectedTab = index }
-                        .padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = title,
-                        color = if (selectedTab == index) Color.White else Color.Gray
-                    )
-                }
-            }
-        }
         when (selectedTab){
             0 -> ChatScreen(navController, chatViewModel, userViewModel)
-            1 -> GroupsScreen(navController)
-            2 -> GroupsScreen(navController)
         }
     } // Column
 }

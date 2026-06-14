@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,6 +18,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,9 +33,20 @@ import com.example.graduation1.R
 import com.example.graduation1.domain.models.Notification
 import com.example.graduation1.friendsList
 import com.example.graduation1.ui.theme.brown
+import com.example.graduation1.ui.theme.darkGray
+import com.example.graduation1.ui.theme.gray
+import com.example.graduation1.viewmodel.GroupsViewModel
+import com.example.graduation1.viewmodel.PostViewModel
+import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
-fun NotificationUI(notification: Notification){
+fun NotificationUI(notification: Notification, groupsViewModel: GroupsViewModel, postViewModel: PostViewModel, userViewModel: UserViewModel){
+
+    val groupsList by groupsViewModel.groups.collectAsState()
+    val group = groupsList.find { it.id == notification.groupId } ?: return
+
+    val userList by userViewModel.users.collectAsState()
+    val groupMembersInformation = userList.filter { it.id in group.members }
 
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -43,7 +57,7 @@ fun NotificationUI(notification: Notification){
             verticalAlignment = Alignment.CenterVertically) {
 
             Image(
-                rememberAsyncImagePainter(notification.image),
+                rememberAsyncImagePainter(group.image),
                 contentDescription = "image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -52,16 +66,28 @@ fun NotificationUI(notification: Notification){
 
             Column(modifier = Modifier
                 .padding(8.dp)) {
-                Text(
-                    text = notification.text,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = group.name,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(Modifier.weight(1f))
+
+                    Text(
+                        text = postViewModel.getTimeAgo(notification.createdAt),
+                        color = darkGray,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
 
                 Text(
-                    text = "5 friends     4000 members",
-                    color = MaterialTheme.colorScheme.onBackground,
+                    text = "${group.members.count()} ${stringResource(R.string.Members)}",
+                    color = gray,
                     fontSize = 8.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -70,7 +96,7 @@ fun NotificationUI(notification: Notification){
                     .fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically) {
 
-                    CircledImagesRow(friendsList.take(4).map { it.image })
+                    CircledImagesRow(groupMembersInformation.take(4).map { it.image })
 
                     Spacer(Modifier.weight(1f))
 

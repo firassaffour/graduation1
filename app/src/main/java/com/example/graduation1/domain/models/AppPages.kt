@@ -14,6 +14,7 @@ sealed class AppPages(val route: String) {
     object StartScreen : AppPages("startScreen")
     object ChatbotStart : AppPages("chatbotStartScreen")
     object Chatbot : AppPages("chatbotScreen")
+    object ChatbotHistory : AppPages("chatbotHistoryScreen")
     object Notification : AppPages("notificationScreen")
     object NotificationSettings : AppPages("notificationSettingsScreen")
     object Settings : AppPages("settingScreen")
@@ -31,4 +32,6 @@ sealed class AppPages(val route: String) {
     object GroupsList : AppPages("groupsListScreen")
     object Messaging : AppPages("messagingScreen")
     object GroupDetails : AppPages("groupDetailsScreen")
+    object AddFriends : AppPages("addFriendsScreen")
+    object CreateGroup : AppPages("createGroupScreen")
 }

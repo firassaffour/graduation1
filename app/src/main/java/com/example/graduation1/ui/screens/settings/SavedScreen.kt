@@ -44,12 +44,13 @@ import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.selectedPostPage
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGray
+import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.PostViewModelFactory
 import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
-fun SavedScreen(navController: NavHostController, postViewModel: PostViewModel, userViewModel: UserViewModel){
+fun SavedScreen(navController: NavHostController, postViewModel: PostViewModel, userViewModel: UserViewModel, groupsViewModel: GroupsViewModel){
 
     val savedPostsList by postViewModel.savedPosts.collectAsState()
     LaunchedEffect(Unit) {
@@ -57,6 +58,8 @@ fun SavedScreen(navController: NavHostController, postViewModel: PostViewModel, 
     }
 
     val userList by userViewModel.users.collectAsState()
+
+    val groupList by groupsViewModel.groups.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()) {
@@ -96,6 +99,7 @@ fun SavedScreen(navController: NavHostController, postViewModel: PostViewModel, 
             items(savedPostsList){ post ->
 
                 val user = userList.find { it.id == post.userId } ?: return@items
+                val group = groupList.find { it.id == post.groupId } ?: return@items
 
                 Column(
                     modifier = Modifier
@@ -111,7 +115,7 @@ fun SavedScreen(navController: NavHostController, postViewModel: PostViewModel, 
                     ) {
 
                         Image(
-                            painter = rememberAsyncImagePainter(post.groupImage),
+                            painter = rememberAsyncImagePainter(group.image),
                             contentDescription = "groupImage",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -123,7 +127,7 @@ fun SavedScreen(navController: NavHostController, postViewModel: PostViewModel, 
 
                         Column {
                             Text(
-                                text = post.groupName,
+                                text = group.name,
                                 color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 16.sp
                             )
