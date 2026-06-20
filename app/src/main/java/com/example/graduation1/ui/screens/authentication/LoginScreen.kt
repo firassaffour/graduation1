@@ -192,6 +192,7 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel){
         Spacer(Modifier.height(30.dp))
 
         Button(onClick = {
+            //authViewModel.login(email, password)
             navController.navigate(BottomNavItem.Home.route)
         },
             shape = RoundedCornerShape(16.dp),

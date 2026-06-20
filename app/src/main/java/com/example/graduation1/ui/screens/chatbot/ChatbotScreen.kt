@@ -131,7 +131,7 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
                 )
             }
             
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.weight(1.5f))
 
             Image(
                 painter = painterResource(id = R.drawable.chatbotlogo),
@@ -150,6 +150,19 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
                     modifier = Modifier.size(30.dp)
                 )
             }
+
+            Spacer(Modifier.width(10.dp))
+
+            Text(
+                text = stringResource(R.string.Jobs),
+                color = gray,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier
+                    .clickable { navController.navigate(AppPages.JobsListing.route) }
+            )
+
+            Spacer(Modifier.width(10.dp))
         } // Row
 
         Spacer(Modifier.height(20.dp))

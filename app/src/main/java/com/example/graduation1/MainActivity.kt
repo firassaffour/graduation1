@@ -61,7 +61,18 @@ import com.example.graduation1.ui.screens.settings.NotificationSettingsScreen
 import com.example.graduation1.ui.screens.profiles.OtherUsersProfileScreen
 import com.example.graduation1.ui.screens.settings.SettingsScreen
 import com.example.graduation1.ui.screens.authentication.StartScreen
+import com.example.graduation1.ui.screens.chatbot.AIRecommendedJobsScreen
+import com.example.graduation1.ui.screens.chatbot.AiProfileScreen
+import com.example.graduation1.ui.screens.chatbot.ApplyJobScreen
+import com.example.graduation1.ui.screens.chatbot.CandidateRankingScreen
 import com.example.graduation1.ui.screens.chatbot.ChatbotHistoryScreen
+import com.example.graduation1.ui.screens.chatbot.ExperienceGeneratorScreen
+import com.example.graduation1.ui.screens.chatbot.JobDetailsScreen
+import com.example.graduation1.ui.screens.chatbot.JobsListingScreen
+import com.example.graduation1.ui.screens.chatbot.MatchResultsScreen
+import com.example.graduation1.ui.screens.chatbot.OfferJobScreen
+import com.example.graduation1.ui.screens.chatbot.RecruiterAnalyticsDashboardScreen
+import com.example.graduation1.ui.screens.chatbot.SkillDashboardScreen
 import com.example.graduation1.ui.screens.friends.AddFriendsScreen
 import com.example.graduation1.ui.screens.groups.CreateGroupScreen
 import com.example.graduation1.ui.screens.groups.GroupDetailsScreen
@@ -168,7 +179,7 @@ class MainActivity : ComponentActivity() {
         )
 
         val notificationViewModel : NotificationViewModel = viewModel(
-            factory = NotificationViewModelFactory(AppModule.notificationRepository)
+            factory = NotificationViewModelFactory(AppModule.notificationRepository, AppModule.userRepository)
         )
 
         val chatbotViewModel : ChatbotViewModel = viewModel(
@@ -220,11 +231,11 @@ class MainActivity : ComponentActivity() {
                 composable(AppPages.MyRooms.route) { MyRoomsScreen(navController, groupsViewModel, userViewModel) }
                 composable(AppPages.CreatePost.route) { CreatePostScreen(navController, userViewModel, postViewModel, groupsViewModel) }
                 composable(BottomNavItem.Friends.route) { FriendsScreen(navController, userViewModel) }
-                composable(AppPages.AddFriends.route) { AddFriendsScreen(navController, userViewModel) }
+                composable(AppPages.AddFriends.route) { AddFriendsScreen(navController, userViewModel, groupsViewModel, notificationViewModel) }
                 composable(AppPages.CreateGroup.route) { CreateGroupScreen(navController, groupsViewModel) }
                 composable(AppPages.SignUp.route) { SignUpScreen(navController, authViewModel) }
                 composable(AppPages.Login.route) { LoginScreen(navController, authViewModel) }
-                composable(AppPages.CreateAccount.route) { CreateAccountScreen(navController) }
+                composable(AppPages.CreateAccount.route) { CreateAccountScreen(navController, authViewModel) }
                 composable("${AppPages.GroupsList.route}/{userId}", arguments = listOf(navArgument("userId") {type = NavType.StringType})){ backStack ->
                     val userId = backStack.arguments?.getString("userId")
                     GroupsListScreen(navController, userId!!, groupsViewModel, userViewModel) {} }
@@ -265,6 +276,54 @@ class MainActivity : ComponentActivity() {
                     val groupId = backStack.arguments?.getString("groupId")
                     GroupDetailsScreen(navController, groupId!!,groupsViewModel, postViewModel, userViewModel)
                 } // Composable
+
+
+                composable(AppPages.JobsListing.route) { JobsListingScreen(
+                    onJobClick = {navController.navigate(AppPages.JobDetails.route)},
+                    onOfferJob = {navController.navigate(AppPages.OfferJob.route)},
+                    onBack = {navController.popBackStack()},
+                    navController = navController
+                ) }
+
+                composable(AppPages.JobDetails.route) { JobDetailsScreen(
+                    onApply = {navController.navigate(AppPages.ApplyJob.route)},
+                    onBack = {navController.popBackStack()}
+                ) }
+
+                composable(AppPages.ApplyJob.route) { ApplyJobScreen(onBack = {navController.popBackStack()}) }
+
+                composable(AppPages.OfferJob.route) { OfferJobScreen(onBack = {navController.popBackStack()}) }
+
+                composable(AppPages.SkillDashboard.route) { SkillDashboardScreen(
+                    navController = navController,
+                    onBack = {navController.popBackStack()}) }
+
+                composable(AppPages.MatchResults.route) { MatchResultsScreen(
+                    navController = navController,
+                    onBack = {navController.popBackStack()}) }
+
+                composable(AppPages.ExperienceGenerator.route) { ExperienceGeneratorScreen(onBack = {navController.popBackStack()}) }
+
+                composable(AppPages.AIRecommendedJobs.route) { AIRecommendedJobsScreen(
+                    navController = navController,
+                    onBack = {navController.popBackStack()}) }
+
+                composable(AppPages.CandidateRanking.route) { CandidateRankingScreen(
+                    navController = navController,
+                    onBack = {navController.popBackStack()}) }
+
+                composable(AppPages.RecruiterAnalytics.route) { RecruiterAnalyticsDashboardScreen(
+                    navController = navController,
+                    onBack = {navController.popBackStack()}) }
+
+                composable(AppPages.AiProfile.route) { AiProfileScreen(
+                    onCandidate = {navController.navigate(AppPages.CandidateRanking.route)},
+                    onAnalytics = {navController.navigate(AppPages.RecruiterAnalytics.route)},
+                    onSkillDashboard = {navController.navigate(AppPages.SkillDashboard.route)},
+                    onMatchResults = {navController.navigate(AppPages.MatchResults.route)},
+                    onExperienceGenerator = {navController.navigate(AppPages.ExperienceGenerator.route)},
+                    navController,
+                ) }
             }
         }
     }

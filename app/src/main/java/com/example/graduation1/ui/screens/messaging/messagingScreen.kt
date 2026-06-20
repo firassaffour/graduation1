@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -11,6 +12,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +32,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -38,6 +41,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,6 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -105,6 +110,8 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
     }
 
     val messageText by chatViewModel.messageText.collectAsState()
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var cliackedMessage by remember { mutableStateOf("") }
 
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var imageIsSelected by remember { mutableStateOf(false) }
@@ -208,7 +215,15 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
             items(chatContent){ message ->
                 Column(modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp)) {
+                    .padding(10.dp)
+                    .pointerInput(Unit){
+                        detectTapGestures(
+                            onLongPress = {
+                                if (message.senderId == currentUser.id) {
+                                    cliackedMessage = message.messageId
+                                    showDeleteDialog = true }}
+                        )
+                    }) {
 
                     Card(modifier = Modifier
                         .widthIn(min = 10.dp, max = 280.dp)
@@ -366,6 +381,27 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
             } // Row
         } // Column
     } // Column
+
+    if (showDeleteDialog){
+        AlertDialog(
+            onDismissRequest = {showDeleteDialog = false},
+            title = { Text(stringResource(R.string.Alert)) },
+            text = { Text(stringResource(R.string.sureDeleteComment)) },
+            containerColor = MaterialTheme.colorScheme.background,
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    chatViewModel.removeMessage(cliackedMessage, chatId) }){
+                    Text(stringResource(R.string.Yes))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {showDeleteDialog = false}){
+                    Text(stringResource(R.string.No))
+                }
+            } // dismissButton
+        ) // AlertDialog
+    } // if
 } // MessagingScreen
 
 @Composable

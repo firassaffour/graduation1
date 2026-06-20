@@ -1,9 +1,11 @@
 package com.example.graduation1.ui.components
 
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,12 +19,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,8 +38,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -55,7 +61,16 @@ import com.example.graduation1.viewmodel.UserViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, postViewModel: PostViewModel, userViewModel: UserViewModel, groupsViewModel: GroupsViewModel, onPostClicked : () -> Unit, onCommentClicked : () -> Unit, onGroupClicked : () -> Unit){
+fun PostUI(navController: NavHostController,
+           post: PostData,
+           isNew : Boolean,
+           postViewModel: PostViewModel,
+           userViewModel: UserViewModel,
+           groupsViewModel: GroupsViewModel,
+           onPostClicked : () -> Unit,
+           onCommentClicked : () -> Unit,
+           onGroupClicked : () -> Unit,
+           onPostDeleted : () -> Unit){
 
     val userList by userViewModel.users.collectAsState()
     val user = userList.find { it.id == post.userId } ?: return
@@ -65,6 +80,10 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
     val group = groupList.find { it.id == post.groupId } ?: return
 
     val clipboard = LocalClipboardManager.current
+    val context = LocalContext.current
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    val postDeletedMessage = stringResource(R.string.PostDeletedSuccessfully)
 
     var highlight by remember(post.postId) { mutableStateOf(isNew) }
     LaunchedEffect(post.postId) {
@@ -85,7 +104,14 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
         modifier = Modifier
             .background(backgroundColor)
             .padding(8.dp)
-            .clickable { onPostClicked() },
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = {
+                        if (post.userId == currentUser.id) showDeleteDialog = true
+                    },
+                    onTap = { onPostClicked() }
+                )
+            },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -264,5 +290,28 @@ fun PostUI(navController: NavHostController, post: PostData, isNew : Boolean, po
 
         } // Row
     } // Column
+
+    if (showDeleteDialog){
+        AlertDialog(
+            onDismissRequest = {showDeleteDialog = false},
+            title = { Text(stringResource(R.string.Alert)) },
+            text = { Text(stringResource(R.string.sureDeletePost)) },
+            containerColor = MaterialTheme.colorScheme.background,
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    postViewModel.removePost(post.postId)
+                    Toast.makeText(context, postDeletedMessage, Toast.LENGTH_SHORT).show()
+                    onPostDeleted()}){
+                    Text(stringResource(R.string.Yes))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {showDeleteDialog = false}){
+                    Text(stringResource(R.string.No))
+                }
+            } // dismissButton
+        ) // AlertDialog
+    } // if
 
 }

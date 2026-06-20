@@ -36,11 +36,12 @@ import com.example.graduation1.ui.theme.brown
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.ui.theme.gray
 import com.example.graduation1.viewmodel.GroupsViewModel
+import com.example.graduation1.viewmodel.NotificationViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
-fun NotificationUI(notification: Notification, groupsViewModel: GroupsViewModel, postViewModel: PostViewModel, userViewModel: UserViewModel){
+fun NotificationUI(notification: Notification, notificationViewModel: NotificationViewModel, groupsViewModel: GroupsViewModel, postViewModel: PostViewModel, userViewModel: UserViewModel){
 
     val groupsList by groupsViewModel.groups.collectAsState()
     val group = groupsList.find { it.id == notification.groupId } ?: return
@@ -100,7 +101,10 @@ fun NotificationUI(notification: Notification, groupsViewModel: GroupsViewModel,
 
                     Spacer(Modifier.weight(1f))
 
-                    Button(onClick = {},
+                    Button(onClick = {
+                        groupsViewModel.joinGroup(notification.groupId)
+                        notificationViewModel.removeNotification(notification.notificationId)
+                    },
                         shape = RoundedCornerShape(17.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary
@@ -117,7 +121,7 @@ fun NotificationUI(notification: Notification, groupsViewModel: GroupsViewModel,
 
                     Spacer(Modifier.width(5.dp))
 
-                    Button(onClick = {},
+                    Button(onClick = {notificationViewModel.removeNotification(notification.notificationId)},
                         shape = RoundedCornerShape(17.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = brown

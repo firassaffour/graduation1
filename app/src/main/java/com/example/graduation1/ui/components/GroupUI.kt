@@ -1,5 +1,6 @@
 package com.example.graduation1.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,8 +15,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,12 +34,14 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.Group
+import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.ui.theme.gray
 import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.UserViewModel
+import kotlinx.coroutines.delay
 
 @Composable
-fun GroupUI(navController: NavHostController, room: Group, groupsViewModel: GroupsViewModel, userViewModel: UserViewModel){
+fun GroupUI(navController: NavHostController, room: Group, isNew : Boolean, groupsViewModel: GroupsViewModel, userViewModel: UserViewModel){
 
     val groupsList by groupsViewModel.groups.collectAsState()
     val group = groupsList.find { it.id == room.id } ?: return
@@ -42,12 +49,30 @@ fun GroupUI(navController: NavHostController, room: Group, groupsViewModel: Grou
     val userList by userViewModel.users.collectAsState()
     val groupMembersInformation = userList.filter { it.id in group.members }
 
+
+    var highlight by remember(group.id) { mutableStateOf(isNew) }
+    LaunchedEffect(group.id) {
+        if (isNew) {
+            delay(2000)
+            highlight = false
+            groupsViewModel.updateNewGroupId("")
+        }
+    }
+
+    val backgroundColor by animateColorAsState(
+        targetValue =
+            if (highlight) darkGray
+            else MaterialTheme.colorScheme.surface
+    )
+
     Column(modifier = Modifier
         .width(100.dp)
         .height(160.dp)
         .padding(8.dp)
-        .background(MaterialTheme.colorScheme.surface)
-        .clickable { navController.navigate("${ AppPages.InRooms.route }/${room.id}") },
+        .background(backgroundColor)
+        .clickable {
+            navController.navigate("${ AppPages.InRooms.route }/${room.id}")
+            groupsViewModel.updateCurrentGroupId(group.id)},
         horizontalAlignment = Alignment.CenterHorizontally) {
 
         Spacer(Modifier.weight(1f))

@@ -86,7 +86,7 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     fun getFavouritePosts(){
         viewModelScope.launch {
             try {
-                _favouritePosts.value = favouritePost
+                _favouritePosts.value = _posts.value.filter { it.likesCount.contains(_currentUser.id) }
             }
             catch (e: Exception){
                 Log.e("API", "postViewModel get favourite post: ${e.message}")
@@ -107,7 +107,7 @@ class PostViewModel(private val postRepository: PostRepository, private val user
 
     @OptIn(ExperimentalUuidApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createPost(groupId : String, groupName : String, groupImage : String , postImage : String?){
+    fun createPost(groupId : String, postImage : String?){
         viewModelScope.launch {
             try {
                 val post = PostData(
@@ -134,6 +134,11 @@ class PostViewModel(private val postRepository: PostRepository, private val user
                 Log.e("API", "postViewModel create post: ${e.message}")
             }
         }
+    }
+
+    fun removePost(postId: String) {
+        val post = _posts.value.find { it.postId == postId } ?: return
+        _posts.value = _posts.value - post
     }
 
     fun getTimeAgo(createdAt : Long) : String{
@@ -202,6 +207,18 @@ class PostViewModel(private val postRepository: PostRepository, private val user
             catch (e: Exception){
                 Log.e("API", "postViewModel create comment: ${e.message}")
             }
+        }
+    }
+
+    fun removeComment(postId: String, commentId: String) {
+        val post = _posts.value.find { it.postId == postId } ?: return
+        val comment = post.commentsList.find { it.commentId == commentId } ?: return
+        _posts.value = _posts.value.map {
+            if (it.postId == postId){
+                it.copy(commentsList = it.commentsList - comment)
+            }
+
+            else it
         }
     }
 

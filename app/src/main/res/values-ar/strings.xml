@@ -46,8 +46,10 @@
     <string name="Logout">تسجيل خروج</string>
     <string name="Notifications">الأشعارات</string>
     <string name="Today">اليوم</string>
-    <string name="ThisWeek">هذا الأسبوع</string>
+    <string name="LastWeek">الأسابيع الماضية</string>
+    <string name="NoNotification">لا يوجد إشعارات</string>
     <string name="Join">أنضمام</string>
+    <string name="Jobs">وظائف</string>
     <string name="Joined">تم الإنضمام</string>
     <string name="Decline">رفض</string>
     <string name="MyRooms">غرفي</string>
@@ -83,6 +85,11 @@
     <string name="sureClearCache">هل انت متأكد انك تريد حذف الذاكرة المؤقتة</string>
     <string name="sureClearHistory">هل انت متأكد انك تريد حذف السجل</string>
     <string name="sureDeleteAccount">هل انت متأكد انك تريد حذف الحساب</string>
+    <string name="sureDeletePost">هل انت متأكد انك تريد حذف هذا المنشور</string>
+    <string name="sureDeleteComment">هل انت متأكد انك تريد حذف هذا التعليق</string>
+    <string name="sureDeleteMessage">هل انت متأكد انك تريد حذف هذه الرسالة</string>
+    <string name="PostDeletedSuccessfully">تم حذف المنشور بنجاح</string>
+    <string name="CommentDeletedSuccessfully">تم حذف التعليق بنجاح</string>
     <string name="Anyone">الجميع</string>
     <string name="ChatBot"> الروبوت</string>
     <string name="Chatting">محادثات</string>
@@ -126,4 +133,7 @@
     <string name="SaudiArabia">السعودية</string>
     <string name="Palestine">فلسطين</string>
     <string name="Admin">قائد</string>
+    <string name="GroupNameEmpty">اكتب اسم للمجموعة</string>
+    <string name="GroupImageEmpty">ضع صورة للمجموعة</string>
+    <string name="GroupCreatedSuccessfully">تم إنشاء المجموعة بنجاح</string>
 </resources>

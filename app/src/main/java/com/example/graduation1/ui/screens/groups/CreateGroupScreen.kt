@@ -1,9 +1,11 @@
 package com.example.graduation1.ui.screens.groups
 
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -42,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +57,7 @@ import com.example.graduation1.domain.models.BottomNavItem
 import com.example.graduation1.ui.theme.gray
 import com.example.graduation1.viewmodel.GroupsViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CreateGroupScreen(navController: NavHostController, groupsViewModel: GroupsViewModel){
 
@@ -66,6 +70,12 @@ fun CreateGroupScreen(navController: NavHostController, groupsViewModel: GroupsV
             //signUpViewModel.saveProfileImageUrlToFirebase(it)
         }
     }
+
+    val context = LocalContext.current
+
+    val emptyGroupNameMessage = stringResource(R.string.GroupNameEmpty)
+    val emptyImageMessage = stringResource(R.string.GroupImageEmpty)
+    val groupCreatedSuccessfullyMessage = stringResource(R.string.GroupCreatedSuccessfully)
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -93,26 +103,17 @@ fun CreateGroupScreen(navController: NavHostController, groupsViewModel: GroupsV
             Spacer(Modifier.weight(1f))
 
             Button(onClick = {
-               /* when {
-                    postText.isEmpty() || postText.isBlank() -> Toast.makeText(context, emptyPostTextMessage, Toast.LENGTH_SHORT).show()
-                    codeSnippetAdded && postCodeSnippet.isEmpty() || codeSnippetAdded && postCodeSnippet.isBlank() -> Toast.makeText(context, emptyCodeMessage, Toast.LENGTH_SHORT).show()
-                    selectedGroup == null -> Toast.makeText(context, emptyGroupMessage, Toast.LENGTH_SHORT).show()
+                when {
+                    groupName.isEmpty() || groupName.isBlank() -> Toast.makeText(context, emptyGroupNameMessage, Toast.LENGTH_SHORT).show()
+                    selectedImageUri == null -> Toast.makeText(context, emptyImageMessage, Toast.LENGTH_SHORT).show()
 
-                    selectedImageUri == null ->{
-                        postViewModel.createPost(selectedGroup!!.id, selectedGroup!!.name, selectedGroup!!.image.toString(), "")
-                        groupsViewModel.updateSelectedGroup(null)
-                        Toast.makeText(context, postedSuccessfullyMessage, Toast.LENGTH_SHORT).show()
-                        navController.popBackStack()
-                        navController.navigate(BottomNavItem.Home.route)
-                    }
                     else -> {
-                        postViewModel.createPost(selectedGroup!!.id, selectedGroup!!.name, selectedGroup!!.image.toString(), selectedImageUri.toString())
+                        groupsViewModel.createGroup(groupName, selectedImageUri.toString())
                         groupsViewModel.updateSelectedGroup(null)
-                        Toast.makeText(context, postedSuccessfullyMessage, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, groupCreatedSuccessfullyMessage, Toast.LENGTH_SHORT).show()
                         navController.popBackStack()
-                        navController.navigate(BottomNavItem.Home.route)
                     }
-                } */
+                }
             },
                 shape = RoundedCornerShape(17.dp),
                 colors = ButtonDefaults.buttonColors(

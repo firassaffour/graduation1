@@ -8,6 +8,8 @@ import java.net.Inet4Address
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
+private const val BASE_URL = "https://graduation-project-backend-production-bc68.up.railway.app/"
+
 object RetrofitInstance {
     val client = OkHttpClient.Builder()
         .dns(object : Dns {
@@ -22,7 +24,7 @@ object RetrofitInstance {
 
     val api : ApiService by lazy {
         Retrofit.Builder()
-            .baseUrl("https://jsonplaceholder.typicode.com/")
+            .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

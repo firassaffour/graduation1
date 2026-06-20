@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -218,7 +217,8 @@ fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel, u
                         },
                         onGroupClicked = {
                             navController.navigate("${AppPages.GroupDetails.route}/${post.groupId}")
-                        })
+                        },
+                        onPostDeleted = {})
                 } // items
             } // LazyColumn
             Spacer(Modifier.height(10.dp))

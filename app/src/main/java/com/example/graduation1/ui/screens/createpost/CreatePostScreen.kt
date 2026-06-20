@@ -160,14 +160,14 @@ fun CreatePostScreen(navController: NavHostController, userViewModel: UserViewMo
                         selectedGroup == null -> Toast.makeText(context, emptyGroupMessage, Toast.LENGTH_SHORT).show()
 
                         selectedImageUri == null ->{
-                            postViewModel.createPost(selectedGroup!!.id, selectedGroup!!.name, selectedGroup!!.image.toString(), "")
+                            postViewModel.createPost(selectedGroup!!.id, "")
                             groupsViewModel.updateSelectedGroup(null)
                             Toast.makeText(context, postedSuccessfullyMessage, Toast.LENGTH_SHORT).show()
                             navController.popBackStack()
                             navController.navigate(BottomNavItem.Home.route)
                         }
                         else -> {
-                            postViewModel.createPost(selectedGroup!!.id, selectedGroup!!.name, selectedGroup!!.image.toString(), selectedImageUri.toString())
+                            postViewModel.createPost(selectedGroup!!.id, selectedImageUri.toString())
                             groupsViewModel.updateSelectedGroup(null)
                             Toast.makeText(context, postedSuccessfullyMessage, Toast.LENGTH_SHORT).show()
                             navController.popBackStack()

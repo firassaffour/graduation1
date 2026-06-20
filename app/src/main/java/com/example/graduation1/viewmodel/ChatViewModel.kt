@@ -104,6 +104,19 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
         }
     }
 
+    fun removeMessage(messageId : String, chatId: String){
+        val message = _chatContent.value.find { it.messageId == messageId } ?: return
+
+        _chatsList.value = _chatsList.value.map {
+            if (it.chatId == chatId){
+                it.copy(messagesList = it.messagesList - message)
+            }
+
+            else it
+        }
+        _chatContent.value = _chatContent.value - message
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun getMessageTime(createdAt : Long) : String{
         val locale = if (language == "en") Locale.ENGLISH else Locale("ar")
@@ -134,6 +147,7 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
                         })
                     }
                     else chat
+
                 }
             }
             catch (e: Exception){

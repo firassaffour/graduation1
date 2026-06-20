@@ -167,7 +167,8 @@ fun GroupDetailsScreen(navController: NavHostController, groupId : String, group
                         showBottomSheet = true
                     },
                     onGroupClicked = {
-                    })
+                    },
+                    onPostDeleted = {})
             } // items
         } // LazyColumn
     } // Column

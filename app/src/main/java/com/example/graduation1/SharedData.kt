@@ -97,23 +97,26 @@ var postList = listOf(
 )
 
 val groupsList = listOf(
-    Group("1", "5", "AI", aiImage,  allUsers),
-    Group("2", "1", "UX meet up", uiImage,  allUsers),
-    Group("3", "2", "Java",  javaImage,  allUsers),
-    Group("4", "4", "Backend", backendImage,  allUsers),
-    Group("5", "6", "AI", aiImage,  allUsers)
+    Group("1", "5", "AI", aiImage,  followers3),
+    Group("2", "1", "UX meet up", uiImage,  followers3),
+    Group("3", "2", "Java",  javaImage,  followers1),
+    Group("4", "4", "Backend", backendImage,  followers2),
+    Group("5", "6", "AI", aiImage,  followers3)
 )
 
 val todayNotificationList = listOf(
-    Notification("1", "1", 1781382812979),
-    Notification("2", "2", 1781382812979),
-    Notification("3", "3", 1781382812979),
+    Notification("1", "1", "2", 1781382812979),
+    Notification("2", "1", "2", 1781382812979),
+    Notification("3", "3", "2", 1781382812979),
+    Notification("4", "1", "2", 1780345172462),
+    Notification("5", "2", "2", 1780345172462),
+    Notification("6", "3", "2", 1780345172462),
 )
 
 val lastWeekNotificationList = listOf(
-    Notification("1", "1", 1780345172462),
-    Notification("2", "2", 1780345172462),
-    Notification("3", "3", 1780345172462),
+    Notification("1", "1", "2", 1780345172462),
+    Notification("2", "2", "2", 1780345172462),
+    Notification("3", "3", "2", 1780345172462),
 )
 
 val favouritePost = listOf(postList[0], postList[1])

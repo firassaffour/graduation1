@@ -46,8 +46,10 @@
     <string name="Logout">Log out</string>
     <string name="Notifications">Notifications</string>
     <string name="Today">Today</string>
-    <string name="ThisWeek">This Week</string>
+    <string name="LastWeek">Last Weeks</string>
+    <string name="NoNotification">No Notification</string>
     <string name="Join">Join</string>
+    <string name="Jobs">Jobs</string>
     <string name="Joined">Joined</string>
     <string name="Decline">Decline</string>
     <string name="MyRooms">My Rooms</string>
@@ -83,6 +85,11 @@
     <string name="sureClearCache">Are you Sure you want to Clear Cache</string>
     <string name="sureClearHistory">Are you Sure you want to Clear History</string>
     <string name="sureDeleteAccount">Are you Sure you want to Delete your Account</string>
+    <string name="sureDeletePost">Are you Sure you want to Delete this post</string>
+    <string name="sureDeleteComment">Are you Sure you want to Delete this comment</string>
+    <string name="sureDeleteMessage">Are you Sure you want to Delete this message</string>
+    <string name="PostDeletedSuccessfully">Post is deleted successfully</string>
+    <string name="CommentDeletedSuccessfully">Comment is deleted successfully</string>
     <string name="Anyone">Anyone</string>
     <string name="ChatBot">  Chatbot</string>
     <string name="Chatting">Chatting</string>
@@ -126,4 +133,7 @@
     <string name="SaudiArabia">Saudi Arabia</string>
     <string name="Palestine">Palestine</string>
     <string name="Admin">Admin</string>
+    <string name="GroupNameEmpty">Group name cannot be empty</string>
+    <string name="GroupImageEmpty">Group image cannot be empty</string>
+    <string name="GroupCreatedSuccessfully">Group is created successfully</string>
 </resources>

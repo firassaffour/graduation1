@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,7 +74,7 @@ fun SignUpScreen(navController: NavHostController, authViewModel: AuthViewModel)
     var emailButtonClicked by remember { mutableStateOf(true) }
     var continueButtonClicked by remember { mutableStateOf(false) }
 
-    var email by remember { mutableStateOf("") }
+    val email by authViewModel.email.collectAsState()
     var phoneNumber by remember { mutableStateOf("") }
     
 
@@ -118,7 +119,7 @@ fun SignUpScreen(navController: NavHostController, authViewModel: AuthViewModel)
                     .fillMaxWidth()
                     .padding(top = 8.dp),
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { authViewModel.updateEmail(it) },
                 placeholder = {
                     Text(
                         "name@example.com",

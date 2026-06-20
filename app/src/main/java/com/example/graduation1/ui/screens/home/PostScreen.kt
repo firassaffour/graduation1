@@ -106,7 +106,8 @@ fun PostScreen(navController: NavHostController, postId: String, postViewModel: 
                 PostUI(navController, post, post.postId == newPostId, postViewModel, userViewModel, groupsViewModel,
                     onPostClicked = {},
                     onCommentClicked = {},
-                    onGroupClicked = {navController.navigate("${AppPages.GroupDetails.route}/${post.groupId}")})
+                    onGroupClicked = {navController.navigate("${AppPages.GroupDetails.route}/${post.groupId}")},
+                    onPostDeleted = {navController.popBackStack()})
                 Spacer(Modifier.height(10.dp))
             } // item
             items(commentList, key = {it.commentId}){ comment ->

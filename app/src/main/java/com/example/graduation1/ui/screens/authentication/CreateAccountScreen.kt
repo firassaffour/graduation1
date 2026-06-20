@@ -1,7 +1,12 @@
 package com.example.graduation1.ui.screens.authentication
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +18,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -21,16 +27,19 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -43,18 +52,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.BottomNavItem
 import com.example.graduation1.ui.theme.Graduation1Theme
+import com.example.graduation1.user
+import com.example.graduation1.viewmodel.AuthViewModel
 
 @Composable
-fun CreateAccountScreen(navController: NavHostController){
+fun CreateAccountScreen(navController: NavHostController, authViewModel: AuthViewModel){
 
     var username by remember { mutableStateOf("") }
+    val email by authViewModel.email.collectAsState()
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    val options = listOf(stringResource(R.string.Male), stringResource(R.string.Female))
+    var selectedGender by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
     var isConfirmPasswordVisible by remember { mutableStateOf(false) }
+
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
+        uri?.let {
+            selectedImageUri = uri
+            //signUpViewModel.saveProfileImageUrlToFirebase(it)
+        }
+    }
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -84,14 +107,37 @@ fun CreateAccountScreen(navController: NavHostController){
 
         Spacer(Modifier.weight(1f))
 
-        Image(
-            painter = painterResource(id = R.drawable.logoimage),
-            contentDescription = "logo",
-            contentScale = ContentScale.Fit,
+        Box(
             modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .fillMaxHeight(0.2f)
-        )
+                .background(color = Color.Gray, shape = CircleShape)
+                .size(110.dp)
+                .align(Alignment.CenterHorizontally)
+        ) {
+            Image(
+                rememberAsyncImagePainter(user.image),
+                contentDescription = "image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(110.dp)
+                    .clip(shape = CircleShape)
+                    .clickable { launcher.launch("image/*") }
+            )
+
+            IconButton(onClick = { launcher.launch("image/*") },
+                modifier = Modifier
+                    .size(25.dp)
+                    .align(Alignment.BottomEnd)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.onBackground)) {
+                Icon(
+                    painter = painterResource(id = R.drawable.camera),
+                    contentDescription = "camera",
+                    tint = MaterialTheme.colorScheme.background,
+                    modifier = Modifier
+                        .size(25.dp)
+                )
+            }
+        } // Box
 
         Spacer(Modifier.height(40.dp))
 
@@ -231,9 +277,33 @@ fun CreateAccountScreen(navController: NavHostController){
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
+        Spacer(Modifier.height(20.dp))
+
+        Column(Modifier.fillMaxWidth()) {
+
+            options.forEach { gender ->
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    RadioButton(
+                        selected = selectedGender == gender,
+                        onClick = {
+                            selectedGender = gender
+                        }
+
+                    )
+
+                    Text(gender)
+                }
+            }
+        }
+
         Spacer(Modifier.height(40.dp))
 
         Button(onClick = {
+            //authViewModel.createAccount(username, email, password)
             navController.navigate(BottomNavItem.Home.route)
         },
             shape = RoundedCornerShape(16.dp),
@@ -257,7 +327,5 @@ fun CreateAccountScreen(navController: NavHostController){
 @Preview(showBackground = true)
 fun CreateAccountScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
-        val nav = rememberNavController()
-        CreateAccountScreen(nav)
     }
 }

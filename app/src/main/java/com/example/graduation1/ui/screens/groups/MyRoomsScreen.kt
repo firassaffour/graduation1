@@ -51,6 +51,7 @@ import com.example.graduation1.viewmodel.UserViewModel
 fun MyRoomsScreen(navController: NavHostController, groupsViewModel: GroupsViewModel, userViewModel: UserViewModel){
 
     val groupsList by groupsViewModel.groups.collectAsState()
+    val newGroupId by groupsViewModel.newGroupId.collectAsState()
     
     val roomsCount by remember { mutableStateOf(groupsList.size.toString()) }
     Column(modifier = Modifier
@@ -94,7 +95,7 @@ fun MyRoomsScreen(navController: NavHostController, groupsViewModel: GroupsViewM
 
         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
             items(groupsList, key = {it.id}){ room ->
-                GroupUI(navController, room, groupsViewModel, userViewModel)
+                GroupUI(navController, room, room.id == newGroupId, groupsViewModel, userViewModel)
             } // items
         } // LazyVerticalGrid
 

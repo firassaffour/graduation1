@@ -1,9 +1,11 @@
 package com.example.graduation1.ui.components
 
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,10 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,8 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -52,6 +59,10 @@ fun CommentUI(navController : NavHostController, comment: Comment, isNew : Boole
     val userList by userViewModel.users.collectAsState()
     val user = userList.find { it.id == comment.userId } ?: return
 
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    val commentDeletedMessage = stringResource(R.string.CommentDeletedSuccessfully)
+    val context = LocalContext.current
+
     var highlight by remember(comment.commentId) { mutableStateOf(isNew) }
     LaunchedEffect(comment.commentId) {
         if (isNew) {
@@ -71,6 +82,13 @@ fun CommentUI(navController : NavHostController, comment: Comment, isNew : Boole
             .background(backgroundColor)
             .fillMaxWidth()
             .padding(14.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = {
+                        if (comment.userId == currentUser.id) showDeleteDialog = true
+                    }
+                )
+            }
     ) {
 
         Row(
@@ -145,4 +163,26 @@ fun CommentUI(navController : NavHostController, comment: Comment, isNew : Boole
             } // Column
         } // Row
     } // Column
+
+    if (showDeleteDialog){
+        AlertDialog(
+            onDismissRequest = {showDeleteDialog = false},
+            title = { Text(stringResource(R.string.Alert)) },
+            text = { Text(stringResource(R.string.sureDeleteComment)) },
+            containerColor = MaterialTheme.colorScheme.background,
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    postViewModel.removeComment(postId, comment.commentId)
+                    Toast.makeText(context, commentDeletedMessage, Toast.LENGTH_SHORT).show()}){
+                    Text(stringResource(R.string.Yes))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {showDeleteDialog = false}){
+                    Text(stringResource(R.string.No))
+                }
+            } // dismissButton
+        ) // AlertDialog
+    } // if
 }

@@ -44,15 +44,24 @@ import com.example.graduation1.R
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.ui.theme.darkGreen
+import com.example.graduation1.viewmodel.GroupsViewModel
+import com.example.graduation1.viewmodel.NotificationViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
 
 @Composable
-fun AddFriendsScreen(navController: NavHostController, userViewModel: UserViewModel){
+fun AddFriendsScreen(navController: NavHostController, userViewModel: UserViewModel, groupsViewModel: GroupsViewModel, notificationViewModel: NotificationViewModel){
+
+    val groupList by groupsViewModel.groups.collectAsState()
+    val groupId by groupsViewModel.currentGroupId.collectAsState()
+    val group = groupList.find { it.id ==  groupId} ?: return
 
     val usersList by userViewModel.users.collectAsState()
-
     val currentUser = userViewModel.currentUser
+
+    val notificationsList by notificationViewModel.notifications.collectAsState()
+
+    val friendsList = usersList.filter { !group.members.contains(it.id) && currentUser.followingList.contains(it.id)}
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -91,7 +100,10 @@ fun AddFriendsScreen(navController: NavHostController, userViewModel: UserViewMo
         LazyColumn(modifier = Modifier
             .fillMaxWidth()) {
 
-            items(usersList) { friend ->
+            items(friendsList) { friend ->
+
+                val notificationIsSent = notificationsList.any { it.userId == friend.id && it.groupId == groupId }
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -142,16 +154,17 @@ fun AddFriendsScreen(navController: NavHostController, userViewModel: UserViewMo
 
                         Spacer(Modifier.weight(1f))
 
-                        Button(onClick = {userViewModel.followUser(friend.id)},
+                        Button(onClick = {notificationViewModel.sendNotification(friend.id, groupId)},
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (friend.followersList.contains(currentUser.id)) darkGray
+                                containerColor = if (notificationIsSent) darkGray
                                 else MaterialTheme.colorScheme.primary
                             ),
                             modifier = Modifier
                                 .wrapContentWidth()
                                 .height(33.dp)) {
-                            Text(text = stringResource(R.string.AddFriend),
+                            Text(text = if (notificationIsSent) stringResource(R.string.Sent)
+                                else stringResource(R.string.AddFriend),
                                 color = Color.White,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,

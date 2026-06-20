@@ -24,17 +24,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.graduation1.R
-import com.example.graduation1.data.remote.RetrofitInstance
-import com.example.graduation1.data.repository.NotificationRepository
 import com.example.graduation1.ui.components.NotificationUI
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.NotificationViewModel
-import com.example.graduation1.viewmodel.NotificationViewModelFactory
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
@@ -43,7 +39,7 @@ import com.example.graduation1.viewmodel.UserViewModel
 fun NotificationScreen(navController: NavHostController, notificationViewModel: NotificationViewModel, groupsViewModel: GroupsViewModel, postViewModel: PostViewModel, userViewModel: UserViewModel){
 
     val todayNotifications by notificationViewModel.todayNotifications.collectAsState()
-    val lastWeekNotification by notificationViewModel.lastWeekNotifications.collectAsState()
+    val lastWeekNotification by notificationViewModel.lastWeeksNotifications.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -76,37 +72,67 @@ fun NotificationScreen(navController: NavHostController, notificationViewModel: 
         LazyColumn(modifier = Modifier
             .fillMaxWidth()) {
 
-            item {
-                Text(
-                    text = stringResource(R.string.Today),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 23.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .align(Alignment.Start)
-                        .padding(20.dp)
-                )
+            if (todayNotifications.isNotEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(R.string.Today),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                            .padding(20.dp)
+                    )
+                }
+
+                items(todayNotifications) { notification ->
+                    NotificationUI(
+                        notification,
+                        notificationViewModel,
+                        groupsViewModel,
+                        postViewModel,
+                        userViewModel
+                    )
+                } // items
             }
 
-            items(todayNotifications){ notification ->
-                NotificationUI(notification, groupsViewModel, postViewModel, userViewModel)
-            } // items
+            if (lastWeekNotification.isNotEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(R.string.LastWeek),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                            .padding(20.dp)
+                    )
+                }
 
-            item{
-                Text(
-                    text = stringResource(R.string.ThisWeek),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 23.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .align(Alignment.Start)
-                        .padding(20.dp)
-                )
+                items(lastWeekNotification) { notification ->
+                    NotificationUI(
+                        notification,
+                        notificationViewModel,
+                        groupsViewModel,
+                        postViewModel,
+                        userViewModel
+                    )
+                } // items
             }
 
-            items(lastWeekNotification){ notification ->
-                NotificationUI(notification, groupsViewModel, postViewModel, userViewModel)
-            } // items
+            if (todayNotifications.isEmpty() && lastWeekNotification.isEmpty()){
+                item {
+                    Text(
+                        text = stringResource(R.string.NoNotification),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(20.dp)
+                    )
+                }
+            }
         } // LazyColumn
     } // Column
 }
