@@ -1,55 +1,74 @@
 package com.example.graduation1.viewmodel
 
+import android.app.Activity.MODE_PRIVATE
+import android.content.Context
 import android.util.Log
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.network.HttpException
 import com.example.graduation1.data.repository.AuthRepository
 import com.example.graduation1.domain.models.RegisterRequest
+import com.example.graduation1.domain.models.RegisterResponse
 import com.example.graduation1.domain.models.User
+import com.example.graduation1.language
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlin.uuid.Uuid
 
 class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
     private val _email = MutableStateFlow<String>("")
     val email = _email.asStateFlow()
 
-    fun createAccount(userName : String, email : String, password : String){
+    fun createAccount(userName : String, email : String, password : String, onSuccess : () -> Unit, onFailure : () -> Unit){
         viewModelScope.launch {
             try {
 
                 val user = RegisterRequest(
-                    1,
                     userName,
-                    userName,
+                    "",
                     email,
-                    password
-
+                    password,
+                    "User"
                 )
                 val response = authRepository.createAccount(user)
 
+                onSuccess()
 
                 Log.e("AuthViewModel", "createAccount: account created successfully, $response")
             }
             catch (e: Exception){
-                Log.e("AuthViewModel", "createAccount: ${e.message}")
+                onFailure()
+                Log.e("REGISTER_EXCEPTION", e.toString())
             }
         }
     }
 
-    fun login(email : String, password : String){
+    fun login(context: Context, email : String, password : String, onSuccess : () -> Unit, onFailure : () -> Unit){
         viewModelScope.launch {
             try {
                 val response = authRepository.login(email, password)
 
+                val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+                prefs.edit() { putString("token", response.token) }
+
+                onSuccess()
+
                 Log.e("AuthViewModel", response.toString())
+                Log.e("AuthViewModel TOKEN", response.token)
+                Log.d("token preference", prefs.getString("token", "").toString())
             }
             catch (e: Exception){
+                onFailure()
                 Log.e("AuthViewModel", "login: ${e.message}")
             }
         }
+    }
+
+    fun logout(context: Context){
+        val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        prefs.edit() { remove("token") }
     }
 
     fun deleteAccount(email : String){

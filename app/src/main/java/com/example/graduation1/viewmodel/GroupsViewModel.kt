@@ -15,6 +15,7 @@ import com.example.graduation1.domain.models.Group
 import com.example.graduation1.domain.models.PostData
 import com.example.graduation1.domain.models.User
 import com.example.graduation1.groupsList
+import com.example.graduation1.user
 import com.patrykandpatrick.vico.core.extension.mutableListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,14 +34,14 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
     private val _currentUserGroups = MutableStateFlow<List<Group>>(emptyList())
     val currentUserGroups = _currentUserGroups.asStateFlow()
 
-    private val _selectedGroup = MutableStateFlow<Group?>(null)
+    private val _selectedGroup = MutableStateFlow<Group?>(groupsList[1])
     val selectedGroup = _selectedGroup.asStateFlow()
 
     private val _groupName = MutableStateFlow("")
     val groupName  = _groupName.asStateFlow()
 
-    private var _currentUser = MutableStateFlow<User>(userRepository.currentUser)
-    val currentUser  = _currentUser
+    private val _currentUser = MutableStateFlow<User>(user)
+    val currentUser  = _currentUser.asStateFlow()
 
     private val _newGroupId = MutableStateFlow("")
     val newGroupId = _newGroupId.asStateFlow()
@@ -50,6 +51,19 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
 
     init {
         getGroups()
+        getCurrentUser()
+    }
+
+    private fun getCurrentUser(){
+        viewModelScope.launch {
+            try {
+                _currentUser.value = userRepository.getCurrentUser()
+                Log.d("userViewModel", "loadUsers: ${_currentUser.value}")
+            }
+            catch (e: Exception){
+                Log.e("userViewModel", "loadUsers: ${e.message}")
+            }
+        }
     }
 
     private fun getGroups(){

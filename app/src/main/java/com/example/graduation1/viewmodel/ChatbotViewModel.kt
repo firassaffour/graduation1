@@ -29,11 +29,24 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
     private val _messageText = MutableStateFlow("")
     val messageText = _messageText.asStateFlow()
 
-    private val _currentUser = userRepository.currentUser
-    val currentUser  = _currentUser
+    private val _currentUser = MutableStateFlow<User>(user)
+    val currentUser  = _currentUser.asStateFlow()
 
     init {
         _chatContent.value = messageList
+        getCurrentUser()
+    }
+
+    private fun getCurrentUser(){
+        viewModelScope.launch {
+            try {
+                _currentUser.value = userRepository.getCurrentUser()
+                Log.d("userViewModel", "loadUsers: ${_currentUser.value}")
+            }
+            catch (e: Exception){
+                Log.e("userViewModel", "loadUsers: ${e.message}")
+            }
+        }
     }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -45,7 +58,7 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
                 val message = Message(
                     Uuid.random().toString(),
                     messageText,
-                    currentUser.id,
+                    currentUser.value.id,
                     createdAt,
                     image
                 )

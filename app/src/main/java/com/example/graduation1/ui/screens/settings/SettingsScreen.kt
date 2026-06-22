@@ -45,9 +45,10 @@ import com.example.graduation1.darkMode
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.language
 import com.example.graduation1.ui.theme.Graduation1Theme
+import com.example.graduation1.viewmodel.AuthViewModel
 
 @Composable
-fun SettingsScreen(navController: NavHostController){
+fun SettingsScreen(navController: NavHostController, authViewModel: AuthViewModel){
 
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -394,6 +395,5 @@ fun SettingsScreen(navController: NavHostController){
 fun SettingsScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
         val nav = rememberNavController()
-        SettingsScreen(nav)
     }
 }

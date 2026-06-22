@@ -54,6 +54,7 @@ import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.PostRepository
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.AppPages
+import com.example.graduation1.emptyProfileImage
 import com.example.graduation1.groupsList
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGreen
@@ -70,7 +71,7 @@ import com.example.graduation1.viewmodel.UserViewModelFactory
 @Composable
 fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: UserViewModel, postViewModel: PostViewModel, groupsViewModel: GroupsViewModel){
 
-    val currentUser = userViewModel.currentUser
+    val currentUser by userViewModel.currentUser.collectAsState()
 
     LaunchedEffect(Unit) {
         groupsViewModel.getUserGroups(currentUser.groupsList)
@@ -118,7 +119,8 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
             .size(140.dp),
             contentAlignment = Alignment.Center){
             Image(
-                rememberAsyncImagePainter(user.image),
+                if (currentUser.image == "") rememberAsyncImagePainter(emptyProfileImage)
+                else rememberAsyncImagePainter(currentUser.image),
                 contentDescription = "image",
                 modifier = Modifier
                     .size(140.dp)

@@ -1,6 +1,7 @@
 package com.example.graduation1.ui.screens.authentication
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -42,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -54,6 +56,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
+import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.BottomNavItem
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.user
@@ -70,6 +73,11 @@ fun CreateAccountScreen(navController: NavHostController, authViewModel: AuthVie
     var selectedGender by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
     var isConfirmPasswordVisible by remember { mutableStateOf(false) }
+
+    val emptyFieldsMessage = stringResource(R.string.EmptyField)
+    val passwordsFieldsMessage = stringResource(R.string.passwordsFieldsError)
+    val accountCreatedMessage = stringResource(R.string.AccountCreated)
+    val context = LocalContext.current
 
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
@@ -303,8 +311,17 @@ fun CreateAccountScreen(navController: NavHostController, authViewModel: AuthVie
         Spacer(Modifier.height(40.dp))
 
         Button(onClick = {
-            //authViewModel.createAccount(username, email, password)
-            navController.navigate(BottomNavItem.Home.route)
+            when{
+                username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() -> Toast.makeText(context, emptyFieldsMessage, Toast.LENGTH_SHORT).show()
+                password != confirmPassword -> Toast.makeText(context, passwordsFieldsMessage, Toast.LENGTH_SHORT).show()
+                else ->{
+                    authViewModel.createAccount(username, email, password,
+                        onSuccess = {
+                            Toast.makeText(context, accountCreatedMessage, Toast.LENGTH_SHORT).show()
+                            navController.navigate(AppPages.Login.route)},
+                        onFailure = {Toast.makeText(context, "email already exist", Toast.LENGTH_SHORT).show()})
+                }
+            }
         },
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(

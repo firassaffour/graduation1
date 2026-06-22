@@ -1,9 +1,10 @@
 package com.example.graduation1.domain.models
 
-data class RegisterRequest(
+data class RegisterResponse(
+    val userID : Int = 0,
     val firstName : String = "",
     val lastName : String = "",
     val email : String = "",
-    val password : String = "",
-    val role : String = ""
+    val bio : String = "",
+    val profileImage : String = "",
 )

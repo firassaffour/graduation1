@@ -66,7 +66,7 @@ fun GroupDetailsScreen(navController: NavHostController, groupId : String, group
 
     val usersList by userViewModel.users.collectAsState()
     val groupMembers = usersList.filter { it.groupsList.contains(groupId) }
-    val currentUser = userViewModel.currentUser
+    val currentUser by userViewModel.currentUser.collectAsState()
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedPost by remember { mutableStateOf<PostData?>(null) }

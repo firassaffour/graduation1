@@ -136,4 +136,7 @@
     <string name="GroupNameEmpty">اكتب اسم للمجموعة</string>
     <string name="GroupImageEmpty">ضع صورة للمجموعة</string>
     <string name="GroupCreatedSuccessfully">تم إنشاء المجموعة بنجاح</string>
+    <string name="EmptyField">إملئ جميع الحقول ارجوك</string>
+    <string name="passwordsFieldsError">تأكيد كلمة السر لا تساوي كلمة السر</string>
+    <string name="AccountCreated">تم إنشاء الحساب بنجاح</string>
 </resources>

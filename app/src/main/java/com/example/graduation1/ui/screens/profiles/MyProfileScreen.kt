@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,15 +50,22 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.AppPages
+import com.example.graduation1.emptyProfileImage
 import com.example.graduation1.language
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.user
+import com.example.graduation1.viewmodel.AuthViewModel
+import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
-fun MyProfileScreen(navController: NavHostController){
+fun MyProfileScreen(navController: NavHostController, userViewModel: UserViewModel, authViewModel: AuthViewModel){
 
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var showClearHistoryDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    val currentUser by userViewModel.currentUser.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()) {
@@ -103,7 +112,8 @@ fun MyProfileScreen(navController: NavHostController){
                     .size(110.dp)) {
 
                     Image(
-                        rememberAsyncImagePainter(user.image),
+                        if (currentUser.image == "") rememberAsyncImagePainter(emptyProfileImage)
+                        else rememberAsyncImagePainter(currentUser.image),
                         contentDescription = "image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -121,7 +131,7 @@ fun MyProfileScreen(navController: NavHostController){
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = user.name,
+                        text = currentUser.name,
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 19.sp,
                         fontWeight = FontWeight.Bold,
@@ -301,7 +311,10 @@ fun MyProfileScreen(navController: NavHostController){
             Row(verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .padding(8.dp)
-                    .clickable {  }) {
+                    .clickable {
+                        authViewModel.logout(context)
+                        navController.navigate(AppPages.StartScreen.route){popUpTo(0)}
+                    }) {
                 Icon(
                     painter = painterResource(id = R.drawable.logout),
                     contentDescription = "logout",
@@ -376,6 +389,5 @@ fun MyProfileScreen(navController: NavHostController){
 fun MyProfileScreenPreview(){
     Graduation1Theme(dynamicColor = false) {
         val nav = rememberNavController()
-        MyProfileScreen(nav)
     }
 }

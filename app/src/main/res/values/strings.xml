@@ -136,4 +136,7 @@
     <string name="GroupNameEmpty">Group name cannot be empty</string>
     <string name="GroupImageEmpty">Group image cannot be empty</string>
     <string name="GroupCreatedSuccessfully">Group is created successfully</string>
+    <string name="EmptyField">please fill all fields</string>
+    <string name="passwordsFieldsError">password and confirm password do not match</string>
+    <string name="AccountCreated">Account Created Successfully</string>
 </resources>

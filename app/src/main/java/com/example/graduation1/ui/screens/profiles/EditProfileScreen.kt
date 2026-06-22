@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,16 +56,17 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.BottomNavItem
+import com.example.graduation1.emptyProfileImage
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.user
 import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
 fun EditProfileScreen(navController: NavHostController, userViewModel: UserViewModel){
-    val currentUser = userViewModel.currentUser
+    val currentUser by userViewModel.currentUser.collectAsState()
     var name by remember { mutableStateOf(currentUser.name) }
     var email by remember { mutableStateOf(currentUser.email) }
-    var username by remember { mutableStateOf(user.userName) }
+    var username by remember { mutableStateOf(currentUser.userName) }
     var phoneNumber by remember { mutableStateOf(currentUser.phone) }
     var birthday by remember { mutableStateOf(currentUser.birthday) }
     val options = listOf(stringResource(R.string.Male), stringResource(R.string.Female))
@@ -126,7 +128,8 @@ fun EditProfileScreen(navController: NavHostController, userViewModel: UserViewM
                     .align(Alignment.CenterHorizontally)
             ) {
                 Image(
-                    rememberAsyncImagePainter(user.image),
+                    if (currentUser.image == "") rememberAsyncImagePainter(emptyProfileImage)
+                    else rememberAsyncImagePainter(currentUser.image),
                     contentDescription = "image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier

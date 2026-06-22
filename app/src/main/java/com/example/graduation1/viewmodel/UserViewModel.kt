@@ -20,8 +20,8 @@ import java.util.Locale
 
 class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
 
-    private var _currentUser = userRepository.currentUser
-    val currentUser  = _currentUser
+    private val _currentUser = MutableStateFlow<User>(user)
+    val currentUser  = _currentUser.asStateFlow()
 
     private val _users = MutableStateFlow<List<User>>(emptyList())
     val users  = _users.asStateFlow()
@@ -43,7 +43,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     private fun getUsers(){
         viewModelScope.launch {
             try {
-                _users.value = friendsList
+                _users.value = userRepository.getUsers()
                 Log.d("userViewModel", "loadUsers: $users")
             }
             catch (e: Exception){
@@ -55,10 +55,12 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     private fun getCurrentUser(){
         viewModelScope.launch {
             try {
-                Log.d("userViewModel", "loadUsers: $users")
+                _currentUser.value = userRepository.getCurrentUser()
+
+                Log.d("userViewModel", "getCurrentUser: ${_currentUser.value}")
             }
             catch (e: Exception){
-                Log.e("userViewModel", "loadUsers: ${e.message}")
+                Log.e("userViewModel", "getCurrentUser: ${e.message}")
             }
         }
     }
@@ -69,8 +71,8 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
                 _followers.value = _users.value.filter { it.id in followersList }
             }
             catch (e: Exception){
-                Log.d("userViewModel", "loadUsers: $users")
-                Log.e("userViewModel", "loadUsers: ${e.message}")
+                Log.d("userViewModel", "followers: $users")
+                Log.e("userViewModel", "followers: ${e.message}")
             }
         }
     }
@@ -79,16 +81,16 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 _following.value = _users.value.filter { it.id in followingList }
-                Log.d("userViewModel", "loadUsers: $users")
+                Log.d("userViewModel", "following: $users")
             }
             catch (e: Exception){
-                Log.e("userViewModel", "loadUsers: ${e.message}")
+                Log.e("userViewModel", "following: ${e.message}")
             }
         }
     }
 
-    fun getUserDetails(userId : String) : User{
-        return _users.value.first { it.id == userId }
+    fun getUserDetails(userId : String) : User?{
+        return _users.value.find { it.id == userId }
     }
 
     fun editUser(id: String, user: User){
@@ -105,7 +107,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     fun followUser(userId: String){
         viewModelScope.launch {
             try {
-                val currentUserId = _currentUser.id ?: return@launch
+                val currentUserId = _currentUser.value.id ?: return@launch
                 val isFollowing = _users.value.first { it.id == userId }.followersList.contains(currentUserId)
                 _users.value =_users.value.map {
                     if (it.id == userId) {
@@ -116,11 +118,11 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
                     else it
                 }
 
-                _currentUser = _currentUser.copy(
+                _currentUser.value = _currentUser.value.copy(
                     followingList =
-                        if (isFollowing) _currentUser.followingList - userId
+                        if (isFollowing) _currentUser.value.followingList - userId
 
-                        else _currentUser.followingList - userId
+                        else _currentUser.value.followingList - userId
                 )
             }
             catch (e: Exception){
@@ -141,5 +143,10 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         config.setLocale(locale)
 
         context.resources.updateConfiguration(config, context.resources.displayMetrics)
+    }
+
+    fun refreshData(){
+        getUsers()
+        getCurrentUser()
     }
 }

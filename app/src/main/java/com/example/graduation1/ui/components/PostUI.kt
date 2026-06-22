@@ -74,7 +74,7 @@ fun PostUI(navController: NavHostController,
 
     val userList by userViewModel.users.collectAsState()
     val user = userList.find { it.id == post.userId } ?: return
-    val currentUser = userViewModel.currentUser
+    val currentUser by userViewModel.currentUser.collectAsState()
 
     val groupList by groupsViewModel.groups.collectAsState()
     val group = groupList.find { it.id == post.groupId } ?: return

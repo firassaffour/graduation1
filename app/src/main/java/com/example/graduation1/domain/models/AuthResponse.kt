@@ -1,8 +1,10 @@
 package com.example.graduation1.domain.models
 
 data class AuthResponse(
-    val userId : Int,
+    val token : String,
+    val userID : Int,
     val firstName : String?,
     val lastName : String?,
-    val email : String?
+    val profileImage : String?,
+    val message : String
 )

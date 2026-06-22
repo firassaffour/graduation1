@@ -33,6 +33,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.ChatItem
+import com.example.graduation1.emptyProfileImage
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.ui.theme.darkGreen
 import com.example.graduation1.ui.theme.primaryRed
@@ -63,7 +64,8 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
 
             Box {
                 Image(
-                    rememberAsyncImagePainter(user.image),
+                    if (user.image == "") rememberAsyncImagePainter(emptyProfileImage)
+                    else rememberAsyncImagePainter(user.image),
                     contentDescription = "image",
                     modifier = Modifier
                         .size(70.dp)

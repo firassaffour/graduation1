@@ -1,5 +1,6 @@
 package com.example.graduation1.ui.screens.authentication
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,16 +47,24 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.graduation1.R
+import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.BottomNavItem
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.viewmodel.AuthViewModel
+import com.example.graduation1.viewmodel.ChatViewModel
+import com.example.graduation1.viewmodel.PostViewModel
+import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
-fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel){
+fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel, userViewModel: UserViewModel, postViewModel: PostViewModel, chatViewModel: ChatViewModel){
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isPasswordVisible by remember { mutableStateOf(false) }
+
+    val emptyFieldsMessage = stringResource(R.string.EmptyField)
+
+    val context = LocalContext.current
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -192,8 +202,18 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel){
         Spacer(Modifier.height(30.dp))
 
         Button(onClick = {
-            //authViewModel.login(email, password)
-            navController.navigate(BottomNavItem.Home.route)
+            if (email.isEmpty() || password.isEmpty()) Toast.makeText(context, emptyFieldsMessage, Toast.LENGTH_SHORT).show()
+            else {
+                authViewModel.login(context, email, password,
+                    onSuccess = {
+                        Toast.makeText(context, "logged in successfully", Toast.LENGTH_SHORT).show()
+                        navController.navigate(BottomNavItem.Home.route){popUpTo(0)}
+                        userViewModel.refreshData()
+                        chatViewModel.refreshData()
+                        postViewModel.refreshData()},
+                    onFailure = {Toast.makeText(context, "email or password is wrong", Toast.LENGTH_SHORT).show()})
+
+            }
         },
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(

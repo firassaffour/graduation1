@@ -69,7 +69,7 @@ fun InRoomsScreen(navController: NavHostController, groupId : String, groupsView
     val groupMembers by groupsViewModel.members.collectAsState()
 
     val userList by userViewModel.users.collectAsState()
-    val currentUser = userViewModel.currentUser
+    val currentUser by userViewModel.currentUser.collectAsState()
     val groupMembersInformation = userList
         .filter { it.id in group.members }
         .sortedWith(

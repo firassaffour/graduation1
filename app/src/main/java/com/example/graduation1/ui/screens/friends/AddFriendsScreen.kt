@@ -42,6 +42,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.AppPages
+import com.example.graduation1.emptyProfileImage
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.ui.theme.darkGreen
 import com.example.graduation1.viewmodel.GroupsViewModel
@@ -57,7 +58,7 @@ fun AddFriendsScreen(navController: NavHostController, userViewModel: UserViewMo
     val group = groupList.find { it.id ==  groupId} ?: return
 
     val usersList by userViewModel.users.collectAsState()
-    val currentUser = userViewModel.currentUser
+    val currentUser by userViewModel.currentUser.collectAsState()
 
     val notificationsList by notificationViewModel.notifications.collectAsState()
 
@@ -119,7 +120,8 @@ fun AddFriendsScreen(navController: NavHostController, userViewModel: UserViewMo
 
                         Box() {
                             Image(
-                                rememberAsyncImagePainter(friend.image),
+                                if (friend.image == "") rememberAsyncImagePainter(emptyProfileImage)
+                                else rememberAsyncImagePainter(friend.image),
                                 contentDescription = "image",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier

@@ -4,6 +4,7 @@ import com.example.graduation1.data.remote.ApiService
 import com.example.graduation1.domain.models.AuthResponse
 import com.example.graduation1.domain.models.LoginRequest
 import com.example.graduation1.domain.models.RegisterRequest
+import com.example.graduation1.domain.models.RegisterResponse
 import com.example.graduation1.domain.models.User
 
 class AuthRepository(private val api : ApiService) {

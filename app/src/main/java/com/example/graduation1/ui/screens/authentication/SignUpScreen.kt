@@ -1,5 +1,6 @@
 package com.example.graduation1.ui.screens.authentication
 
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -73,6 +74,9 @@ fun SignUpScreen(navController: NavHostController, authViewModel: AuthViewModel)
     var facebookButtonClicked by remember { mutableStateOf(false) }
     var emailButtonClicked by remember { mutableStateOf(true) }
     var continueButtonClicked by remember { mutableStateOf(false) }
+
+    val emptyFieldsMessage = stringResource(R.string.EmptyField)
+    val context = LocalContext.current
 
     val email by authViewModel.email.collectAsState()
     var phoneNumber by remember { mutableStateOf("") }
@@ -160,8 +164,8 @@ fun SignUpScreen(navController: NavHostController, authViewModel: AuthViewModel)
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
-                    value = phoneNumber,
-                    onValueChange = { phoneNumber = it },
+                    value =  email,
+                    onValueChange = { authViewModel.updateEmail(it) },
                     placeholder = {
                         Text(
                             "EX +201158****",
@@ -191,7 +195,8 @@ fun SignUpScreen(navController: NavHostController, authViewModel: AuthViewModel)
             Spacer(Modifier.height(20.dp))
 
             Button(onClick = {
-                navController.navigate(AppPages.CreateAccount.route)
+                if (email.isEmpty()) Toast.makeText(context, emptyFieldsMessage, Toast.LENGTH_SHORT).show()
+                else navController.navigate(AppPages.CreateAccount.route)
                              },
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(

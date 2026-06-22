@@ -1,5 +1,6 @@
 package com.example.graduation1.data.remote
 
+import android.content.Context
 import okhttp3.Dns
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -11,6 +12,18 @@ import java.util.concurrent.TimeUnit
 private const val BASE_URL = "https://graduation-project-backend-production-bc68.up.railway.app/"
 
 object RetrofitInstance {
+
+    private lateinit var context : Context
+
+    fun initialize(context: Context){
+        this.context = context.applicationContext
+    }
+
+    private val authInterceptor = AuthInterceptor{
+        val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        prefs.getString("token", null)
+    }
+
     val client = OkHttpClient.Builder()
         .dns(object : Dns {
             override fun lookup(hostname: String): List<InetAddress> {
@@ -18,6 +31,7 @@ object RetrofitInstance {
                     .filterIsInstance<Inet4Address>()
             }
         })
+        .addInterceptor(authInterceptor)
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .build()

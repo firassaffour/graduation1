@@ -10,7 +10,9 @@ import com.example.graduation1.data.repository.ChatRepository
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.ChatItem
 import com.example.graduation1.domain.models.Message
+import com.example.graduation1.domain.models.User
 import com.example.graduation1.language
+import com.example.graduation1.user
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -33,14 +35,27 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
     private val _messageText = MutableStateFlow("")
     val messageText = _messageText.asStateFlow()
 
-    private val _currentUser = userRepository.currentUser
-    val currentUser  = _currentUser
+    private val _currentUser = MutableStateFlow<User>(user)
+    val currentUser  = _currentUser.asStateFlow()
 
     private val _chatSearchQuery = MutableStateFlow<String>("")
     val chatSearchQuery = _chatSearchQuery.asStateFlow()
 
     init {
         getChats()
+        getCurrentUser()
+    }
+
+    private fun getCurrentUser(){
+        viewModelScope.launch {
+            try {
+                _currentUser.value = userRepository.getCurrentUser()
+                Log.d("userViewModel", "loadUsers: ${_currentUser.value}")
+            }
+            catch (e: Exception){
+                Log.e("userViewModel", "loadUsers: ${e.message}")
+            }
+        }
     }
 
     fun getChatContent(chatId: String){
@@ -87,7 +102,7 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
                 val message = Message(
                     Uuid.random().toString(),
                     messageText,
-                    _currentUser.id,
+                    _currentUser.value.id,
                     createdAt,
                     image
                     )
@@ -132,7 +147,7 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
 
     fun getUnSeenMessagesCount(chatId : String) : Int{
         val chat = _chatsList.value.find { it.chatId ==  chatId}
-        return chat?.messagesList?.count { it.senderId != currentUser.id && !it.isSeen } ?: 0
+        return chat?.messagesList?.count { it.senderId != currentUser.value.id && !it.isSeen } ?: 0
     }
 
     fun updateMessagesSeen(chatId: String){
@@ -141,7 +156,7 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
                 _chatsList.value = _chatsList.value.map { chat ->
                     if (chat.chatId == chatId){
                         chat.copy(messagesList = chat.messagesList.map { message ->
-                            if (message.senderId != currentUser.id)
+                            if (message.senderId != currentUser.value.id)
                                 message.copy(isSeen = true)
                             else message
                         })
@@ -154,5 +169,10 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
                 Log.e("API", "ChatViewModel: ${e.message}")
             }
         }
+    }
+
+    fun refreshData(){
+        getChats()
+        getCurrentUser()
     }
 }

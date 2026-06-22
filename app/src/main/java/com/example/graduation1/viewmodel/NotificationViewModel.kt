@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.graduation1.data.repository.NotificationRepository
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.Notification
+import com.example.graduation1.domain.models.User
 import com.example.graduation1.todayNotificationList
+import com.example.graduation1.user
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -24,11 +26,24 @@ class NotificationViewModel(private val notificationRepository: NotificationRepo
     private val _notifications = MutableStateFlow<List<Notification>>(emptyList())
     val notifications = _notifications.asStateFlow()
 
-    private val _currentUser = userRepository.currentUser
-    val currentUser = _currentUser
+    private val _currentUser = MutableStateFlow<User>(user)
+    val currentUser  = _currentUser.asStateFlow()
 
     init {
         getNotifications()
+        getCurrentUser()
+    }
+
+    private fun getCurrentUser(){
+        viewModelScope.launch {
+            try {
+                _currentUser.value = userRepository.getCurrentUser()
+                Log.d("userViewModel", "loadUsers: ${_currentUser.value}")
+            }
+            catch (e: Exception){
+                Log.e("userViewModel", "loadUsers: ${e.message}")
+            }
+        }
     }
 
     private fun getNotificationDate(createdAt : Long) : Boolean{
@@ -40,7 +55,7 @@ class NotificationViewModel(private val notificationRepository: NotificationRepo
     private fun getNotifications(){
         viewModelScope.launch {
             try {
-                _notifications.value = todayNotificationList.filter { it.userId == _currentUser.id }
+                _notifications.value = todayNotificationList.filter { it.userId == _currentUser.value.id }
                 _todayNotifications.value = _notifications.value.filter { getNotificationDate(it.createdAt) }
                 _lastWeeksNotifications.value = _notifications.value.filter { !getNotificationDate(it.createdAt) }
                 //notificationList = repository.getNotification()

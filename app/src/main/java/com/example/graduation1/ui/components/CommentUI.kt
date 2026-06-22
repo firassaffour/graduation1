@@ -47,6 +47,7 @@ import com.example.graduation1.R
 import com.example.graduation1.darkMode
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.Comment
+import com.example.graduation1.emptyProfileImage
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
@@ -55,7 +56,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun CommentUI(navController : NavHostController, comment: Comment, isNew : Boolean, postId : String, postViewModel : PostViewModel, userViewModel: UserViewModel){
 
-    val currentUser = userViewModel.currentUser
+    val currentUser by userViewModel.currentUser.collectAsState()
     val userList by userViewModel.users.collectAsState()
     val user = userList.find { it.id == comment.userId } ?: return
 
@@ -100,7 +101,8 @@ fun CommentUI(navController : NavHostController, comment: Comment, isNew : Boole
         ) {
 
             Image(
-                rememberAsyncImagePainter(user.image),
+                if (user.image == "") rememberAsyncImagePainter(emptyProfileImage)
+                else rememberAsyncImagePainter(user.image),
                 contentDescription = "image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

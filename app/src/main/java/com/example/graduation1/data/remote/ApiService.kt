@@ -12,14 +12,19 @@ import com.example.graduation1.domain.models.LoginRequest
 import com.example.graduation1.domain.models.Message
 import com.example.graduation1.domain.models.Notification
 import com.example.graduation1.domain.models.PostData
+import com.example.graduation1.domain.models.PostResponse
 import com.example.graduation1.domain.models.RecruiterData
 import com.example.graduation1.domain.models.RegisterRequest
+import com.example.graduation1.domain.models.RegisterResponse
 import com.example.graduation1.domain.models.User
+import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface ApiService {
@@ -28,7 +33,7 @@ interface ApiService {
     @POST("api/Auth/register")
     suspend fun createAccount(
         @Body registerRequest: RegisterRequest
-    ) : RegisterRequest
+    ) : RegisterResponse
 
     @POST("api/Auth/login")
     suspend fun login(
@@ -37,7 +42,10 @@ interface ApiService {
 
     //Users
     @GET("api/users")
-    suspend fun getUsers() : List<User>
+    suspend fun getUsers() : List<RegisterResponse>
+
+    @GET("api/users/me")
+    suspend fun getCurrentUser() : RegisterResponse
 
     @GET("api/users/{id}")
     suspend fun getUserDetails(
@@ -55,42 +63,42 @@ interface ApiService {
     //follow
     @POST("api/Follow/{userId}")
     suspend fun followUser(
-        @Path("id") id: String
-    ) : User
+        @Path("userId") id: String
+    ) : Boolean
 
     @DELETE("api/Follow/{userId}")
     suspend fun unfollowUser(
-        @Path("id") id: String
-    ) : User
+        @Path("userId") id: String
+    ) : Boolean
 
     @GET("api/Follow/{userId}/followers")
     suspend fun getFollowers(
-        @Path("id") id: String
+        @Path("userId") id: String
     ) : List<User>
 
     @GET("api/Follow/{userId}/following")
     suspend fun getFollowing(
-        @Path("id") id: String
+        @Path("userId") id: String
     ) : List<User>
 
     @GET("api/Follow/{userId}/status")
     suspend fun getFollowStatus(
-        @Path("id") id: String
+        @Path("userId") id: String
     ) : Boolean
 
 
     //Posts
     @GET("api/posts")
-    suspend fun getPosts() : List<PostData>
+    suspend fun getPosts() : List<PostResponse>
 
     @GET("api/posts/{id}")
     suspend fun getPostDetails(
-        @Path("id") id: String) : PostData
+        @Path("id") id: String) : PostResponse
 
     @POST("api/posts")
     suspend fun createPost(
-        @Body post : PostData
-    ) : PostData
+        @Body post : PostResponse
+    ) : PostResponse
 
     @PUT("api/posts/{id}")
     suspend fun updateLike(
@@ -119,7 +127,8 @@ interface ApiService {
 
     @PUT("api/Comments/{id}")
     suspend fun editComment(
-        @Path("id") id: String
+        @Path("id") id: String,
+        @Body comment: Comment
     ) : Comment
 
     @DELETE("api/Comments/{id}")
@@ -130,17 +139,17 @@ interface ApiService {
     //Like
     @POST("api/Likes/toggle/{postId}")
     suspend fun toggleLikePost(
-        @Path("id") id: String
+        @Path("postId") id: String
     ) : PostData
 
     @GET("api/Likes/count/{postId}")
     suspend fun getLikesCountPost(
-        @Path("id") id: String
-    ) : List<String>
+        @Path("postId") id: String
+    ) : Int
 
     @GET("api/Likes/status/{postId}")
     suspend fun getIsLikedPost(
-        @Path("id") id: String
+        @Path("postId") id: String
     ) : Boolean
 
     // savedPosts
@@ -149,12 +158,12 @@ interface ApiService {
 
     @POST("api/SavedPosts/{postId}")
     suspend fun addSavedPost(
-        @Path("id") id: String
+        @Path("postId") id: String
     ) : PostData
 
     @DELETE("api/SavedPosts/{postId}")
     suspend fun deleteSavedPost(
-        @Path("id") id: String
+        @Path("postId") id: String
     ) : PostData
 
     //Communities
@@ -168,22 +177,22 @@ interface ApiService {
 
     @POST("api/Communities/{communityId}/join")
     suspend fun joinCommunity(
-        @Path("id") id: String
+        @Path("communityId") id: String
     ) : Group
 
     @DELETE("api/Communities/{communityId}/leave")
     suspend fun leaveCommunity(
-        @Path("id") id: String
+        @Path("communityId") id: String
     ) : Group
 
     @GET("api/Communities/{communityId}/members")
     suspend fun getCommunityMembers(
-        @Path("id") id: String
+        @Path("communityId") id: String
     ) : List<User>
 
     @GET("api/Communities/{communityId}/membership")
     suspend fun getCommunityMembersShip(
-        @Path("id") id: String
+        @Path("communityId") id: String
     ) : List<User>
 
     //Messages
@@ -192,11 +201,13 @@ interface ApiService {
 
     @GET("api/Messages/conversation/{otherUserId}")
     suspend fun getChatContent(
-        @Path("id") id: String
+        @Path("otherUserId") id: String
     ) : List<Message>
 
     @POST("api/Messages")
-    suspend fun sendMessage() : Message
+    suspend fun sendMessage(
+        @Body message: Message
+    ) : Message
 
     @DELETE("api/Messages/{id}")
     suspend fun deleteMessage(
@@ -228,11 +239,13 @@ interface ApiService {
     suspend fun newChatSession() : ChatItem
 
     @POST("api/chat/send")
-    suspend fun sendChatbotMessage() : Message
+    suspend fun sendChatbotMessage(
+        @Body message: Message
+    ) : Message
 
     @GET("api/chat/history/{sessionId}")
     suspend fun getChatSession(
-        @Path("id") id: String
+        @Path("sessionId") id: String
     ) : ChatItem
 
     //ExperienceGeneration
@@ -278,7 +291,7 @@ interface ApiService {
 
     @GET("api/jobapplications/job/{jobId}")
     suspend fun getJobApplicationDetails(
-        @Path("id") id: String
+        @Path("jobId") id: String
     ) : JobApplicationData
 
     @PUT("api/jobapplications/{id}/status")
@@ -316,20 +329,21 @@ interface ApiService {
     ) : List<JobsData>
 
     //Media
+    @Multipart
     @POST("api/Media/upload")
     suspend fun uploadImage(
-        @Body string: String
+        @Part file : MultipartBody.Part
     ) : String
 
-    @GET("api/Media/post/{postId")
+    @GET("api/Media/post/{postId}")
     suspend fun getImage(
-        @Path("id") id: String
+        @Path("postId") id: String
     ) : String
 
     //postAnalysis
     @POST("api/posts/{postId}/analyze")
     suspend fun getPostAnalysis(
-        @Path("id") id: String
+        @Path("postId") id: String
     ) : PostData
 
     //recruiter

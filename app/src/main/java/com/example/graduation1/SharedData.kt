@@ -18,6 +18,7 @@ val omerImage = R.drawable.omerai
 val ahmedImage = R.drawable.ahmedai
 val seifImage = R.drawable.seifai
 val mahmodImage = R.drawable.mahmodai
+val emptyProfileImage = "https://tse2.mm.bing.net/th/id/OIP.TtQ2FWvwnpv3wFG-Ylin-AHaHa?rs=1&pid=ImgDetMain&o=7&rm=3"
 
 val followers1 = listOf("1", "2")
 val followers2 = listOf("4", "3", "1")

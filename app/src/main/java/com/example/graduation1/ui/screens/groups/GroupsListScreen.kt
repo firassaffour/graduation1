@@ -41,7 +41,7 @@ fun GroupsListScreen(navController: NavHostController, userId : String, groupsVi
 
     val user = userViewModel.getUserDetails(userId)
     LaunchedEffect(Unit) {
-        groupsViewModel.getUserGroups(user.groupsList)
+        groupsViewModel.getUserGroups(user!!.groupsList)
     }
 
     val groupsList by groupsViewModel.currentUserGroups.collectAsState()
@@ -117,7 +117,7 @@ fun GroupsListScreen(navController: NavHostController, userId : String, groupsVi
                             )
 
                             Text(
-                                text = "${groupsViewModel.getFriendsInGroup(group, user.followingList)} ${stringResource(R.string.Friends)}   ${group.members.count()} ${stringResource(R.string.Members)}",
+                                text = "${groupsViewModel.getFriendsInGroup(group, user!!.followingList)} ${stringResource(R.string.Friends)}   ${group.members.count()} ${stringResource(R.string.Members)}",
                                 color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold

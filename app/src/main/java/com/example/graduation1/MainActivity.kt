@@ -123,6 +123,8 @@ class MainActivity : ComponentActivity() {
 
         darkMode = prefs.getBoolean("dark", false)
 
+        RetrofitInstance.initialize(applicationContext)
+
         setContent {
             Graduation1Theme(darkTheme = darkMode, dynamicColor = false) {
                 val systemUiController = rememberSystemUiController()
@@ -188,6 +190,10 @@ class MainActivity : ComponentActivity() {
 
         val showBottomBar = currentRoute in BottomNavItem.items.map { it.route }
 
+        val prefs = getSharedPreferences("settings", MODE_PRIVATE)
+        val token = prefs.getString("token", null)
+        val firstPage = if (token.isNullOrEmpty()) AppPages.OnBoardingTabs.route else BottomNavItem.Home.route
+
 
         Scaffold(
             floatingActionButton = {
@@ -221,7 +227,7 @@ class MainActivity : ComponentActivity() {
 
             NavHost(
                 navController = navController,
-                startDestination = AppPages.OnBoardingTabs.route,
+                startDestination = firstPage,
                 modifier = Modifier.padding(padding)
             ) {
                 composable(AppPages.StartScreen.route) { StartScreen(navController) }
@@ -234,7 +240,7 @@ class MainActivity : ComponentActivity() {
                 composable(AppPages.AddFriends.route) { AddFriendsScreen(navController, userViewModel, groupsViewModel, notificationViewModel) }
                 composable(AppPages.CreateGroup.route) { CreateGroupScreen(navController, groupsViewModel) }
                 composable(AppPages.SignUp.route) { SignUpScreen(navController, authViewModel) }
-                composable(AppPages.Login.route) { LoginScreen(navController, authViewModel) }
+                composable(AppPages.Login.route) { LoginScreen(navController, authViewModel, userViewModel, postViewModel, chatViewModel) }
                 composable(AppPages.CreateAccount.route) { CreateAccountScreen(navController, authViewModel) }
                 composable("${AppPages.GroupsList.route}/{userId}", arguments = listOf(navArgument("userId") {type = NavType.StringType})){ backStack ->
                     val userId = backStack.arguments?.getString("userId")
@@ -243,14 +249,14 @@ class MainActivity : ComponentActivity() {
                 val postId = backStack.arguments?.getString("postId")
                     PostScreen(navController, postId!!, postViewModel, userViewModel, groupsViewModel)
                 } // Composable
-                composable(BottomNavItem.Profile.route) { MyProfileScreen(navController) }
+                composable(BottomNavItem.Profile.route) { MyProfileScreen(navController, userViewModel, authViewModel) }
                 composable(AppPages.EditProfile.route) { EditProfileScreen(navController, userViewModel) }
                 composable(AppPages.ChatbotStart.route) { ChatbotStartScreen(navController) }
                 composable(AppPages.Chatbot.route) { ChatbotScreen(navController, chatbotViewModel) }
                 composable(AppPages.ChatbotHistory.route) { ChatbotHistoryScreen(navController, chatbotViewModel) }
                 composable(AppPages.Notification.route) { NotificationScreen(navController, notificationViewModel, groupsViewModel, postViewModel, userViewModel) }
                 composable(AppPages.NotificationSettings.route) { NotificationSettingsScreen(navController) }
-                composable(AppPages.Settings.route) { SettingsScreen(navController) }
+                composable(AppPages.Settings.route) { SettingsScreen(navController, authViewModel) }
                 composable(AppPages.Favourite.route) { FavouriteScreen(navController, postViewModel, userViewModel, groupsViewModel) }
                 composable(AppPages.Saved.route) { SavedScreen(navController, postViewModel, userViewModel, groupsViewModel) }
                 composable(AppPages.Language.route) { LanguageScreen(navController) }

@@ -44,6 +44,7 @@ import com.example.graduation1.R
 import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.AppPages
+import com.example.graduation1.emptyProfileImage
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.ui.theme.darkGreen
@@ -55,7 +56,7 @@ fun FriendsScreen(navController: NavHostController, userViewModel: UserViewModel
 
     val usersList by userViewModel.users.collectAsState()
 
-    val currentUser = userViewModel.currentUser
+    val currentUser by userViewModel.currentUser.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -91,7 +92,8 @@ fun FriendsScreen(navController: NavHostController, userViewModel: UserViewModel
 
                         Box() {
                             Image(
-                                rememberAsyncImagePainter(friend.image),
+                                if (friend.image == "") rememberAsyncImagePainter(emptyProfileImage)
+                                else rememberAsyncImagePainter(friend.image),
                                 contentDescription = "image",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier

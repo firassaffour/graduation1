@@ -80,7 +80,7 @@ fun CreatePostScreen(navController: NavHostController, userViewModel: UserViewMo
     // Groups View Model
     val selectedGroup by groupsViewModel.selectedGroup.collectAsState()
 
-    val currentUser = userViewModel.currentUser
+    val currentUser by userViewModel.currentUser.collectAsState()
 
     // Screen Variables
     var codeSnippetAdded by rememberSaveable { mutableStateOf(false) }

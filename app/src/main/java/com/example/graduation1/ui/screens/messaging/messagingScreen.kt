@@ -74,6 +74,7 @@ import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.ChatRepository
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.User
+import com.example.graduation1.emptyProfileImage
 import com.example.graduation1.language
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGray
@@ -99,7 +100,7 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
         chatViewModel.updateMessagesSeen(chatId)
     }
 
-    val currentUser = chatViewModel.currentUser
+    val currentUser by chatViewModel.currentUser.collectAsState()
 
     val chatContent by chatViewModel.chatContent.collectAsState()
     val listState = rememberLazyListState()
@@ -176,7 +177,8 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
                 Spacer(Modifier.width(20.dp))
 
                 Image(
-                    rememberAsyncImagePainter(user.image),
+                    if (user.image == "") rememberAsyncImagePainter(emptyProfileImage)
+                    else rememberAsyncImagePainter(user.image),
                     contentDescription = "profile Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier

@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +36,7 @@ import com.example.graduation1.viewmodel.UserViewModel
 @Composable
 fun LocationScreen(navController: NavHostController, userViewModel: UserViewModel){
 
-    val currentUser = userViewModel.currentUser
+    val currentUser by userViewModel.currentUser.collectAsState()
     var selected by remember { mutableStateOf(currentUser.location) }
     val options = listOf(
         stringResource(R.string.Egypt),

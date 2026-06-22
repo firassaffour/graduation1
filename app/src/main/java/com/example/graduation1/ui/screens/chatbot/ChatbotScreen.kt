@@ -85,7 +85,7 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
 
     val messageText by chatbotViewModel.messageText.collectAsState()
 
-    val currentUser = chatbotViewModel.currentUser
+    val currentUser by chatbotViewModel.currentUser.collectAsState()
 
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var imageIsSelected by remember { mutableStateOf(false) }
