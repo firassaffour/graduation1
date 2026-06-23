@@ -14,6 +14,7 @@ import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.Group
 import com.example.graduation1.domain.models.PostData
 import com.example.graduation1.domain.models.User
+import com.example.graduation1.domain.models.requets_response.CreateCommunityRequest
 import com.example.graduation1.groupsList
 import com.example.graduation1.user
 import com.patrykandpatrick.vico.core.extension.mutableListOf
@@ -34,7 +35,7 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
     private val _currentUserGroups = MutableStateFlow<List<Group>>(emptyList())
     val currentUserGroups = _currentUserGroups.asStateFlow()
 
-    private val _selectedGroup = MutableStateFlow<Group?>(groupsList[1])
+    private val _selectedGroup = MutableStateFlow<Group?>(null)
     val selectedGroup = _selectedGroup.asStateFlow()
 
     private val _groupName = MutableStateFlow("")
@@ -69,7 +70,7 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
     private fun getGroups(){
         viewModelScope.launch {
             try {
-                _groups.value = groupsList
+                _groups.value = groupsRepository.getCommunities()
             }
             catch (e: Exception){
                 Log.e("API", "GroupsViewModel: ${e.message}")
@@ -80,12 +81,40 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
     fun getUserGroups(userGroups : List<String>){
         viewModelScope.launch {
             try {
-                _currentUserGroups.value = _groups.value.filter { it.id in userGroups }
+                _currentUserGroups.value = _groups.value
             }
             catch (e: Exception){
                 Log.e("API", "GroupsViewModel: ${e.message}")
             }
         }
+    }
+
+    fun getMembers(groupId: String) : List<User>{
+        var response = emptyList<User>()
+        viewModelScope.launch {
+            try {
+                response = groupsRepository.getCommunityMembers(groupId.toInt())
+                Log.d("API", "Group member success: $response")
+            }
+            catch (e : Exception){
+                Log.e("API", "member Group error: ${e.message}", )
+            }
+        }
+        return response
+    }
+
+    fun getMemberShip(groupId: String) : Boolean{
+        var response = false
+        viewModelScope.launch {
+            try {
+                response = groupsRepository.getCommunityMembership(groupId.toInt()).isMember
+                Log.d("API", "Group membership success: $response")
+            }
+            catch (e : Exception){
+                Log.e("API", "Group membership error: ${e.message}", )
+            }
+        }
+        return response
     }
 
 
@@ -130,6 +159,28 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
 
                 else it
             }
+
+        viewModelScope.launch {
+            try {
+                val response = groupsRepository.joinCommunity(groupId.toInt())
+                Log.d("API", "joinGroup success: $response")
+            }
+            catch (e : Exception){
+                Log.e("API", "joinGroup error: ${e.message}", )
+            }
+        }
+    }
+
+    fun leaveGroup(groupId: String){
+        viewModelScope.launch {
+            try {
+                val response = groupsRepository.leaveCommunity(groupId.toInt())
+                Log.d("API", "leaveGroup success: $response")
+            }
+            catch (e : Exception){
+                Log.e("API", "leaveGroup error: ${e.message}", )
+            }
+        }
     }
 
 
@@ -149,6 +200,14 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
                 _newGroupId.value = group.id
 
                 _currentUser.value = _currentUser.value.copy(groupsList = _currentUser.value.groupsList + group.id)
+
+                val groupData = CreateCommunityRequest(
+                    name,
+                    ""
+                )
+
+                groupsRepository.createCommunity(groupData)
+                Log.d("API", "createGroup success: $groupData")
 
             }
             catch (e: Exception){

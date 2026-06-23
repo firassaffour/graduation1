@@ -67,7 +67,7 @@ fun EditProfileScreen(navController: NavHostController, userViewModel: UserViewM
     var name by remember { mutableStateOf(currentUser.name) }
     var email by remember { mutableStateOf(currentUser.email) }
     var username by remember { mutableStateOf(currentUser.userName) }
-    var phoneNumber by remember { mutableStateOf(currentUser.phone) }
+    var bio by remember { mutableStateOf(currentUser.description) }
     var birthday by remember { mutableStateOf(currentUser.birthday) }
     val options = listOf(stringResource(R.string.Male), stringResource(R.string.Female))
     var selectedGender by remember { mutableStateOf(currentUser.gender) }
@@ -244,7 +244,7 @@ fun EditProfileScreen(navController: NavHostController, userViewModel: UserViewM
             Spacer(Modifier.height(20.dp))
 
             Text(
-                text = stringResource(R.string.PhoneNumber),
+                text = stringResource(R.string.Bio),
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 18.sp,
                 modifier = Modifier
@@ -258,8 +258,8 @@ fun EditProfileScreen(navController: NavHostController, userViewModel: UserViewM
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp, start = 16.dp, end = 16.dp),
-                value = phoneNumber,
-                onValueChange = { phoneNumber = it },
+                value = bio,
+                onValueChange = { bio = it },
                 placeholder = { Text("", color = MaterialTheme.colorScheme.onPrimary) },
                 shape = RoundedCornerShape(8.dp),
                 colors = TextFieldDefaults.colors(
@@ -267,7 +267,7 @@ fun EditProfileScreen(navController: NavHostController, userViewModel: UserViewM
                     focusedContainerColor = MaterialTheme.colorScheme.surface,
                     focusedTextColor = MaterialTheme.colorScheme.onPrimary,
                     unfocusedTextColor = MaterialTheme.colorScheme.onPrimary),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
 
             Spacer(Modifier.height(20.dp))
@@ -293,7 +293,13 @@ fun EditProfileScreen(navController: NavHostController, userViewModel: UserViewM
             Spacer(Modifier.height(40.dp))
 
             Button(onClick = {
-
+                userViewModel.editUser(
+                    currentUser.id,
+                    name,
+                    username,
+                    bio,
+                    selectedImageUri.toString()
+                ){navController.popBackStack()}
             },
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(

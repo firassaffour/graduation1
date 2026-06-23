@@ -3,7 +3,6 @@ package com.example.graduation1
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import com.example.graduation1.domain.models.ChatItem
 import com.example.graduation1.domain.models.Comment
 import com.example.graduation1.domain.models.Group

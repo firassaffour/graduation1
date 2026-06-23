@@ -82,6 +82,7 @@
     <string name="Name">الأسم</string>
     <string name="Username">أسم المستخدم</string>
     <string name="PhoneNumber">رقم الهاتف</string>
+    <string name="Bio">وصف</string>
     <string name="sureClearCache">هل انت متأكد انك تريد حذف الذاكرة المؤقتة</string>
     <string name="sureClearHistory">هل انت متأكد انك تريد حذف السجل</string>
     <string name="sureDeleteAccount">هل انت متأكد انك تريد حذف الحساب</string>

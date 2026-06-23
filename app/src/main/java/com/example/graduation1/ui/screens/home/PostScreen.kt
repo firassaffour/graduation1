@@ -70,6 +70,10 @@ fun PostScreen(navController: NavHostController, postId: String, postViewModel: 
         listState.animateScrollToItem(0)
     }
 
+    LaunchedEffect(Unit) {
+        postViewModel.getCommentsByPost(postId)
+    }
+
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(16.dp)

@@ -82,6 +82,7 @@
     <string name="Name">Name</string>
     <string name="Username">Username</string>
     <string name="PhoneNumber">Phone Number</string>
+    <string name="Bio">Bio</string>
     <string name="sureClearCache">Are you Sure you want to Clear Cache</string>
     <string name="sureClearHistory">Are you Sure you want to Clear History</string>
     <string name="sureDeleteAccount">Are you Sure you want to Delete your Account</string>

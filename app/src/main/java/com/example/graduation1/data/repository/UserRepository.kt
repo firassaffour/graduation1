@@ -3,6 +3,8 @@ package com.example.graduation1.data.repository
 import android.util.Log
 import com.example.graduation1.data.remote.ApiService
 import com.example.graduation1.domain.models.User
+import com.example.graduation1.domain.models.requets_response.UpdateUserRequest
+import com.example.graduation1.emptyProfileImage
 
 class UserRepository(private val api: ApiService) {
 
@@ -14,10 +16,11 @@ class UserRepository(private val api: ApiService) {
                 id = it.userID.toString(),
                 name = it.firstName,
                 email = it.email,
-                image = it.profileImage ?: "",
+                image = it.profileImage ?: emptyProfileImage,
                 description = it.bio ?: "New Developer",
                 gender = "Male",
                 location = "Egypt",
+                birthday = "01 June 2004",
                 groupsList = emptyList()
             )
         }
@@ -32,10 +35,11 @@ class UserRepository(private val api: ApiService) {
                 id = response.userID.toString(),
                 name = response.firstName,
                 email = response.email,
-                image = response.profileImage ?: "",
+                image = response.profileImage ?: emptyProfileImage,
                 description = response.bio ?: "New Developer",
                 gender = "Male",
                 location = "Egypt",
+                birthday = "01 June 2004",
                 groupsList = emptyList()
             )
         }
@@ -44,18 +48,18 @@ class UserRepository(private val api: ApiService) {
 
     suspend fun getUserDetails(id : String) = api.getUserDetails(id)
 
-    suspend fun editUser(id : String, user : User) = api.editUser(id, user)
+    suspend fun editUser(id : String, updateUserRequest: UpdateUserRequest) = api.editUser(id, updateUserRequest)
 
     suspend fun deleteUser(id : String) = api.deleteUser(id)
 
     suspend fun followUser(id: String) = api.followUser(id)
 
-    suspend fun  unfollowUser(id: String) = api.unfollowUser(id)
+    suspend fun unfollowUser(id: String) = api.unfollowUser(id)
 
-    suspend fun getFollowers(id: String) = api.getFollowers(id)
+    suspend fun getFollowers(id: Int) = api.getFollowers(id)
 
-    suspend fun getFollowing(id: String) = api.getFollowing(id)
+    suspend fun getFollowing(id: Int) = api.getFollowing(id)
 
-    suspend fun getFollowingStatus(id: String) = api.getFollowStatus(id)
+    suspend fun getFollowingStatus(id: Int) = api.getFollowStatus(id)
 
 }

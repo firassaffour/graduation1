@@ -66,6 +66,10 @@ fun CommentsScreen(navController : NavHostController, postId : String, postViewM
         }
     }
 
+    LaunchedEffect(Unit) {
+        postViewModel.getCommentsByPost(postId)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()

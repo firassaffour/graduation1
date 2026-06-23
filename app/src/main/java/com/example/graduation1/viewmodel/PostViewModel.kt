@@ -9,25 +9,24 @@ import androidx.lifecycle.viewModelScope
 import com.example.graduation1.data.repository.PostRepository
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.Comment
-import com.example.graduation1.domain.models.MediaResponse
+import com.example.graduation1.domain.models.requets_response.MediaResponse
 import com.example.graduation1.domain.models.PostData
-import com.example.graduation1.domain.models.PostResponse
-import com.example.graduation1.domain.models.RegisterResponse
+import com.example.graduation1.domain.models.requets_response.PostResponse
+import com.example.graduation1.domain.models.requets_response.RegisterResponse
 import com.example.graduation1.domain.models.User
-import com.example.graduation1.favouritePost
+import com.example.graduation1.domain.models.requets_response.CreateCommentRequest
+import com.example.graduation1.domain.models.requets_response.CreatePostRequest
 import com.example.graduation1.language
-import com.example.graduation1.postList
 import com.example.graduation1.savedPost
 import com.example.graduation1.user
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.security.SecureRandom
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@RequiresApi(Build.VERSION_CODES.O)
 class PostViewModel(private val postRepository: PostRepository, private val userRepository: UserRepository): ViewModel() {
 
     private val _currentUser = MutableStateFlow<User>(user)
@@ -35,6 +34,9 @@ class PostViewModel(private val postRepository: PostRepository, private val user
 
     private val _posts = MutableStateFlow<List<PostData>>(emptyList())
     val posts = _posts.asStateFlow()
+
+    private val _comments = MutableStateFlow<List<Comment>>(emptyList())
+    val comments = _comments.asStateFlow()
 
     private val _favouritePosts = MutableStateFlow<List<PostData>>(emptyList())
     val favouritePosts = _favouritePosts.asStateFlow()
@@ -74,10 +76,13 @@ class PostViewModel(private val postRepository: PostRepository, private val user
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getPosts(){
         viewModelScope.launch {
             try {
-                _posts.value = postRepository.getPosts()
+                _posts.value = postRepository.getPosts().map {
+                    it.copy(commentsList = _comments.value)
+                }
 
                 Log.d("API", "postViewModel getting posts: ${_posts.value}")
             }
@@ -117,7 +122,7 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     fun getSavedPosts(){
         viewModelScope.launch {
             try {
-                _savedPosts.value = savedPost
+                _savedPosts.value = postRepository.getSavedPosts()
             }
             catch (e: Exception){
                 Log.e("API", "postViewModel get saved post: ${e.message}")
@@ -131,7 +136,7 @@ class PostViewModel(private val postRepository: PostRepository, private val user
         viewModelScope.launch {
             try {
                 val post = PostData(
-                    Uuid.random().toString(),
+                    SecureRandom().nextInt(Int.MAX_VALUE).toString(),
                     groupId,
                     currentUser.value.id,
                     _postText.value,
@@ -144,12 +149,6 @@ class PostViewModel(private val postRepository: PostRepository, private val user
 
                 )
 
-                val media = MediaResponse(
-                    0,
-                    postImage,
-                    ""
-                    )
-
                 val current = RegisterResponse(
                     _currentUser.value.id.toInt(),
                     _currentUser.value.name,
@@ -159,37 +158,42 @@ class PostViewModel(private val postRepository: PostRepository, private val user
                     _currentUser.value.image.toString(),
                 )
 
-                val postData = PostResponse(
-                    postID = SecureRandom().nextInt(Int.MAX_VALUE),
+                val postData = CreatePostRequest(
                     title = "",
                     content = _postText.value,
                     codeSnippet = _postCodeSnippet.value,
-                    createdAt = System.currentTimeMillis().toString(),
-                    userID = _currentUser.value.id.toInt(),
                     communityID = groupId.toInt(),
-                    user = current,
-                    media = media
                 )
                 _posts.value = listOf(post) + _posts.value
                 _newPostId.value = post.postId
 
-                postRepository.createPost(postData)
+                val response = postRepository.createPost(postData)
 
                 _postText.value = ""
                 _postCodeSnippet.value = ""
 
-                Log.e("API", "postViewModel create post: ${_posts.value}")
+                Log.d("API", "postViewModel create post success: ${response}")
 
             }
             catch (e: Exception){
-                Log.e("API", "postViewModel create post: ${e.message}")
+                Log.e("API", "postViewModel create post error: ${e.message} $groupId")
             }
         }
     }
 
     fun removePost(postId: String) {
-        val post = _posts.value.find { it.postId == postId } ?: return
-        _posts.value = _posts.value - post
+        viewModelScope.launch {
+            try {
+                val post = _posts.value.find { it.postId == postId } ?: return@launch
+                _posts.value = _posts.value - post
+
+                postRepository.deletePost(postId)
+                Log.e("API", "postViewModel delete post success")
+            }
+            catch (e: Exception){
+                Log.e("API", "postViewModel delete post error: ${e.message}")
+            }
+        }
     }
 
     fun getTimeAgo(createdAt : Long) : String{
@@ -240,7 +244,7 @@ class PostViewModel(private val postRepository: PostRepository, private val user
         viewModelScope.launch {
             try {
                 val comment = Comment(
-                    Uuid.random().toString(),
+                    SecureRandom().nextInt(Int.MAX_VALUE).toString(),
                     _currentUser.value.id,
                     _commentText.value,
                     System.currentTimeMillis()
@@ -252,11 +256,20 @@ class PostViewModel(private val postRepository: PostRepository, private val user
 
                     else it
                 }
+
+                val commentData = CreateCommentRequest(
+                    postId.toInt(),
+                    _commentText.value
+                )
+                val response = postRepository.createComment(commentData)
+
                 _newCommentId.value = comment.commentId
                 _commentText.value = ""
+
+                Log.d("API", "createComment success: $response")
             }
             catch (e: Exception){
-                Log.e("API", "postViewModel create comment: ${e.message}")
+                Log.e("API", "postViewModel create comment error: ${e.message}")
             }
         }
     }
@@ -271,6 +284,27 @@ class PostViewModel(private val postRepository: PostRepository, private val user
 
             else it
         }
+
+        viewModelScope.launch {
+            try {
+                postRepository.deleteComment(commentId.toInt())
+                Log.d("API", "removeComment SUCCESS: ")
+            }
+            catch (e : Exception){
+                Log.e("API", "removeComment failed: ${e.message}", )
+            }
+        }
+    }
+
+    fun getCommentsByPost(postId: String) {
+        viewModelScope.launch {
+            try {
+                _comments.value = postRepository.getCommentsByPost(postId.toInt())
+                Log.d("API", "getCommentsByPost success: ")
+            } catch (e: Exception) {
+                Log.e("API", "getCommentsByPost error: ${e.message}",)
+            }
+        }
     }
 
     fun toggleLike(postId: String){
@@ -282,6 +316,42 @@ class PostViewModel(private val postRepository: PostRepository, private val user
                     it.copy(likesCount = it.likesCount - _currentUser.value.id)
             else it
         }
+        viewModelScope.launch {
+            try {
+                val response = postRepository.toggleLike(postId.toInt())
+                Log.d("API", "toggleLike success: $response")
+            } catch (e: Exception) {
+                Log.e("API", "toggleLike error: ${e.message}",)
+            }
+        }
+    }
+
+    fun getLikeStatus(postId: String) : Boolean{
+        var isLiked = false
+        viewModelScope.launch {
+            try {
+                isLiked =  postRepository.getLikeStatus(postId.toInt())
+                Log.d("API", "getLikesStatus success: $isLiked")
+            }
+            catch (e : Exception){
+                Log.d("API", "getLikesStatus error: ${e.message}")
+            }
+        }
+        return isLiked
+    }
+
+    fun getLikesCount(postId: String) : Int{
+        var likeCount = 0
+        viewModelScope.launch {
+            try {
+                likeCount = postRepository.getLikeCount(postId.toInt())
+                Log.d("API", "getLikesCount success: $likeCount")
+            }
+            catch (e : Exception){
+                Log.d("API", "getLikesCount error: ${e.message}")
+            }
+        }
+        return likeCount
     }
 
     fun toggleSaved(postId: String){

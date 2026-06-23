@@ -11,6 +11,8 @@ import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.User
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import com.example.graduation1.domain.models.requets_response.UpdateUserRequest
+import com.example.graduation1.emptyProfileImage
 import com.example.graduation1.friendsList
 import com.example.graduation1.language
 import com.example.graduation1.user
@@ -93,13 +95,23 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         return _users.value.find { it.id == userId }
     }
 
-    fun editUser(id: String, user: User){
+    fun editUser(id: String, name : String, userName : String, bio : String, profileImage : String?, onSuccess : () -> Unit){
         viewModelScope.launch {
             try {
-                userRepository.editUser(id, user)
+                val userData = UpdateUserRequest(
+                    firstName = name,
+                    lastName = userName,
+                    bio = bio,
+                    profileImage = if (profileImage.isNullOrEmpty()) emptyProfileImage else profileImage
+                )
+                userRepository.editUser(id, userData)
+
+                onSuccess()
+
+                Log.e("userViewModel", "edit user success")
             }
             catch (e: Exception){
-                Log.e("userViewModel", "friendsViewModel: ${e.message}")
+                Log.e("userViewModel", "edit user failed: ${e.message}")
             }
         }
     }
@@ -124,9 +136,25 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
 
                         else _currentUser.value.followingList - userId
                 )
+
+                userRepository.followUser(userId)
+
+                Log.d("API", "followUser success: ")
             }
             catch (e: Exception){
-                Log.e("userViewModel", "friendsViewModel: ${e.message}")
+                Log.e("userViewModel", "follow user failed: ${e.message}")
+            }
+        }
+    }
+
+    fun unfollowUser(userId: String){
+        viewModelScope.launch {
+            try {
+                userRepository.unfollowUser(userId)
+                Log.d("API", "unfollowUser success: ")
+            }
+            catch (e : Exception){
+                Log.e("API", "unfollowUser failed: ${e.message}")
             }
         }
     }

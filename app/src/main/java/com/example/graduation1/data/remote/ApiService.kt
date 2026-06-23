@@ -1,22 +1,52 @@
 package com.example.graduation1.data.remote
 
-import com.example.graduation1.domain.models.AuthResponse
-import com.example.graduation1.domain.models.CandidateData
-import com.example.graduation1.domain.models.ChatItem
-import com.example.graduation1.domain.models.CodeSubmissionData
-import com.example.graduation1.domain.models.Comment
-import com.example.graduation1.domain.models.Group
-import com.example.graduation1.domain.models.JobApplicationData
-import com.example.graduation1.domain.models.JobsData
-import com.example.graduation1.domain.models.LoginRequest
-import com.example.graduation1.domain.models.Message
-import com.example.graduation1.domain.models.Notification
-import com.example.graduation1.domain.models.PostData
-import com.example.graduation1.domain.models.PostResponse
-import com.example.graduation1.domain.models.RecruiterData
-import com.example.graduation1.domain.models.RegisterRequest
-import com.example.graduation1.domain.models.RegisterResponse
-import com.example.graduation1.domain.models.User
+import com.example.graduation1.domain.models.requets_response.AuthResponse
+import com.example.graduation1.domain.models.requets_response.JobApplyRequest
+import com.example.graduation1.domain.models.requets_response.JobRequest
+import com.example.graduation1.domain.models.requets_response.LoginRequest
+import com.example.graduation1.domain.models.requets_response.PostResponse
+import com.example.graduation1.domain.models.requets_response.RecruiterProfileRequest
+import com.example.graduation1.domain.models.requets_response.RegisterRequest
+import com.example.graduation1.domain.models.requets_response.RegisterResponse
+import com.example.graduation1.domain.models.requets_response.UpdateUserRequest
+import com.example.graduation1.domain.models.requets_response.ApplicationStatusRequest
+import com.example.graduation1.domain.models.requets_response.CandidateProfileRequest
+import com.example.graduation1.domain.models.requets_response.CandidateProfileResponse
+import com.example.graduation1.domain.models.requets_response.ChatMessageResponse
+import com.example.graduation1.domain.models.requets_response.ChatSendRequest
+import com.example.graduation1.domain.models.requets_response.ChatSendResponse
+import com.example.graduation1.domain.models.requets_response.ChatSessionResponse
+import com.example.graduation1.domain.models.requets_response.CodeSubmissionResponse
+import com.example.graduation1.domain.models.requets_response.CodeSubmitRequest
+import com.example.graduation1.domain.models.requets_response.CodeSubmitResult
+import com.example.graduation1.domain.models.requets_response.CommentResponse
+import com.example.graduation1.domain.models.requets_response.CommunityMemberItem
+import com.example.graduation1.domain.models.requets_response.CommunityMessageResponse
+import com.example.graduation1.domain.models.requets_response.CommunityResponse
+import com.example.graduation1.domain.models.requets_response.CreateCommentRequest
+import com.example.graduation1.domain.models.requets_response.CreateCommunityRequest
+import com.example.graduation1.domain.models.requets_response.CreatePostRequest
+import com.example.graduation1.domain.models.requets_response.ExperienceRequest
+import com.example.graduation1.domain.models.requets_response.ExperienceResponse
+import com.example.graduation1.domain.models.requets_response.FollowMessageResponse
+import com.example.graduation1.domain.models.requets_response.FollowStatusResponse
+import com.example.graduation1.domain.models.requets_response.FollowUserItem
+import com.example.graduation1.domain.models.requets_response.JobApplicationResponse
+import com.example.graduation1.domain.models.requets_response.JobMatchResponse
+import com.example.graduation1.domain.models.requets_response.JobResponse
+import com.example.graduation1.domain.models.requets_response.LikeCountResponse
+import com.example.graduation1.domain.models.requets_response.LikeStatusResponse
+import com.example.graduation1.domain.models.requets_response.MediaResponse
+import com.example.graduation1.domain.models.requets_response.MembershipResponse
+import com.example.graduation1.domain.models.requets_response.MessageResponse
+import com.example.graduation1.domain.models.requets_response.NewSessionRequest
+import com.example.graduation1.domain.models.requets_response.NotificationResponse
+import com.example.graduation1.domain.models.requets_response.PostAnalysisResponse
+import com.example.graduation1.domain.models.requets_response.RecruiterDashboardResponse
+import com.example.graduation1.domain.models.requets_response.RecruiterProfileResponse
+import com.example.graduation1.domain.models.requets_response.SendMessageRequest
+import com.example.graduation1.domain.models.requets_response.ToggleLikeResponse
+import com.example.graduation1.domain.models.requets_response.UnreadCountResponse
 import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -26,6 +56,7 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
 
@@ -49,310 +80,246 @@ interface ApiService {
 
     @GET("api/users/{id}")
     suspend fun getUserDetails(
-        @Path("id") id : String) : User
+        @Path("id") id : String) : RegisterResponse
 
     @PUT("api/users/{id}")
     suspend fun editUser(
         @Path("id") id : String,
-        @Body user : User) : User
+        @Body updateUserRequest: UpdateUserRequest
+    )
 
     @DELETE("api/users/{id}")
     suspend fun deleteUser(
-        @Path("id") id : String) : User
+        @Path("id") id : String)
 
     //follow
     @POST("api/Follow/{userId}")
     suspend fun followUser(
         @Path("userId") id: String
-    ) : Boolean
+    ) : FollowMessageResponse
 
     @DELETE("api/Follow/{userId}")
     suspend fun unfollowUser(
         @Path("userId") id: String
-    ) : Boolean
+    ) : FollowMessageResponse
 
     @GET("api/Follow/{userId}/followers")
-    suspend fun getFollowers(
-        @Path("userId") id: String
-    ) : List<User>
+    suspend fun getFollowers(@Path("userId") userId: Int): List<FollowUserItem>
 
     @GET("api/Follow/{userId}/following")
-    suspend fun getFollowing(
-        @Path("userId") id: String
-    ) : List<User>
+    suspend fun getFollowing(@Path("userId") userId: Int): List<FollowUserItem>
 
     @GET("api/Follow/{userId}/status")
-    suspend fun getFollowStatus(
-        @Path("userId") id: String
-    ) : Boolean
+    suspend fun getFollowStatus(@Path("userId") userId: Int): FollowStatusResponse
 
 
     //Posts
     @GET("api/posts")
-    suspend fun getPosts() : List<PostResponse>
+    suspend fun getPosts(@Query("communityId") communityId: Int? = null): List<PostResponse>
 
     @GET("api/posts/{id}")
     suspend fun getPostDetails(
         @Path("id") id: String) : PostResponse
 
     @POST("api/posts")
-    suspend fun createPost(
-        @Body post : PostResponse
-    ) : PostResponse
+    suspend fun createPost(@Body request: CreatePostRequest): PostResponse
 
     @PUT("api/posts/{id}")
-    suspend fun updateLike(
-        @Path("id") id : String,
-        @Body post: PostData) : PostData
+    suspend fun updatePost(
+        @Path("id") id: Int,
+        @Body request: CreatePostRequest
+    )
 
     @DELETE("api/posts/{id}")
     suspend fun deletePost(
-        @Path("id") id: String) : PostData
+        @Path("id") id: String)
 
     //comments
     @POST("api/Comments")
-    suspend fun createComment(
-        @Body comment: Comment
-    ) : Comment
+    suspend fun createComment(@Body request: CreateCommentRequest): CommentResponse
 
     @GET("api/Comments/post/{postId}")
-    suspend fun getComments(
-        @Path("id") id: String
-    ) : List<Comment>
+    suspend fun getCommentsByPost(@Path("postId") postId: Int): List<CommentResponse>
 
     @GET("api/Comments/{id}")
     suspend fun getCommentDetails(
-        @Path("id") id: String
-    ) : Comment
+        @Path("id") id: String) : CommentResponse
 
     @PUT("api/Comments/{id}")
-    suspend fun editComment(
-        @Path("id") id: String,
-        @Body comment: Comment
-    ) : Comment
+    suspend fun updateComment(
+        @Path("id") id: Int,
+        @Body request: CreateCommentRequest
+    )
 
     @DELETE("api/Comments/{id}")
-    suspend fun deleteComment(
-        @Path("id") id: String
-    ) : Comment
+    suspend fun deleteComment(@Path("id") id: Int)
 
     //Like
     @POST("api/Likes/toggle/{postId}")
-    suspend fun toggleLikePost(
-        @Path("postId") id: String
-    ) : PostData
+    suspend fun toggleLike(@Path("postId") postId: Int): ToggleLikeResponse
 
     @GET("api/Likes/count/{postId}")
-    suspend fun getLikesCountPost(
-        @Path("postId") id: String
-    ) : Int
+    suspend fun getLikeCount(@Path("postId") postId: Int): LikeCountResponse
 
     @GET("api/Likes/status/{postId}")
-    suspend fun getIsLikedPost(
-        @Path("postId") id: String
-    ) : Boolean
+    suspend fun getLikeStatus(@Path("postId") postId: Int): LikeStatusResponse
 
     // savedPosts
     @GET("api/SavedPosts")
-    suspend fun getSavedPosts() : List<PostData>
+    suspend fun getSavedPosts() : List<PostResponse>
 
     @POST("api/SavedPosts/{postId}")
-    suspend fun addSavedPost(
-        @Path("postId") id: String
-    ) : PostData
+    suspend fun savePost(@Path("postId") postId: Int)
 
     @DELETE("api/SavedPosts/{postId}")
-    suspend fun deleteSavedPost(
-        @Path("postId") id: String
-    ) : PostData
+    suspend fun unsavePost(@Path("postId") postId: Int)
 
     //Communities
     @GET("api/Communities")
-    suspend fun getCommunities() : List<Group>
+    suspend fun getCommunities(): List<CommunityResponse>
 
     @POST("api/Communities")
-    suspend fun createCommunity(
-        @Body group: Group
-    ) : Group
+    suspend fun createCommunity(@Body request: CreateCommunityRequest): CommunityResponse
 
     @POST("api/Communities/{communityId}/join")
-    suspend fun joinCommunity(
-        @Path("communityId") id: String
-    ) : Group
+    suspend fun joinCommunity(@Path("communityId") id: Int): CommunityMessageResponse
 
     @DELETE("api/Communities/{communityId}/leave")
-    suspend fun leaveCommunity(
-        @Path("communityId") id: String
-    ) : Group
+    suspend fun leaveCommunity(@Path("communityId") id: Int): CommunityMessageResponse
 
     @GET("api/Communities/{communityId}/members")
-    suspend fun getCommunityMembers(
-        @Path("communityId") id: String
-    ) : List<User>
+    suspend fun getCommunityMembers(@Path("communityId") id: Int): List<CommunityMemberItem>
 
     @GET("api/Communities/{communityId}/membership")
-    suspend fun getCommunityMembersShip(
-        @Path("communityId") id: String
-    ) : List<User>
+    suspend fun getCommunityMembership(@Path("communityId") id: Int): MembershipResponse
 
     //Messages
-    @GET("api/Messages")
-    suspend fun getAllChat() : List<ChatItem>
+    @GET("api/Messages/inbox")
+    suspend fun getInbox(): List<MessageResponse>
 
     @GET("api/Messages/conversation/{otherUserId}")
-    suspend fun getChatContent(
-        @Path("otherUserId") id: String
-    ) : List<Message>
+    suspend fun getConversation(@Path("otherUserId") otherUserId: Int): List<MessageResponse>
 
     @POST("api/Messages")
-    suspend fun sendMessage(
-        @Body message: Message
-    ) : Message
+    suspend fun sendMessage(@Body request: SendMessageRequest): MessageResponse
 
     @DELETE("api/Messages/{id}")
-    suspend fun deleteMessage(
-        @Path("id") id: String
-    ) : Message
+    suspend fun deleteMessage(@Path("id") id: Int)
 
     //Notification
     @GET("api/Notifications")
-    suspend fun getNotification() : List<Notification>
+    suspend fun getNotifications(): List<NotificationResponse>
 
     @GET("api/Notifications/unread-count")
-    suspend fun getUnReadNotification() : List<Notification>
+    suspend fun getUnreadCount(): UnreadCountResponse
 
     @PUT("api/Notifications/{id}/read")
-    suspend fun readNotification(
-        @Path("id") id: String
-    ) : Notification
+    suspend fun markNotificationRead(@Path("id") id: Int)
 
     @PUT("api/Notifications/read-all")
-    suspend fun readAllNotification()
+    suspend fun markAllNotificationsRead()
 
     @DELETE("api/Notifications/{id}")
-    suspend fun deleteNotification(
-        @Path("id") id: String
-    ) : Notification
+    suspend fun deleteNotification(@Path("id") id: Int)
 
     //ChatBot
     @POST("api/chat/new-session")
-    suspend fun newChatSession() : ChatItem
+    suspend fun newChatSession(@Body request: NewSessionRequest = NewSessionRequest()): ChatSessionResponse
 
     @POST("api/chat/send")
-    suspend fun sendChatbotMessage(
-        @Body message: Message
-    ) : Message
+    suspend fun sendChatbotMessage(@Body request: ChatSendRequest): ChatSendResponse
 
+    /** Returns list of ChatMessage objects */
     @GET("api/chat/history/{sessionId}")
-    suspend fun getChatSession(
-        @Path("sessionId") id: String
-    ) : ChatItem
+    suspend fun getChatHistory(@Path("sessionId") sessionId: Int): List<ChatMessageResponse>
 
     //ExperienceGeneration
     @POST("api/experience/generate")
-    suspend fun experienceGenerate() : String
+    suspend fun generateExperience(@Body request: ExperienceRequest = ExperienceRequest()): ExperienceResponse
 
     //CodeSubmissions
     @GET("api/CodeSubmissions")
-    suspend fun getCodeSubmissions() : CodeSubmissionData
-
-    @POST("api/CodeSubmissions")
-    suspend fun addCodeSubmissions(
-        @Body codeSubmissionData: CodeSubmissionData
-    ) : CodeSubmissionData
+    suspend fun getCodeSubmissions(): List<CodeSubmissionResponse>
 
     @GET("api/CodeSubmissions/{id}")
-    suspend fun getCodeSubmissionsDetails(
-        @Path("id") id: String
-    ) : CodeSubmissionData
+    suspend fun getCodeSubmissionById(@Path("id") id: Int): CodeSubmissionResponse
+
+    @POST("api/CodeSubmissions")
+    suspend fun submitCode(@Body request: CodeSubmitRequest): CodeSubmitResult
 
     //candidatesProfile
     @POST("api/candidates")
-    suspend fun addCandidates(
-        @Body candidateData: CandidateData
-    ) : CandidateData
+    suspend fun createCandidateProfile(@Body request: CandidateProfileRequest): CandidateProfileResponse
 
     @GET("api/candidates/me")
-    suspend fun getCandidates() : CandidateData
+    suspend fun getMyCandidateProfile(): CandidateProfileResponse
 
     @PUT("api/candidates/me")
-    suspend fun editCandidates(
-        @Body candidateData: CandidateData
-    ) : CandidateData
+    suspend fun updateCandidateProfile(@Body request: CandidateProfileRequest): CandidateProfileResponse
 
     //JobApplication
     @POST("api/jobapplications")
-    suspend fun addJobApplication(
-        @Body jobApplicationData: JobApplicationData
-    ) : JobApplicationData
+    suspend fun applyToJob(@Body request: JobApplyRequest): JobApplicationResponse
 
     @GET("api/jobapplications/mine")
-    suspend fun getJobApplication() : JobApplicationData
+    suspend fun getMyApplications(): List<JobApplicationResponse>
 
     @GET("api/jobapplications/job/{jobId}")
-    suspend fun getJobApplicationDetails(
-        @Path("jobId") id: String
-    ) : JobApplicationData
+    suspend fun getApplicationsForJob(@Path("jobId") jobId: Int): List<JobApplicationResponse>
 
     @PUT("api/jobapplications/{id}/status")
-    suspend fun getJobApplication(
-        @Path("id") id: String
-    ) : String
+    suspend fun updateApplicationStatus(
+        @Path("id") id: Int,
+        @Body request: ApplicationStatusRequest
+    ): JobApplicationResponse
 
     // jobs
     @GET("api/jobs")
-    suspend fun getJobs() : List<JobsData>
-
-    @POST("api/jobs")
-    suspend fun addJob(
-        @Body jobsData: JobsData
-    ) : JobsData
+    suspend fun getJobs(
+        @Query("location") location: String? = null,
+        @Query("skill")    skill: String? = null,
+        @Query("q")        q: String? = null
+    ): List<JobResponse>
 
     @GET("api/jobs/{id}")
-    suspend fun getJob(
-        @Path("id") id: String
-    ) : JobsData
+    suspend fun getJobById(@Path("id") id: Int): JobResponse
+
+    @POST("api/jobs")
+    suspend fun createJob(@Body request: JobRequest): JobResponse
 
     @POST("api/jobs/{id}/close")
-    suspend fun closeJob(
-        @Path("id") id: String
-    )
+    suspend fun closeJob(@Path("id") id: Int)
 
     @GET("api/jobs/{id}/match")
-    suspend fun matchJob(
-        @Path("id") id: String
-    ) : List<JobsData>
+    suspend fun getJobMatch(@Path("id") id: Int): JobMatchResponse
 
     @GET("api/jobs/{id}/candidates")
-    suspend fun candidatesJob(
-        @Path("id") id: String
-    ) : List<JobsData>
+    suspend fun getJobCandidates(@Path("id") id: Int): RecruiterDashboardResponse
 
     //Media
     @Multipart
     @POST("api/Media/upload")
-    suspend fun uploadImage(
-        @Part file : MultipartBody.Part
-    ) : String
+    suspend fun uploadMedia(
+        @Part file: MultipartBody.Part,
+        @Query("postId")    postId: Int? = null,
+        @Query("messageId") messageId: Int? = null,
+        @Query("commentId") commentId: Int? = null
+    ): MediaResponse
 
     @GET("api/Media/post/{postId}")
-    suspend fun getImage(
-        @Path("postId") id: String
-    ) : String
+    suspend fun getMediaByPost(@Path("postId") postId: Int): List<MediaResponse>
 
     //postAnalysis
     @POST("api/posts/{postId}/analyze")
-    suspend fun getPostAnalysis(
-        @Path("postId") id: String
-    ) : PostData
+    suspend fun analyzePost(@Path("postId") postId: Int): PostAnalysisResponse
 
     //recruiter
     @POST("api/recruiters")
-    suspend fun getRecruiters() : List<RecruiterData>
+    suspend fun createRecruiterProfile(@Body request: RecruiterProfileRequest): RecruiterProfileResponse
 
     @GET("api/recruiters/me")
-    suspend fun getMyRecruiters() : List<RecruiterData>
+    suspend fun getMyRecruiterProfile(): RecruiterProfileResponse
 
     @PUT("api/recruiters/me")
-    suspend fun editRecruiters() : RecruiterData
+    suspend fun updateRecruiterProfile(@Body request: RecruiterProfileRequest): RecruiterProfileResponse
 }

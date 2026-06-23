@@ -1,6 +1,8 @@
 package com.example.graduation1.ui.components
 
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -60,6 +62,7 @@ import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 import kotlinx.coroutines.delay
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PostUI(navController: NavHostController,
            post: PostData,
@@ -237,9 +240,11 @@ fun PostUI(navController: NavHostController,
         Row(verticalAlignment = Alignment.CenterVertically) {
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { postViewModel.toggleLike(post.postId) }) {
+                IconButton(onClick = {
+                    postViewModel.toggleLike(post.postId)
+                    postViewModel.refreshData()}) {
                     Icon(
-                        painter = if (!post.likesCount.contains(currentUser.id)) painterResource(id = R.drawable.heart2)
+                        painter = if (!postViewModel.getLikeStatus(post.postId)) painterResource(id = R.drawable.heart2)
                         else painterResource(id = R.drawable.heart2red),
                         contentDescription = "heart",
                         tint = if (darkMode && !post.likesCount.contains(currentUser.id)) Color.White else Color.Unspecified,
@@ -248,7 +253,7 @@ fun PostUI(navController: NavHostController,
                 }
 
                 Text(
-                    text = post.likesCount.count().toString(),
+                    text = postViewModel.getLikesCount(post.postId).toString(),
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,

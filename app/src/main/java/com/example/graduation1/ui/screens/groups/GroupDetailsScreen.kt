@@ -71,6 +71,8 @@ fun GroupDetailsScreen(navController: NavHostController, groupId : String, group
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedPost by remember { mutableStateOf<PostData?>(null) }
 
+    val isMember = groupsViewModel.getMemberShip(groupId)
+
     Column(modifier = Modifier
         .fillMaxSize()) {
 
@@ -134,11 +136,12 @@ fun GroupDetailsScreen(navController: NavHostController, groupId : String, group
 
                 Button(
                     onClick = {
-                        groupsViewModel.joinGroup(groupId)
+                        if (isMember) groupsViewModel.leaveGroup(groupId)
+                        else groupsViewModel.joinGroup(groupId)
                     },
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (currentUser.groupsList.contains(groupId)) darkGray
+                        containerColor = if (isMember) darkGray
                             else MaterialTheme.colorScheme.primary
                     ),
                     modifier = Modifier
@@ -147,7 +150,7 @@ fun GroupDetailsScreen(navController: NavHostController, groupId : String, group
                         .padding(start = 16.dp, end = 16.dp)
                 ) {
                     Text(
-                        text = if (currentUser.groupsList.contains(groupId)) stringResource(R.string.Joined)
+                        text = if (isMember) stringResource(R.string.Joined)
                         else stringResource(R.string.Join),
                         color = Color.White,
                         fontSize = 18.sp

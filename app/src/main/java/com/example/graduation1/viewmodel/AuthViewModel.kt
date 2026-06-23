@@ -1,17 +1,12 @@
 package com.example.graduation1.viewmodel
 
-import android.app.Activity.MODE_PRIVATE
 import android.content.Context
 import android.util.Log
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil.network.HttpException
 import com.example.graduation1.data.repository.AuthRepository
-import com.example.graduation1.domain.models.RegisterRequest
-import com.example.graduation1.domain.models.RegisterResponse
-import com.example.graduation1.domain.models.User
-import com.example.graduation1.language
+import com.example.graduation1.domain.models.requets_response.RegisterRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch

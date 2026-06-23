@@ -1,17 +1,15 @@
 package com.example.graduation1.data.repository
 
 import com.example.graduation1.data.remote.ApiService
-import com.example.graduation1.domain.models.AuthResponse
-import com.example.graduation1.domain.models.LoginRequest
-import com.example.graduation1.domain.models.RegisterRequest
-import com.example.graduation1.domain.models.RegisterResponse
-import com.example.graduation1.domain.models.User
+import com.example.graduation1.domain.models.requets_response.AuthResponse
+import com.example.graduation1.domain.models.requets_response.LoginRequest
+import com.example.graduation1.domain.models.requets_response.RegisterRequest
 
 class AuthRepository(private val api : ApiService) {
 
     suspend fun createAccount(registerRequest: RegisterRequest) = api.createAccount(registerRequest)
 
-    suspend fun login(email : String, password : String) : AuthResponse{
+    suspend fun login(email : String, password : String) : AuthResponse {
         return api.login(LoginRequest(email, password))
     }
 }
