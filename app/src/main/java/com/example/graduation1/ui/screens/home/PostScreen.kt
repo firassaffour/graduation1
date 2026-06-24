@@ -60,13 +60,14 @@ fun PostScreen(navController: NavHostController, postId: String, postViewModel: 
     val commentText by postViewModel.commentText.collectAsState()
     val newCommentId by postViewModel.newCommentId.collectAsState()
     val newPostId by postViewModel.newPostId.collectAsState()
+    val comments by postViewModel.comments.collectAsState()
 
     val post = postsList.find { it.postId == postId } ?: return
     val commentList = postsList.find { it.postId == postId }?.commentsList ?: emptyList()
 
     val listState = rememberLazyListState()
-    LaunchedEffect(commentList.size) {
-        if (commentList.isNotEmpty())
+    LaunchedEffect(comments.size) {
+        if (comments.isNotEmpty())
         listState.animateScrollToItem(0)
     }
 
@@ -114,7 +115,7 @@ fun PostScreen(navController: NavHostController, postId: String, postViewModel: 
                     onPostDeleted = {navController.popBackStack()})
                 Spacer(Modifier.height(10.dp))
             } // item
-            items(commentList, key = {it.commentId}){ comment ->
+            items(comments, key = {it.commentId}){ comment ->
                 CommentUI(navController, comment, comment.commentId == newCommentId, postId, postViewModel, userViewModel)
             } // items
         } // LazyColumn

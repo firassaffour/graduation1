@@ -48,7 +48,7 @@ class UserRepository(private val api: ApiService) {
 
     suspend fun getUserDetails(id : String) = api.getUserDetails(id)
 
-    suspend fun editUser(id : String, updateUserRequest: UpdateUserRequest) = api.editUser(id, updateUserRequest)
+    suspend fun editUser(id : String, updateUserRequest: UpdateUserRequest) : Unit { return api.editUser(id, updateUserRequest)}
 
     suspend fun deleteUser(id : String) = api.deleteUser(id)
 

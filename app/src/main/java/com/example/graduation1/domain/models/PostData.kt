@@ -8,7 +8,8 @@ data class PostData(
     val postImage : Any = "",
     val codeSnippet : String = "",
     val createdAt : Long = 0,
-    val likesCount : List<String> = emptyList(),
+    val likesCount : Int = 0,
+    val isLiked : Boolean = false,
     var isSaved : Boolean = false,
     val commentsList : List<Comment> = emptyList()
 )

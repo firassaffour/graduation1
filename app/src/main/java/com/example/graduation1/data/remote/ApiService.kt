@@ -86,7 +86,7 @@ interface ApiService {
     suspend fun editUser(
         @Path("id") id : String,
         @Body updateUserRequest: UpdateUserRequest
-    )
+    ) : Unit
 
     @DELETE("api/users/{id}")
     suspend fun deleteUser(

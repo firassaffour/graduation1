@@ -1,5 +1,7 @@
 package com.example.graduation1.ui.screens.profiles
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -70,6 +72,7 @@ import com.example.graduation1.viewmodel.PostViewModelFactory
 import com.example.graduation1.viewmodel.UserViewModel
 import com.example.graduation1.viewmodel.UserViewModelFactory
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OtherUsersProfileScreen(navController: NavHostController, userId : String, userViewModel: UserViewModel, postViewModel: PostViewModel, groupsViewModel: GroupsViewModel){
 
@@ -185,16 +188,18 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String, u
 
             Spacer(Modifier.weight(5f))
 
-            Button(onClick = {userViewModel.followUser(user.id)},
+            Button(onClick = {
+                if (user.isFollowedByMe) userViewModel.unfollowUser(userId)
+                    else userViewModel.followUser(user.id)},
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (user.followersList.contains(currentUser.id)) darkGray
+                    containerColor = if (user.isFollowedByMe) darkGray
                         else MaterialTheme.colorScheme.primary
                 ),
                 modifier = Modifier
                     .wrapContentWidth()
                     .height(40.dp)) {
-                Text(text = if (user.followersList.contains(currentUser.id)) stringResource(R.string.UnFollow)
+                Text(text = if (user.isFollowedByMe) stringResource(R.string.UnFollow)
                 else stringResource(R.string.Follow),
                     color = Color.White,
                     fontSize = 14.sp,

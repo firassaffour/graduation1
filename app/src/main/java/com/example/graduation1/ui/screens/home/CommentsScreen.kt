@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -56,12 +57,14 @@ fun CommentsScreen(navController : NavHostController, postId : String, postViewM
     val postsList by postViewModel.posts.collectAsState()
     val commentText by postViewModel.commentText.collectAsState()
     val newCommentId by postViewModel.newCommentId.collectAsState()
+    val comments by postViewModel.comments.collectAsState()
+    val isLoading by postViewModel.isCommentsLoading.collectAsState()
 
     val post = postsList.find { it.postId == postId } ?: return
 
     val listState = rememberLazyListState()
-    LaunchedEffect(post.commentsList.size) {
-        if (post.commentsList.isNotEmpty()) {
+    LaunchedEffect(comments.size) {
+        if (comments.isNotEmpty()) {
             listState.animateScrollToItem(0)
         }
     }
@@ -84,14 +87,31 @@ fun CommentsScreen(navController : NavHostController, postId : String, postViewM
 
         Spacer(Modifier.height(15.dp))
 
-        LazyColumn(modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f),
-            state = listState) {
-            items(post.commentsList, key = {it.commentId}){ comment ->
-                CommentUI(navController, comment, comment.commentId == newCommentId, post.postId, postViewModel, userViewModel)
-            } // items
-        } // LazyColumn
+        if (isLoading){
+            Spacer(Modifier.height(300.dp))
+            CircularProgressIndicator()
+        }
+
+        else {
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                state = listState
+            ) {
+                items(comments, key = { it.commentId }) { comment ->
+                    CommentUI(
+                        navController,
+                        comment,
+                        comment.commentId == newCommentId,
+                        post.postId,
+                        postViewModel,
+                        userViewModel
+                    )
+                } // items
+            } // LazyColumn
+        }
 
         Row(modifier = Modifier
             .fillMaxWidth()

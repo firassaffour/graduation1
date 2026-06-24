@@ -1,5 +1,7 @@
 package com.example.graduation1.ui.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,6 +42,7 @@ import com.example.graduation1.viewmodel.NotificationViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NotificationUI(notification: Notification, notificationViewModel: NotificationViewModel, groupsViewModel: GroupsViewModel, postViewModel: PostViewModel, userViewModel: UserViewModel){
 
@@ -47,7 +50,7 @@ fun NotificationUI(notification: Notification, notificationViewModel: Notificati
     val group = groupsList.find { it.id == notification.groupId } ?: return
 
     val userList by userViewModel.users.collectAsState()
-    val groupMembersInformation = userList.filter { it.id in group.members }
+    val groupMembersInformation = userList.filter { it in group.members }
 
     Column(modifier = Modifier
         .fillMaxWidth()

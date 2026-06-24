@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +46,7 @@ import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.emptyProfileImage
+import com.example.graduation1.friendsList
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.ui.theme.darkGreen
@@ -57,6 +59,10 @@ fun FriendsScreen(navController: NavHostController, userViewModel: UserViewModel
     val usersList by userViewModel.users.collectAsState()
 
     val currentUser by userViewModel.currentUser.collectAsState()
+
+    val isLoading by userViewModel.isLoading.collectAsState()
+
+    val friendsList = usersList.filter { it.id != currentUser.id }
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -73,46 +79,57 @@ fun FriendsScreen(navController: NavHostController, userViewModel: UserViewModel
                 .padding(15.dp)
         )
 
-        LazyColumn(modifier = Modifier
-            .fillMaxWidth()) {
+        if (isLoading){
+            Spacer(Modifier.height(300.dp))
+            CircularProgressIndicator()
+        }
+        
+        else {
 
-            items(usersList) { friend ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(14.dp)
-                ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
 
-                    Row(
+                items(friendsList) { friend ->
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { navController.navigate("${AppPages.OtherUsersProfile.route}/${friend.id}") },
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(14.dp)
                     ) {
 
-                        Box() {
-                            Image(
-                                if (friend.image == "") rememberAsyncImagePainter(emptyProfileImage)
-                                else rememberAsyncImagePainter(friend.image),
-                                contentDescription = "image",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(70.dp)
-                                    .clip(shape = CircleShape)
-                            )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { navController.navigate("${AppPages.OtherUsersProfile.route}/${friend.id}") },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
 
-                            if (friend.isOnline) {
-                                Box(
+                            Box() {
+                                Image(
+                                    if (friend.image == "") rememberAsyncImagePainter(
+                                        emptyProfileImage
+                                    )
+                                    else rememberAsyncImagePainter(friend.image),
+                                    contentDescription = "image",
+                                    contentScale = ContentScale.Crop,
                                     modifier = Modifier
-                                        .size(18.dp)
-                                        .align(Alignment.BottomEnd)
-                                        .clip(CircleShape)
-                                        .background(darkGreen)
+                                        .size(70.dp)
+                                        .clip(shape = CircleShape)
                                 )
-                            }
-                        }
 
-                        Spacer(Modifier.width(10.dp))
+                                if (friend.isOnline) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(18.dp)
+                                            .align(Alignment.BottomEnd)
+                                            .clip(CircleShape)
+                                            .background(darkGreen)
+                                    )
+                                }
+                            }
+
+                            Spacer(Modifier.width(10.dp))
 
                             Text(
                                 modifier = Modifier
@@ -126,28 +143,36 @@ fun FriendsScreen(navController: NavHostController, userViewModel: UserViewModel
                                 overflow = TextOverflow.Ellipsis
                             )
 
-                        Spacer(Modifier.weight(1f))
+                            Spacer(Modifier.weight(1f))
 
-                        Button(onClick = {userViewModel.followUser(friend.id)},
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (friend.followersList.contains(currentUser.id)) darkGray
-                                else MaterialTheme.colorScheme.primary
-                            ),
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .height(33.dp)) {
-                            Text(text = if (friend.followersList.contains(currentUser.id)) stringResource(R.string.UnFollow)
-                                else stringResource(R.string.Follow),
-                                color = Color.White,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                lineHeight = 2.sp)
-                        }
-                    } // Row
-                } // Column
-            } // items
-        } // LazyColumn
+                            Button(
+                                onClick = {
+                                    if (friend.isFollowedByMe) userViewModel.unfollowUser(friend.id)
+                                    else userViewModel.followUser(friend.id)
+                                },
+                                shape = RoundedCornerShape(8.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (friend.isFollowedByMe) darkGray
+                                    else MaterialTheme.colorScheme.primary
+                                ),
+                                modifier = Modifier
+                                    .wrapContentWidth()
+                                    .height(33.dp)
+                            ) {
+                                Text(
+                                    text = if (friend.isFollowedByMe) stringResource(R.string.UnFollow)
+                                    else stringResource(R.string.Follow),
+                                    color = Color.White,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    lineHeight = 2.sp
+                                )
+                            }
+                        } // Row
+                    } // Column
+                } // items
+            } // LazyColumn
+        }
     } // Column
 }
 

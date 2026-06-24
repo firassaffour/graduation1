@@ -80,14 +80,19 @@ class PostRepository(private val api: ApiService) {
 
     suspend fun deleteComment(id: Int) = api.deleteComment(id)
 
+    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getSavedPosts() : List<PostData>{
         val response = api.getSavedPosts()
-        return api.getPosts().map {
+        return api.getSavedPosts().map {
+            val time = LocalDateTime.parse(it.createdAt)
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli()
             PostData(
                 postId = it.postID.toString(),
                 postText = it.content ?: "",
                 codeSnippet = it.codeSnippet ?: "",
-                createdAt = it.createdAt?.toLong() ?: 0,
+                createdAt = time ?: 0,
                 userId = it.userID.toString(),
                 groupId = it.communityID.toString(),
                 postImage = it.media?.firstOrNull()?.filePath.toString()

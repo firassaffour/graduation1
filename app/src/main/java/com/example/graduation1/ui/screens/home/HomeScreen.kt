@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -68,6 +69,7 @@ fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel, u
 
     val postsList by postViewModel.posts.collectAsState()
     val newPostId by postViewModel.newPostId.collectAsState()
+    val isLoading by postViewModel.isPostsLoading.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
 
@@ -199,29 +201,43 @@ fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel, u
 
             Spacer(Modifier.height(10.dp))
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                state = listState
-            ) {
-                items(
-                    filteredPosts,
-                    key = {it.postId}) { post ->
-                    PostUI(navController, post, post.postId == newPostId, postViewModel, userViewModel, groupsViewModel,
-                        onPostClicked = {
-                            selectedPostPage = post
-                            navController.navigate("${AppPages.Post.route}/${post.postId}")},
-                        onCommentClicked = {
-                            selectedPost = post
-                            showBottomSheet = true
-                        },
-                        onGroupClicked = {
-                            navController.navigate("${AppPages.GroupDetails.route}/${post.groupId}")
-                        },
-                        onPostDeleted = {})
-                } // items
-            } // LazyColumn
-            Spacer(Modifier.height(10.dp))
+            if (isLoading){
+                Spacer(Modifier.height(300.dp))
+                CircularProgressIndicator()
+            }
+            else {
+
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    state = listState
+                ) {
+                    items(
+                        filteredPosts,
+                        key = { it.postId }) { post ->
+                        PostUI(
+                            navController,
+                            post,
+                            post.postId == newPostId,
+                            postViewModel,
+                            userViewModel,
+                            groupsViewModel,
+                            onPostClicked = {
+                                selectedPostPage = post
+                                navController.navigate("${AppPages.Post.route}/${post.postId}")
+                            },
+                            onCommentClicked = {
+                                selectedPost = post
+                                showBottomSheet = true
+                            },
+                            onGroupClicked = {
+                                navController.navigate("${AppPages.GroupDetails.route}/${post.groupId}")
+                            },
+                            onPostDeleted = {})
+                    } // items
+                } // LazyColumn
+                Spacer(Modifier.height(10.dp))
+            }
         } // column
         FloatingActionButton(
             onClick = {navController.navigate(AppPages.ChatbotStart.route)},

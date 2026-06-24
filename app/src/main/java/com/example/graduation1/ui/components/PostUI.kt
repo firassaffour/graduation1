@@ -181,7 +181,7 @@ fun PostUI(navController: NavHostController,
 
         Spacer(Modifier.height(10.dp))
 
-        if (post.postImage != "") {
+        if (post.postImage != null) {
             Image(
                 painter = rememberAsyncImagePainter(post.postImage),
                 contentDescription = "postImage",
@@ -244,16 +244,16 @@ fun PostUI(navController: NavHostController,
                     postViewModel.toggleLike(post.postId)
                     postViewModel.refreshData()}) {
                     Icon(
-                        painter = if (!postViewModel.getLikeStatus(post.postId)) painterResource(id = R.drawable.heart2)
+                        painter = if (!post.isLiked) painterResource(id = R.drawable.heart2)
                         else painterResource(id = R.drawable.heart2red),
                         contentDescription = "heart",
-                        tint = if (darkMode && !post.likesCount.contains(currentUser.id)) Color.White else Color.Unspecified,
+                        tint = if (darkMode && !post.isLiked) Color.White else Color.Unspecified,
                         modifier = Modifier.size(26.dp)
                     )
                 }
 
                 Text(
-                    text = postViewModel.getLikesCount(post.postId).toString(),
+                    text = post.likesCount.toString(),
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
@@ -272,18 +272,11 @@ fun PostUI(navController: NavHostController,
                         modifier = Modifier.size(26.dp)
                     )
                 }
-
-                Text(
-                    text = post.commentsList.count().toString(),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                )
             }
 
             Spacer(Modifier.weight(1f))
 
-            IconButton(onClick = {postViewModel.toggleSaved(post.postId)}) {
+            IconButton(onClick = {postViewModel.toggleSaved(post)}) {
                 Icon(
                     painter = if (!post.isSaved) painterResource(id = R.drawable.saved)
                     else painterResource(id = R.drawable.savedyellow),

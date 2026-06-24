@@ -47,7 +47,7 @@ fun GroupUI(navController: NavHostController, room: Group, isNew : Boolean, grou
     val group = groupsList.find { it.id == room.id } ?: return
 
     val userList by userViewModel.users.collectAsState()
-    val groupMembersInformation = userList.filter { it.id in group.members }
+    val groupMembersInformation = userList.filter { it in group.members }
 
 
     var highlight by remember(group.id) { mutableStateOf(isNew) }

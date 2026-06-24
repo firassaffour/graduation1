@@ -70,7 +70,10 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
     private fun getGroups(){
         viewModelScope.launch {
             try {
-                _groups.value = groupsRepository.getCommunities()
+                _groups.value = groupsRepository.getCommunities().map {
+                    it.copy(members = groupsRepository.getCommunityMembers(it.id.toInt()),
+                        isMember = groupsRepository.getCommunityMembership(it.id.toInt()).isMember)
+                }
             }
             catch (e: Exception){
                 Log.e("API", "GroupsViewModel: ${e.message}")
@@ -122,7 +125,7 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
         return membersList.filter { it.isOnline }.size
     }
 
-    fun getFriendsInGroup(group: Group, currentUserFollowingList : List<String>) : Int {
+    fun getFriendsInGroup(group: Group, currentUserFollowingList : List<User>) : Int {
         return group.members.count {
             it in currentUserFollowingList
         }
@@ -153,8 +156,10 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
             _groups.value = _groups.value.map {
                 if (it.id == groupId){
                     it.copy(members =
-                        if (_currentUser.value.groupsList.contains(groupId)) it.members + _currentUser.value.id
-                        else it.members - _currentUser.value.id)
+                        if (it.isMember) it.members + _currentUser.value
+                        else it.members - _currentUser.value,
+                        isMember = if (it.isMember) false
+                        else true)
                 }
 
                 else it
@@ -194,7 +199,7 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
                     currentUser.value.id,
                     name,
                     image,
-                    listOf(currentUser.value.id)
+                    listOf(currentUser.value)
                 )
                 _groups.value = listOf(group) + _groups.value
                 _newGroupId.value = group.id
@@ -206,7 +211,7 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
                     ""
                 )
 
-                groupsRepository.createCommunity(groupData)
+                val response = groupsRepository.createCommunity(groupData)
                 Log.d("API", "createGroup success: $groupData")
 
             }

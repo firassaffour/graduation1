@@ -34,6 +34,9 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     private val _following = MutableStateFlow<List<User>>(emptyList())
     val following  = _following.asStateFlow()
 
+    private val _isLoading = MutableStateFlow<Boolean>(false)
+    val isLoading = _isLoading.asStateFlow()
+
     var selectedUser by mutableStateOf<User?>(null)
 
         private set
@@ -45,11 +48,19 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     private fun getUsers(){
         viewModelScope.launch {
             try {
-                _users.value = userRepository.getUsers()
+                _isLoading.value = true
+                _users.value = userRepository.getUsers().map {
+                    it.copy(followingList = userRepository.getFollowing(it.id.toInt()),
+                        followersList = userRepository.getFollowers(it.id.toInt()),
+                        isFollowedByMe = userRepository.getFollowingStatus(it.id.toInt()).isFollowing)
+                }
                 Log.d("userViewModel", "loadUsers: $users")
             }
             catch (e: Exception){
                 Log.e("userViewModel", "loadUsers: ${e.message}")
+            }
+            finally {
+                _isLoading.value = false
             }
         }
     }
@@ -104,13 +115,14 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
                     bio = bio,
                     profileImage = if (profileImage.isNullOrEmpty()) emptyProfileImage else profileImage
                 )
-                userRepository.editUser(id, userData)
+                val response = userRepository.editUser(id, userData)
 
                 onSuccess()
 
-                Log.e("userViewModel", "edit user success")
+                Log.e("userViewModel", "edit user success $response")
             }
             catch (e: Exception){
+                onSuccess()
                 Log.e("userViewModel", "edit user failed: ${e.message}")
             }
         }
@@ -119,27 +131,18 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     fun followUser(userId: String){
         viewModelScope.launch {
             try {
-                val currentUserId = _currentUser.value.id ?: return@launch
-                val isFollowing = _users.value.first { it.id == userId }.followersList.contains(currentUserId)
                 _users.value =_users.value.map {
                     if (it.id == userId) {
-                        if (isFollowing) it.copy(followersList = it.followersList - currentUserId)
+                        if (it.isFollowedByMe) it.copy(isFollowedByMe = false)
 
-                        else it.copy(followersList = it.followersList + currentUserId)
+                        else it.copy(isFollowedByMe = true)
                     }
                     else it
                 }
 
-                _currentUser.value = _currentUser.value.copy(
-                    followingList =
-                        if (isFollowing) _currentUser.value.followingList - userId
+                val response = userRepository.followUser(userId)
 
-                        else _currentUser.value.followingList - userId
-                )
-
-                userRepository.followUser(userId)
-
-                Log.d("API", "followUser success: ")
+                Log.d("API", "followUser success: $response")
             }
             catch (e: Exception){
                 Log.e("userViewModel", "follow user failed: ${e.message}")

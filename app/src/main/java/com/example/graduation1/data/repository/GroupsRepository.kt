@@ -21,7 +21,8 @@ class GroupsRepository(private val api : ApiService) {
                 id = it.communityID.toString(),
                 name = it.name,
                 image = "",
-                members = emptyList()
+                members = emptyList(),
+                admin = it.createdBy.toString()
             )
         }
     }

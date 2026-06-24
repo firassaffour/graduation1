@@ -59,7 +59,14 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     private val _newPostId = MutableStateFlow("")
     val newPostId  = _newPostId.asStateFlow()
 
+    private val _isPostsLoading = MutableStateFlow<Boolean>(false)
+    val isPostsLoading = _isPostsLoading.asStateFlow()
+
+    private val _isCommentsLoading = MutableStateFlow<Boolean>(false)
+    val isCommentsLoading = _isCommentsLoading.asStateFlow()
+
     init {
+        getSavedPosts()
         getPosts()
         Log.d("VM", "postViewModel created ${this.hashCode()} ")
     }
@@ -80,14 +87,20 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     private fun getPosts(){
         viewModelScope.launch {
             try {
+                _isPostsLoading.value = true
                 _posts.value = postRepository.getPosts().map {
-                    it.copy(commentsList = _comments.value)
+                    it.copy(likesCount = postRepository.getLikeCount(it.postId.toInt()),
+                        isLiked = postRepository.getLikeStatus(it.postId.toInt()),
+                        isSaved = _savedPosts.value.find { p -> it.postId == p.postId }!!.isSaved )
                 }
 
                 Log.d("API", "postViewModel getting posts: ${_posts.value}")
             }
             catch (e: Exception){
                 Log.e("API", "postViewModel getting posts: ${e.message}")
+            }
+            finally {
+                _isPostsLoading.value = false
             }
         }
     }
@@ -111,7 +124,7 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     fun getFavouritePosts(){
         viewModelScope.launch {
             try {
-                _favouritePosts.value = _posts.value.filter { it.likesCount.contains(_currentUser.value.id) }
+                _favouritePosts.value = _posts.value.filter { it.isLiked }
             }
             catch (e: Exception){
                 Log.e("API", "postViewModel get favourite post: ${e.message}")
@@ -143,7 +156,8 @@ class PostViewModel(private val postRepository: PostRepository, private val user
                     postImage!!,
                     _postCodeSnippet.value,
                     System.currentTimeMillis(),
-                    emptyList(),
+                    0,
+                    false,
                     false,
                     emptyList(),
 
@@ -299,10 +313,14 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     fun getCommentsByPost(postId: String) {
         viewModelScope.launch {
             try {
+                _isCommentsLoading.value = true
                 _comments.value = postRepository.getCommentsByPost(postId.toInt())
                 Log.d("API", "getCommentsByPost success: ")
             } catch (e: Exception) {
                 Log.e("API", "getCommentsByPost error: ${e.message}",)
+            }
+            finally {
+                _isCommentsLoading.value = false
             }
         }
     }
@@ -310,10 +328,10 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     fun toggleLike(postId: String){
         _posts.value = _posts.value.map {
             if (it.postId == postId)
-                if (!it.likesCount.contains(_currentUser.value.id))
-                    it.copy(likesCount = it.likesCount + _currentUser.value.id)
+                if (!it.isLiked)
+                    it.copy(isLiked = true, likesCount = it.likesCount + 1 )
                 else
-                    it.copy(likesCount = it.likesCount - _currentUser.value.id)
+                    it.copy(isLiked = false, likesCount = it.likesCount - 1)
             else it
         }
         viewModelScope.launch {
@@ -327,17 +345,17 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     }
 
     fun getLikeStatus(postId: String) : Boolean{
-        var isLiked = false
+        val response = false
         viewModelScope.launch {
             try {
-                isLiked =  postRepository.getLikeStatus(postId.toInt())
-                Log.d("API", "getLikesStatus success: $isLiked")
+                postRepository.getLikeStatus(postId.toInt())
+                Log.d("API", "getLikesStatus success:")
             }
             catch (e : Exception){
                 Log.d("API", "getLikesStatus error: ${e.message}")
             }
         }
-        return isLiked
+        return response
     }
 
     fun getLikesCount(postId: String) : Int{
@@ -354,12 +372,24 @@ class PostViewModel(private val postRepository: PostRepository, private val user
         return likeCount
     }
 
-    fun toggleSaved(postId: String){
+    fun toggleSaved(post : PostData){
         _posts.value = _posts.value.map {
-            if (it.postId == postId)
+            if (it.postId == post.postId)
                 it.copy(isSaved = !it.isSaved)
 
             else it
+        }
+
+        viewModelScope.launch {
+            try {
+                if (post.isSaved) postRepository.savePost(post.postId.toInt())
+                else postRepository.unsavePost(post.postId.toInt())
+
+                Log.d("API", "toggleSaved success: ")
+            }
+            catch (e : Exception){
+                Log.e("API", "toggleSaved error : ${e.message}", )
+            }
         }
     }
 

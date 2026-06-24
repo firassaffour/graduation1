@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
+import com.example.graduation1.domain.models.User
 import com.example.graduation1.ui.components.CircledImagesRow
 import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.UserViewModel
@@ -86,7 +87,7 @@ fun GroupsListScreen(navController: NavHostController, userId : String, groupsVi
             .fillMaxWidth()) {
 
             items(groupsList){ group ->
-                val groupMembersInformation = userList.filter { it.id in group.members }
+                val groupMembersInformation = userList.filter { it in group.members }
                 Column(modifier = Modifier
                     .fillMaxWidth()
                     .padding(14.dp)
@@ -117,7 +118,7 @@ fun GroupsListScreen(navController: NavHostController, userId : String, groupsVi
                             )
 
                             Text(
-                                text = "${groupsViewModel.getFriendsInGroup(group, user!!.followingList)} ${stringResource(R.string.Friends)}   ${group.members.count()} ${stringResource(R.string.Members)}",
+                                text = "${groupsViewModel.getFriendsInGroup(group, user!!.followingList.map { User(id = it.userID.toString()) })} ${stringResource(R.string.Friends)}   ${group.members.count()} ${stringResource(R.string.Members)}",
                                 color = MaterialTheme.colorScheme.onBackground,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold

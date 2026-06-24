@@ -79,13 +79,15 @@ import com.example.graduation1.viewmodel.ChatbotViewModelFactory
 @Composable
 fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotViewModel){
 
-    val chatContent by chatbotViewModel.chatContent.collectAsState()
+    val chatContent by chatbotViewModel.messages.collectAsState()
     val listState = rememberLazyListState()
     var firstLoad by remember { mutableStateOf(true) }
 
     val messageText by chatbotViewModel.messageText.collectAsState()
 
     val currentUser by chatbotViewModel.currentUser.collectAsState()
+
+    val isLoading by chatbotViewModel.isLoading.collectAsState()
 
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var imageIsSelected by remember { mutableStateOf(false) }
@@ -113,6 +115,7 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
             if (lastIndex > 0) listState.animateScrollToItem(lastIndex - 1)
         }
     }
+
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -211,6 +214,34 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
                     } // Card
                 } // column
             } // items
+
+            if (isLoading){
+                item{
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)) {
+
+                        Card(modifier = Modifier
+                            .widthIn(min = 10.dp, max = 300.dp)
+                            .align(Alignment.Start),
+                            shape = RoundedCornerShape(25.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = gray
+                            )) {
+
+                            Column(modifier = Modifier.padding(10.dp)) {
+
+                                    Text(
+                                        text = "Thinking...",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                            } // Column
+                        } // Card
+                    } // column
+                }
+            }
         } // LazyColumn
 
         Column {
@@ -245,9 +276,9 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             if (messageText.isNotEmpty() || imageIsSelected)
                                 if (selectedImageUri == null)
-                                    chatbotViewModel.sendMessage(messageText, null)
+                                    chatbotViewModel.sendMessage()
                                 else
-                                    chatbotViewModel.sendMessage(messageText, selectedImageUri.toString())
+                                    chatbotViewModel.sendMessage()
                         }
                                 chatbotViewModel.updateMessageText("")
                                 selectedImageUri = null

@@ -62,7 +62,7 @@ fun AddFriendsScreen(navController: NavHostController, userViewModel: UserViewMo
 
     val notificationsList by notificationViewModel.notifications.collectAsState()
 
-    val friendsList = usersList.filter { !group.members.contains(it.id) && currentUser.followingList.contains(it.id)}
+    val friendsList = usersList.filter { !group.members.contains(it)}
 
     Column(modifier = Modifier
         .fillMaxSize()
