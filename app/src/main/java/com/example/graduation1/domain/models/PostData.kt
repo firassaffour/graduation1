@@ -5,7 +5,7 @@ data class PostData(
     val groupId : String = "",
     val userId : String = "",
     val postText : String = "",
-    val postImage : Any = "",
+    val postImage : String = "",
     val codeSnippet : String = "",
     val createdAt : Long = 0,
     val likesCount : Int = 0,

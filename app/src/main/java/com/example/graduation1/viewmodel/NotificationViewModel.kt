@@ -89,23 +89,36 @@ class NotificationViewModel(private val notificationRepository: NotificationRepo
         return _todayNotifications.value.count() + _lastWeeksNotifications.value.count()
     }
 
-    @OptIn(ExperimentalUuidApi::class)
-    fun sendNotification(userId : String, groupId : String){
-        val notificationIsSent = _notifications.value.any { it.userID == userId.toInt()}
+    /**
+     * Send a real notification via the backend API.
+     *
+     * Call this when:
+     *  - A user follows another user  → type = "follow",  message = "$name started following you"
+     *  - A user comments on a post   → type = "comment", message = "$name commented on your post"
+     *  - A user likes a post         → type = "like",    message = "$name liked your post"
+     *  - A user joins a group        → type = "join",    message = "$name joined your group"
+     *
+     * Example from OtherUsersProfileScreen follow button:
+     *   notificationViewModel.sendNotification(
+     *       userId  = user.id.toInt(),
+     *       type    = "follow",
+     *       message = "${currentUser.name} started following you"
+     *   )
+     */
+    fun sendNotification(
+        userId: Int,
+        groupId: Int? = null,
+        type: String? = null,
+        message: String? = null
+    ) {
         viewModelScope.launch {
             try {
-                val notification = Notification(
-                    Uuid.random().toString(),
-                    groupId,
-                    userId,
-                    System.currentTimeMillis()
-                )
-                //if (notificationIsSent)_notifications.value = _notifications.value - notification
-                //else _notifications.value = listOf(notification) + _notifications.value
-
-            }
-            catch (e: Exception){
-                Log.e("API", "notificationViewModel send notification: ${e.message}")
+                val response = notificationRepository.sendNotification(userId, groupId, type, message)
+                // Optimistically add to local list so sender sees it too
+                _notifications.value = listOf(response) + _notifications.value
+                Log.d("NotificationVM", "sendNotification OK: ${response.notificationID}")
+            } catch (e: Exception) {
+                Log.e("NotificationVM", "sendNotification: ${e.message}")
             }
         }
     }

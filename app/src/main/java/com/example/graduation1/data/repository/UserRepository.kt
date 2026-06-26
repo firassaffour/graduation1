@@ -7,7 +7,7 @@ import com.example.graduation1.domain.models.requets_response.UpdateUserRequest
 import com.example.graduation1.emptyProfileImage
 
 class UserRepository(private val api: ApiService) {
-    private val BASE_URL = "https://graduation-project-backend-production-bc68.up.railway.app/wwwroot"
+    private val BASE_URL = "https://graduation-project-backend-production-bc68.up.railway.app"
 
     suspend fun getUsers() : List<User>{
         val response = api.getUsers()
@@ -18,7 +18,7 @@ class UserRepository(private val api: ApiService) {
                 name = it.firstName,
                 userName = it.lastName,
                 email = it.email,
-                image = it.profileImage ?: emptyProfileImage,
+                image = "$BASE_URL${it.profileImage}" ?: emptyProfileImage,
                 description = it.bio ?: "New Developer",
                 gender = "Male",
                 location = "Egypt",
@@ -38,7 +38,7 @@ class UserRepository(private val api: ApiService) {
                 name = response.firstName,
                 userName = response.lastName,
                 email = response.email,
-                image = response.profileImage ?: emptyProfileImage,
+                image = "$BASE_URL${response.profileImage}" ?: emptyProfileImage,
                 description = response.bio ?: "New Developer",
                 gender = "Male",
                 location = "Egypt",

@@ -351,6 +351,7 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
                 val result = repository.submitCode(
                     CodeSubmitRequest(code = code, language = language, postID = postId)
                 )
+
                 _codeReviewResult.value = result.aiFeedback
                 Log.d("PostVM", "Code review OK: ${result.aiFeedback.content}")
             } catch (e: Exception) {

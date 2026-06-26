@@ -19,6 +19,13 @@ import java.time.ZoneId
 
 class PostRepository(private val api: ApiService) {
 
+    private val BASE_URL = "https://graduation-project-backend-production-bc68.up.railway.app"
+
+    private fun imageUrl(filePath: String?): String {
+        if (filePath.isNullOrBlank()) return ""
+        return if (filePath.startsWith("http")) filePath else "$BASE_URL$filePath"
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getPosts() : List<PostData>{
         val response = api.getPosts()
@@ -36,7 +43,7 @@ class PostRepository(private val api: ApiService) {
                 createdAt   = time,
                 likesCount  = it.likes?.size ?: 0,
                 isLiked     = false,
-                postImage   = it.media?.firstOrNull()?.filePath ?: ""
+                postImage   = imageUrl(it.media?.firstOrNull()?.filePath) ?: ""
             )
         }
     }
@@ -97,7 +104,7 @@ class PostRepository(private val api: ApiService) {
                 createdAt = time ?: 0,
                 userId = it.userID.toString(),
                 groupId = it.communityID.toString(),
-                postImage = it.media?.firstOrNull()?.filePath.toString()
+                postImage = "$BASE_URL${it.media?.firstOrNull()?.filePath}" ?: ""
             )
         }
     }

@@ -15,12 +15,14 @@ import retrofit2.http.Path
 
 class GroupsRepository(private val api : ApiService) {
 
+    private val BASE_URL = "https://graduation-project-backend-production-bc68.up.railway.app"
+
     suspend fun getCommunities() : List<Group>{
         return api.getCommunities().map {
             Group(
                 id = it.communityID.toString(),
                 name = it.name,
-                image = "",
+                image = "$BASE_URL${it.imageUrl}",
                 members = emptyList(),
                 admin = it.createdBy.toString()
             )

@@ -94,8 +94,7 @@ class PostViewModel(private val postRepository: PostRepository, private val user
             try {
                 _posts.value = postRepository.getPosts().map {
                     it.copy(isLiked = postRepository.getLikeStatus(it.postId.toInt()),
-                        isSaved = _savedPosts.value.contains(it),
-                        postImage = mediaRepository.getMediaByPost(it.postId.toInt()).find {media -> media.postID ==  it.postId.toInt()} ?: "")
+                        isSaved = _savedPosts.value.contains(it))
                 }
 
                 Log.d("API", "postViewModel getting posts success: ${_posts.value}")

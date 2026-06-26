@@ -269,7 +269,7 @@ class MainActivity : ComponentActivity() {
                 composable(AppPages.MyProfileDetails.route) { MyProfileDetailsScreen(navController, userViewModel, postViewModel, groupsViewModel) }
                 composable("${AppPages.OtherUsersProfile.route}/{userId}", arguments = listOf(navArgument("userId") {type = NavType.StringType})){ backStack ->
                     val userId = backStack.arguments?.getString("userId")
-                    OtherUsersProfileScreen(navController, userId!!, userViewModel, postViewModel, groupsViewModel, chatViewModel)
+                    OtherUsersProfileScreen(navController, userId!!, userViewModel, postViewModel, groupsViewModel, chatViewModel, notificationViewModel)
                 } // Composable
                 composable("${AppPages.Messaging.route}/{chatId}", arguments = listOf(navArgument("chatId") {type = NavType.StringType})){ backStack ->
                     val chatId = backStack.arguments?.getString("chatId")

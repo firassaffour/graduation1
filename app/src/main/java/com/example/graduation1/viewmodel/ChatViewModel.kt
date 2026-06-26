@@ -59,9 +59,21 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
 
     // ── Init ────────────────────────────────────────────────────────────────
 
+    // KEY FIX: load currentUser FIRST then inbox in same coroutine so myId
+    // is always available when we group messages — fixes disappearing chats.
     init {
-        loadCurrentUser()
-        loadInbox()
+        viewModelScope.launch {
+            loadCurrentUserSuspend()
+            loadInboxInternal()
+        }
+    }
+
+    private suspend fun loadCurrentUserSuspend() {
+        try {
+            _currentUser.value = userRepository.getCurrentUser()
+        } catch (e: Exception) {
+            Log.e("ChatVM", "loadCurrentUser: ${e.message}")
+        }
     }
 
     private fun loadCurrentUser() {
@@ -82,36 +94,41 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
      */
     fun loadInbox() {
         viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                val inbox = chatRepository.getInbox()
-                val myId = _currentUser.value.id.toIntOrNull()
+            loadCurrentUserSuspend()
+            loadInboxInternal()
+        }
+    }
 
-                // Group all messages by the partner's userId
-                val grouped = inbox
-                    .groupBy { msg ->
-                        if (msg.senderID == myId) msg.receiverID.toString()
-                        else msg.senderID.toString()
-                    }
-                    .map { (partnerId, messages) ->
-                        ChatItem(
-                            chatId       = partnerId,   // chatId == the other user's id
-                            userId       = partnerId,
-                            messagesList = messages
-                                .sortedBy { parseTime(it.sentAt) }
-                                .map { it.toMessage() }
-                        )
-                    }
-                    .sortedByDescending { it.messagesList.lastOrNull()?.createdAt ?: 0L }
+    private suspend fun loadInboxInternal() {
+        try {
+            _isLoading.value = true
+            val inbox = chatRepository.getInbox()
+            val myId  = _currentUser.value.id.toIntOrNull()
 
-                _chatsList.value = grouped
-                Log.d("ChatVM", "loadInbox: ${grouped.size} conversations")
-            } catch (e: Exception) {
-                _error.value = "Could not load chats."
-                Log.e("ChatVM", "loadInbox: ${e.message}")
-            } finally {
-                _isLoading.value = false
-            }
+            val grouped = inbox
+                .groupBy { msg ->
+                    if (msg.senderID == myId) msg.receiverID?.toString() ?: "unknown"
+                    else msg.senderID?.toString() ?: "unknown"
+                }
+                .filter { it.key != "unknown" && it.key != "null" }
+                .map { (partnerId, messages) ->
+                    ChatItem(
+                        chatId       = partnerId,
+                        userId       = partnerId,
+                        messagesList = messages
+                            .sortedBy { parseTime(it.sentAt) }
+                            .map { it.toMessage() }
+                    )
+                }
+                .sortedByDescending { it.messagesList.lastOrNull()?.createdAt ?: 0L }
+
+            _chatsList.value = grouped
+            Log.d("ChatVM", "loadInbox OK: ${grouped.size} conversations (myId=$myId)")
+        } catch (e: Exception) {
+            _error.value = "Could not load chats."
+            Log.e("ChatVM", "loadInboxInternal: ${e.message}")
+        } finally {
+            _isLoading.value = false
         }
     }
 
@@ -261,6 +278,22 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
             it.senderId != _currentUser.value.id && !it.isSeen
         } ?: 0
     }
+
+    // ── MessagingScreen: open with any userId, even without prior ChatItem ────
+
+    /**
+     * Use this in MessagingScreen instead of looking up the ChatItem first.
+     * It loads the conversation directly from the backend even if the inbox
+     * has no entry for this partner yet (new conversation).
+     */
+    fun openConversationWith(otherUserId: String) {
+        // Clear previous conversation immediately so old messages don't flash
+        _chatContent.value = emptyList()
+        getChatContent(otherUserId)
+        updateMessagesSeen(otherUserId)
+    }
+
+
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 

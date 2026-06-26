@@ -38,10 +38,6 @@ fun ChatScreen(navController: NavHostController, chatViewModel: ChatViewModel, u
         }
     }
 
-    LaunchedEffect(Unit) {
-        chatViewModel.loadInbox()
-    }
-
 
     Column(modifier = Modifier
         .fillMaxSize()) {

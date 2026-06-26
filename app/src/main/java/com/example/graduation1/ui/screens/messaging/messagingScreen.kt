@@ -85,6 +85,7 @@ import com.example.graduation1.user
 import com.example.graduation1.viewmodel.ChatViewModel
 import com.example.graduation1.viewmodel.ChatViewModelFactory
 import com.example.graduation1.viewmodel.UserViewModel
+import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("SuspiciousIndentation")
@@ -145,6 +146,15 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
         }
         else if (isAtBottom) {
             listState.animateScrollToItem(chatContent.lastIndex)
+        }
+    }
+
+    LaunchedEffect(user.id) {
+        //chatViewModel.openConversationWith(user.id)
+        // Poll for new messages
+        while (true) {
+            delay(5_000)
+            chatViewModel.getChatContent(user.id)
         }
     }
 

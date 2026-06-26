@@ -159,7 +159,7 @@ fun AddFriendsScreen(navController: NavHostController, userViewModel: UserViewMo
 
                         Spacer(Modifier.weight(1f))
 
-                        Button(onClick = {notificationViewModel.sendNotification(friend.id, groupId)},
+                        Button(onClick = {notificationViewModel.sendNotification(friend.id.toInt(), groupId =  groupId.toInt(), message = "you are invited to this group")},
                             shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = if (notificationIsSent) darkGray

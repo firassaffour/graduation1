@@ -51,6 +51,7 @@ fun NotificationUI(notification: NotificationResponse, notificationViewModel: No
     val group = groupsList.find { it.id == notification.type} ?: return
 
     val userList by userViewModel.users.collectAsState()
+    val user = userList.find { it.id.toInt() == notification.userID } ?: return
     val groupMembersInformation = userList.filter { it in group.members }
 
     Column(modifier = Modifier
@@ -62,7 +63,7 @@ fun NotificationUI(notification: NotificationResponse, notificationViewModel: No
             verticalAlignment = Alignment.CenterVertically) {
 
             Image(
-                rememberAsyncImagePainter(group.image),
+                rememberAsyncImagePainter(user.image),
                 contentDescription = "image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -74,7 +75,7 @@ fun NotificationUI(notification: NotificationResponse, notificationViewModel: No
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = group.name,
+                        text = notification.message.toString(),
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold

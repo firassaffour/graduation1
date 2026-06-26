@@ -4,5 +4,6 @@ import com.google.gson.annotations.SerializedName
 
 data class CreateCommunityRequest(
     @SerializedName("name")        val name: String,
+    @SerializedName("imageUrl")    val imageUrl: String ,
     @SerializedName("description") val description: String? = null
 )

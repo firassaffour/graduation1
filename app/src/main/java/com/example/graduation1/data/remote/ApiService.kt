@@ -45,6 +45,7 @@ import com.example.graduation1.domain.models.requets_response.PostAnalysisRespon
 import com.example.graduation1.domain.models.requets_response.RecruiterDashboardResponse
 import com.example.graduation1.domain.models.requets_response.RecruiterProfileResponse
 import com.example.graduation1.domain.models.requets_response.SendMessageRequest
+import com.example.graduation1.domain.models.requets_response.SendNotificationRequest
 import com.example.graduation1.domain.models.requets_response.ToggleLikeResponse
 import com.example.graduation1.domain.models.requets_response.UnreadCountResponse
 import okhttp3.MultipartBody
@@ -218,6 +219,11 @@ interface ApiService {
 
     @PUT("api/Notifications/read-all")
     suspend fun markAllNotificationsRead()
+
+    @POST("api/Notifications/send")
+    suspend fun sendNotification(
+        @Body request: SendNotificationRequest
+    ): NotificationResponse
 
     @DELETE("api/Notifications/{id}")
     suspend fun deleteNotification(@Path("id") id: Int)

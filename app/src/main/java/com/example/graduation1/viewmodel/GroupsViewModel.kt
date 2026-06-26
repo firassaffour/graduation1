@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.network.HttpException
 import com.example.graduation1.data.repository.GroupsRepository
 import com.example.graduation1.data.repository.MediaRepository
 import com.example.graduation1.data.repository.UserRepository
@@ -23,6 +24,7 @@ import com.patrykandpatrick.vico.core.extension.mutableListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.sql.SQLException
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -67,10 +69,10 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
         viewModelScope.launch {
             try {
                 _currentUser.value = userRepository.getCurrentUser()
-                Log.d("userViewModel", "loadUsers: ${_currentUser.value}")
+                Log.d("groupViewModel", "currentUser success: ${_currentUser.value}")
             }
             catch (e: Exception){
-                Log.e("userViewModel", "loadUsers: ${e.message}")
+                Log.e("groupViewModel", "currentUser failed: ${e.message}")
             }
         }
     }
@@ -81,9 +83,11 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
                 _groups.value = groupsRepository.getCommunities().map {
                     it.copy(members = groupsRepository.getCommunityMembers(it.id.toInt()))
                 }
+
+                Log.d("API", "getGroups success: ${_groups.value}")
             }
             catch (e: Exception){
-                Log.e("API", "GroupsViewModel: ${e.message}")
+                Log.e("API", "getGroups failed: ${e.message}")
             }
         }
     }
@@ -94,6 +98,9 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
                 _currentUserGroups.value = _groups.value
             }
             catch (e: Exception){
+                Log.e("API", "GroupsViewModel: ${e.message}")
+            }
+            catch (e : HttpException){
                 Log.e("API", "GroupsViewModel: ${e.message}")
             }
         }
@@ -224,7 +231,7 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
 
                 // 2. Create community on backend
                 val response = groupsRepository.createCommunity(
-                    CreateCommunityRequest(name, null)
+                    CreateCommunityRequest(name, finalImage, null)
                 )
 
                 // 3. Add to local list so UI updates immediately

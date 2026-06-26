@@ -69,6 +69,7 @@ import com.example.graduation1.user
 import com.example.graduation1.viewmodel.ChatViewModel
 import com.example.graduation1.viewmodel.ChatbotViewModel
 import com.example.graduation1.viewmodel.GroupsViewModel
+import com.example.graduation1.viewmodel.NotificationViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.PostViewModelFactory
 import com.example.graduation1.viewmodel.UserViewModel
@@ -76,7 +77,7 @@ import com.example.graduation1.viewmodel.UserViewModelFactory
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OtherUsersProfileScreen(navController: NavHostController, userId : String, userViewModel: UserViewModel, postViewModel: PostViewModel, groupsViewModel: GroupsViewModel, chatViewModel: ChatViewModel){
+fun OtherUsersProfileScreen(navController: NavHostController, userId : String, userViewModel: UserViewModel, postViewModel: PostViewModel, groupsViewModel: GroupsViewModel, chatViewModel: ChatViewModel, notificationViewModel : NotificationViewModel){
 
     val usersList by userViewModel.users.collectAsState()
     val user = usersList.first { it.id == userId }
@@ -199,7 +200,14 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String, u
 
             Button(onClick = {
                 if (user.isFollowedByMe) userViewModel.unfollowUser(userId)
-                    else userViewModel.followUser(user.id)},
+                    else {
+                        userViewModel.followUser(user.id)
+                    notificationViewModel.sendNotification(
+                        userId  = user.id.toInt(),
+                        type    = "follow",
+                        message = "${currentUser.name} started following you"
+                    )
+                }},
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (user.isFollowedByMe) darkGray
