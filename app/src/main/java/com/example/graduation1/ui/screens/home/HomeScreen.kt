@@ -81,7 +81,7 @@ fun HomeScreen(navController: NavHostController, postViewModel: PostViewModel, u
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedPost by remember { mutableStateOf<PostData?>(null) }
 
-    val notificationCount = notificationViewModel.getNotificationCount()
+    val notificationCount by notificationViewModel.unreadCount.collectAsState()
 
     val listState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
     LaunchedEffect(newPostId) {

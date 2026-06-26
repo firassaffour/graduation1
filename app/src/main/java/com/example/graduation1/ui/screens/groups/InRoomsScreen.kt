@@ -30,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,10 +69,14 @@ fun InRoomsScreen(navController: NavHostController, groupId : String, groupsView
     val group = groupsList.find { it.id == groupId } ?: return
     val groupMembers by groupsViewModel.members.collectAsState()
 
+    LaunchedEffect(Unit) {
+        groupsViewModel.getMembers(groupId)
+    }
+
     val userList by userViewModel.users.collectAsState()
     val currentUser by userViewModel.currentUser.collectAsState()
     val groupMembersInformation = userList
-        .filter { it in group.members }
+        .filter { user -> user.id == (groupMembers.find { it.id == user.id }?.id ?: "") }
         .sortedWith(
             compareBy<User> (
                 {
@@ -158,7 +163,8 @@ fun InRoomsScreen(navController: NavHostController, groupId : String, groupsView
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { navController.navigate("${AppPages.OtherUsersProfile.route}/${member.id}") },
+                            .clickable {if (member.id == currentUser.id) navController.navigate(AppPages.MyProfileDetails.route)
+                            else navController.navigate("${AppPages.OtherUsersProfile.route}/${member.id}") },
                         verticalAlignment = Alignment.CenterVertically
                     ) {
 

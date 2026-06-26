@@ -114,8 +114,7 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
                 horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = chatViewModel.getMessageTime(lastMessage!!.createdAt),
-                    color = if (isSeenCount == 0) MaterialTheme.colorScheme.onBackground
-                    else primaryRed,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
@@ -123,7 +122,7 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
 
                 Spacer(Modifier.height(10.dp))
 
-                if (isSeenCount != 0) {
+                /*if (isSeenCount != 0) {
                     Box(
                         modifier = Modifier
                             .size(22.dp)
@@ -140,7 +139,7 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
                             lineHeight = 1.sp
                         )
                     }
-                } // if
+                } // if*/
             } // Column
         } // Row
     } // Column

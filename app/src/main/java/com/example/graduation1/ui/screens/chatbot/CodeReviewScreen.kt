@@ -25,36 +25,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.graduation1.R
-import com.example.graduation1.viewmodel.PostViewModel
+import com.example.graduation1.viewmodel.ChatbotViewModel
 
-/**
- * Code Reviewer Screen
- * ─────────────────────
- * The user types / pastes code in the editor, picks an optional language,
- * hits "Review" and the AI feedback appears below.
- *
- * Place it in your NavGraph:
- *   composable(AppPages.CodeReview.route) {
- *       CodeReviewScreen(navController, postViewModel)
- *   }
- *
- * Add to AppPages:
- *   object CodeReview : AppPages("codeReviewScreen")
- *
- * Add a button somewhere (e.g. ChatbotStartScreen or AI Profile screen):
- *   Button(onClick = { navController.navigate(AppPages.CodeReview.route) }) {
- *       Text("Code Reviewer")
- *   }
- */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CodeReviewScreen(
     navController: NavHostController,
-    postViewModel: PostViewModel
+    chatbotViewModel: ChatbotViewModel
 ) {
-    val codeReviewResult by postViewModel.codeReviewResult.collectAsState()
-    val isReviewing      by postViewModel.isReviewing.collectAsState()
-    val error            by postViewModel.error.collectAsState()
+    val codeReviewResult by chatbotViewModel.codeReviewResult.collectAsState()
+    val isReviewing      by chatbotViewModel.isReviewing.collectAsState()
+    val error            by chatbotViewModel.error.collectAsState()
 
     var code     by remember { mutableStateOf("") }
     var language by remember { mutableStateOf("") }
@@ -63,7 +44,7 @@ fun CodeReviewScreen(
     val codeEditorColor = Color(28, 27, 27, 255)
 
     // Clear previous result when the screen opens
-    LaunchedEffect(Unit) { postViewModel.clearCodeReview() }
+    LaunchedEffect(Unit) { chatbotViewModel.clearCodeReview() }
 
     Column(
         modifier = Modifier
@@ -162,7 +143,7 @@ fun CodeReviewScreen(
             // ── Review button ─────────────────────────────────────────────────
             Button(
                 onClick = {
-                    postViewModel.submitCodeForReview(
+                    chatbotViewModel.submitCodeForReview(
                         code     = code,
                         language = language.ifBlank { null }
                     )
@@ -203,7 +184,7 @@ fun CodeReviewScreen(
                             color = MaterialTheme.colorScheme.onErrorContainer,
                             modifier = Modifier.weight(1f)
                         )
-                        TextButton(onClick = { postViewModel.clearError() }) {
+                        TextButton(onClick = { chatbotViewModel.clearError() }) {
                             Text("Dismiss")
                         }
                     }
@@ -240,7 +221,7 @@ fun CodeReviewScreen(
                                 clipboard.setText(AnnotatedString(feedback))
                             }) {
                                 Icon(
-                                    painter = painterResource(id = R.drawable.copy),
+                                    painter = painterResource(id = R.drawable.terms),
                                     contentDescription = "copy feedback",
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -263,7 +244,7 @@ fun CodeReviewScreen(
                         // "Review another" resets state
                         OutlinedButton(
                             onClick = {
-                                postViewModel.clearCodeReview()
+                                chatbotViewModel.clearCodeReview()
                                 code = ""
                                 language = ""
                             },

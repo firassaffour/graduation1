@@ -72,9 +72,13 @@ import com.example.graduation1.viewmodel.UserViewModelFactory
 fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: UserViewModel, postViewModel: PostViewModel, groupsViewModel: GroupsViewModel){
 
     val currentUser by userViewModel.currentUser.collectAsState()
+    val following by userViewModel.following.collectAsState()
+    val followers by userViewModel.followers.collectAsState()
 
     LaunchedEffect(Unit) {
         groupsViewModel.getUserGroups(currentUser.groupsList)
+        userViewModel.loadFollowing(currentUser.id.toInt())
+        userViewModel.loadFollowers(currentUser.id.toInt())
     }
 
     val groupsList by groupsViewModel.currentUserGroups.collectAsState()
@@ -238,7 +242,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = currentUser.followersList.count().toString(),
+                        text = followers.count().toString(),
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -269,7 +273,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = currentUser.followingList.count().toString(),
+                        text = following.count().toString(),
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold

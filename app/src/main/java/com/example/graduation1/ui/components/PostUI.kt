@@ -149,7 +149,8 @@ fun PostUI(navController: NavHostController,
                     color = darkGray,
                     fontSize = 14.sp,
                     modifier = Modifier
-                        .clickable { navController.navigate("${AppPages.OtherUsersProfile.route}/${post.userId}") }
+                        .clickable {if (user.id == currentUser.id) navController.navigate(AppPages.MyProfileDetails.route)
+                            else navController.navigate("${AppPages.OtherUsersProfile.route}/${post.userId}") }
                 )
             }
 
@@ -181,7 +182,7 @@ fun PostUI(navController: NavHostController,
 
         Spacer(Modifier.height(10.dp))
 
-        if (post.postImage != null) {
+        if (post.postImage != "") {
             Image(
                 painter = rememberAsyncImagePainter(post.postImage),
                 contentDescription = "postImage",

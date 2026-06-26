@@ -1,6 +1,7 @@
 package com.example.graduation1.viewmodel
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +12,7 @@ import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.User
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import com.example.graduation1.data.repository.MediaRepository
 import com.example.graduation1.domain.models.requets_response.UpdateUserRequest
 import com.example.graduation1.emptyProfileImage
 import com.example.graduation1.friendsList
@@ -20,7 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.Locale
 
-class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
+class UserViewModel(private val userRepository: UserRepository, private val mediaRepository: MediaRepository) : ViewModel() {
 
     private val _currentUser = MutableStateFlow<User>(user)
     val currentUser  = _currentUser.asStateFlow()
@@ -34,7 +36,7 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     private val _following = MutableStateFlow<List<User>>(emptyList())
     val following  = _following.asStateFlow()
 
-    private val _isLoading = MutableStateFlow<Boolean>(false)
+    private val _isLoading = MutableStateFlow<Boolean>(true)
     val isLoading = _isLoading.asStateFlow()
 
     var selectedUser by mutableStateOf<User?>(null)
@@ -48,16 +50,12 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     private fun getUsers(){
         viewModelScope.launch {
             try {
-                _isLoading.value = true
                 _users.value = userRepository.getUsers().map {
-                    it.copy(followingList = userRepository.getFollowing(it.id.toInt()),
-                        followersList = userRepository.getFollowers(it.id.toInt()),
-                        isFollowedByMe = userRepository.getFollowingStatus(it.id.toInt()).isFollowing)
-                }
-                Log.d("userViewModel", "loadUsers: $users")
+                    it.copy(isFollowedByMe = userRepository.getFollowingStatus(it.id.toInt()).isFollowing) }
+                Log.d("userViewModel", "loadUsers success: $users")
             }
             catch (e: Exception){
-                Log.e("userViewModel", "loadUsers: ${e.message}")
+                Log.e("userViewModel", "loadUsers failed: ${e.message}")
             }
             finally {
                 _isLoading.value = false
@@ -78,26 +76,40 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         }
     }
 
-    fun getFollowers(followersList : List<String>){
+    /** Fetch real followers from backend and update [_followers]. */
+    fun loadFollowers(userId: Int) {
         viewModelScope.launch {
             try {
-                _followers.value = _users.value.filter { it.id in followersList }
-            }
-            catch (e: Exception){
-                Log.d("userViewModel", "followers: $users")
-                Log.e("userViewModel", "followers: ${e.message}")
+                val items = userRepository.getFollowers(userId)
+                _followers.value = items.map { item ->
+                    User(
+                        id    = item.userID.toString(),
+                        name  = item.firstName,
+                        userName = item.lastName,
+                        image = item.profileImage ?: emptyProfileImage
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("UserVM", "loadFollowers: ${e.message}")
             }
         }
     }
 
-    fun getFollowing(followingList : List<String>){
+    /** Fetch real following list from backend and update [_following]. */
+    fun loadFollowing(userId: Int) {
         viewModelScope.launch {
             try {
-                _following.value = _users.value.filter { it.id in followingList }
-                Log.d("userViewModel", "following: $users")
-            }
-            catch (e: Exception){
-                Log.e("userViewModel", "following: ${e.message}")
+                val items = userRepository.getFollowing(userId)
+                _following.value = items.map { item ->
+                    User(
+                        id    = item.userID.toString(),
+                        name  = item.firstName,
+                        userName = item.lastName,
+                        image = item.profileImage ?: emptyProfileImage
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("UserVM", "loadFollowing: ${e.message}")
             }
         }
     }
@@ -106,27 +118,56 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
         return _users.value.find { it.id == userId }
     }
 
-    fun editUser(id: String, name : String, userName : String, bio : String, profileImage : String?, onSuccess : () -> Unit){
+    fun editUser(
+        id: String,
+        name: String,
+        userName: String,
+        bio: String,
+        imageUri: Uri?,                // LOCAL Uri picked from gallery
+        existingImageUrl: String?,     // Keep the old URL if no new image picked
+        onSuccess: () -> Unit
+    ) {
         viewModelScope.launch {
             try {
-                val userData = UpdateUserRequest(
-                    firstName = name,
-                    lastName = userName,
-                    bio = bio,
-                    profileImage = if (profileImage.isNullOrEmpty()) emptyProfileImage else profileImage
+                _isLoading.value = true
+
+                // 1. Upload new profile image if chosen
+                val finalImageUrl: String? = if (imageUri != null) {
+                    val media = mediaRepository.uploadImage(imageUri)
+                    media.filePath.also { Log.d("UserVM", "Profile image uploaded: $it") }
+                } else {
+                    existingImageUrl ?: emptyProfileImage
+                }
+
+                // 2. Send profile update
+                val request = UpdateUserRequest(
+                    firstName    = name,
+                    lastName     = userName,
+                    bio          = bio,
+                    profileImage = finalImageUrl
                 )
-                val response = userRepository.editUser(id, userData)
+                userRepository.editUser(id, request)
+
+                // 3. Update local state so UI reflects the change immediately
+                _currentUser.value = _currentUser.value.copy(
+                    name        = name,
+                    userName    = userName,
+                    description = bio,
+                    image       = finalImageUrl ?: emptyProfileImage
+                )
 
                 onSuccess()
-
-                Log.e("userViewModel", "edit user success $response")
-            }
-            catch (e: Exception){
+                Log.d("UserVM", "editUser OK")
+            } catch (e: Exception) {
+                Log.e("UserVM", "editUser: ${e.message}")
+            } finally {
+                _isLoading.value = false
                 onSuccess()
-                Log.e("userViewModel", "edit user failed: ${e.message}")
             }
         }
     }
+
+
 
     fun followUser(userId: String){
         viewModelScope.launch {
@@ -153,8 +194,17 @@ class UserViewModel(private val userRepository: UserRepository) : ViewModel() {
     fun unfollowUser(userId: String){
         viewModelScope.launch {
             try {
-                userRepository.unfollowUser(userId)
-                Log.d("API", "unfollowUser success: ")
+                _users.value =_users.value.map {
+                    if (it.id == userId) {
+                        if (it.isFollowedByMe) it.copy(isFollowedByMe = false)
+
+                        else it.copy(isFollowedByMe = true)
+                    }
+                    else it
+                }
+
+                val response = userRepository.unfollowUser(userId)
+                Log.d("API", "unfollowUser success: $response")
             }
             catch (e : Exception){
                 Log.e("API", "unfollowUser failed: ${e.message}")

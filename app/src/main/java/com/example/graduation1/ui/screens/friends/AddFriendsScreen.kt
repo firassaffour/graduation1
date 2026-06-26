@@ -1,5 +1,7 @@
 package com.example.graduation1.ui.screens.friends
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,6 +52,7 @@ import com.example.graduation1.viewmodel.NotificationViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AddFriendsScreen(navController: NavHostController, userViewModel: UserViewModel, groupsViewModel: GroupsViewModel, notificationViewModel: NotificationViewModel){
 
@@ -103,7 +106,7 @@ fun AddFriendsScreen(navController: NavHostController, userViewModel: UserViewMo
 
             items(friendsList) { friend ->
 
-                val notificationIsSent = notificationsList.any { it.userId == friend.id && it.groupId == groupId }
+                val notificationIsSent = notificationsList.any { it.userID == friend.id.toInt() && it.type == groupId }
 
                 Column(
                     modifier = Modifier

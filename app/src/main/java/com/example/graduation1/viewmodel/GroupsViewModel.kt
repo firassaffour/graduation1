@@ -1,6 +1,7 @@
 package com.example.graduation1.viewmodel
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -10,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.graduation1.data.repository.GroupsRepository
+import com.example.graduation1.data.repository.MediaRepository
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.Group
 import com.example.graduation1.domain.models.PostData
@@ -24,13 +26,16 @@ import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class GroupsViewModel(private val groupsRepository: GroupsRepository, private val userRepository: UserRepository) : ViewModel() {
+class GroupsViewModel(private val groupsRepository: GroupsRepository, private val userRepository: UserRepository, private val mediaRepository: MediaRepository) : ViewModel() {
 
     private val _groups = MutableStateFlow<List<Group>>(emptyList())
     val groups = _groups.asStateFlow()
 
     private val _members = MutableStateFlow<List<User>>(emptyList())
     val members = _members.asStateFlow()
+
+    private val _memberShip = MutableStateFlow(false)
+    val memberShip = _memberShip.asStateFlow()
 
     private val _currentUserGroups = MutableStateFlow<List<Group>>(emptyList())
     val currentUserGroups = _currentUserGroups.asStateFlow()
@@ -49,6 +54,9 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
 
     private val _currentGroupId = MutableStateFlow("")
     val currentGroupId = _currentGroupId.asStateFlow()
+
+    private val _isLoading = MutableStateFlow<Boolean>(true)
+    val isLoading = _isLoading.asStateFlow()
 
     init {
         getGroups()
@@ -71,8 +79,7 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
         viewModelScope.launch {
             try {
                 _groups.value = groupsRepository.getCommunities().map {
-                    it.copy(members = groupsRepository.getCommunityMembers(it.id.toInt()),
-                        isMember = groupsRepository.getCommunityMembership(it.id.toInt()).isMember)
+                    it.copy(members = groupsRepository.getCommunityMembers(it.id.toInt()))
                 }
             }
             catch (e: Exception){
@@ -92,32 +99,28 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
         }
     }
 
-    fun getMembers(groupId: String) : List<User>{
-        var response = emptyList<User>()
+    fun getMembers(groupId: String){
         viewModelScope.launch {
             try {
-                response = groupsRepository.getCommunityMembers(groupId.toInt())
-                Log.d("API", "Group member success: $response")
+                _members.value = groupsRepository.getCommunityMembers(groupId.toInt())
+                Log.d("API", "Group member success: ${_members.value}")
             }
             catch (e : Exception){
                 Log.e("API", "member Group error: ${e.message}", )
             }
         }
-        return response
     }
 
-    fun getMemberShip(groupId: String) : Boolean{
-        var response = false
+    fun getMemberShip(groupId: String){
         viewModelScope.launch {
             try {
-                response = groupsRepository.getCommunityMembership(groupId.toInt()).isMember
-                Log.d("API", "Group membership success: $response")
+                _memberShip.value = groupsRepository.getCommunityMembership(groupId.toInt()).isMember
+                Log.d("API", "Group membership success: ${_memberShip.value}")
             }
             catch (e : Exception){
                 Log.e("API", "Group membership error: ${e.message}", )
             }
         }
-        return response
     }
 
 
@@ -147,27 +150,30 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
         _currentGroupId.value = id
     }
 
+
     @SuppressLint("SuspiciousIndentation")
     fun joinGroup(groupId : String){
         if (_currentUser.value.groupsList.contains(groupId)) _currentUser.value.copy(groupsList = _currentUser.value.groupsList - groupId)
 
             else _currentUser.value = _currentUser.value.copy(groupsList = _currentUser.value.groupsList + groupId)
 
-            _groups.value = _groups.value.map {
-                if (it.id == groupId){
-                    it.copy(members =
-                        if (it.isMember) it.members + _currentUser.value
-                        else it.members - _currentUser.value,
-                        isMember = if (it.isMember) false
-                        else true)
-                }
-
-                else it
-            }
 
         viewModelScope.launch {
             try {
+                _groups.value = _groups.value.map {
+                    if (it.id == groupId){
+                        it.copy(members =
+                            if (it.isMember) it.members + _currentUser.value
+                            else it.members - _currentUser.value,
+                            isMember = if (it.isMember) false
+                            else true)
+                    }
+
+                    else it
+                }
+
                 val response = groupsRepository.joinCommunity(groupId.toInt())
+                refreshData(groupId)
                 Log.d("API", "joinGroup success: $response")
             }
             catch (e : Exception){
@@ -179,7 +185,20 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
     fun leaveGroup(groupId: String){
         viewModelScope.launch {
             try {
+                _groups.value = _groups.value.map {
+                    if (it.id == groupId){
+                        it.copy(members =
+                            if (it.isMember) it.members + _currentUser.value
+                            else it.members - _currentUser.value,
+                            isMember = if (it.isMember) false
+                            else true)
+                    }
+
+                    else it
+                }
+
                 val response = groupsRepository.leaveCommunity(groupId.toInt())
+                refreshData(groupId)
                 Log.d("API", "leaveGroup success: $response")
             }
             catch (e : Exception){
@@ -189,35 +208,52 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
     }
 
 
-    @OptIn(ExperimentalUuidApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createGroup(name : String, image : String ){
+    fun createGroup(name: String, imageUri: Uri? = null, imageUrl: String = "") {
         viewModelScope.launch {
             try {
-                val group = Group(
-                    Uuid.random().toString(),
-                    currentUser.value.id,
-                    name,
-                    image,
-                    listOf(currentUser.value)
-                )
-                _groups.value = listOf(group) + _groups.value
-                _newGroupId.value = group.id
+                _isLoading.value = true
 
-                _currentUser.value = _currentUser.value.copy(groupsList = _currentUser.value.groupsList + group.id)
+                // 1. Upload image if chosen from gallery
+                val finalImage: String = if (imageUri != null) {
+                    val media = mediaRepository.uploadImage(imageUri)
+                    media.filePath ?: ""
+                } else {
+                    imageUrl
+                }
 
-                val groupData = CreateCommunityRequest(
-                    name,
-                    ""
+                // 2. Create community on backend
+                val response = groupsRepository.createCommunity(
+                    CreateCommunityRequest(name, null)
                 )
 
-                val response = groupsRepository.createCommunity(groupData)
-                Log.d("API", "createGroup success: $groupData")
+                // 3. Add to local list so UI updates immediately
+                val newGroup = Group(
+                    id      = response.communityID.toString(),
+                    admin   = _currentUser.value.id,
+                    name    = name,
+                    image   = finalImage,
+                    members = listOf(_currentUser.value)
+                )
+                _groups.value = listOf(newGroup) + _groups.value
+                _newGroupId.value = newGroup.id
 
-            }
-            catch (e: Exception){
-                Log.e("API", "groupViewModel create group: ${e.message}")
+                _currentUser.value = _currentUser.value.copy(
+                    groupsList = _currentUser.value.groupsList + newGroup.id
+                )
+                Log.d("GroupsVM", "createGroup OK: ${newGroup.id}")
+            } catch (e: Exception) {
+                Log.e("GroupsVM", "createGroup: ${e.message}")
+            } finally {
+                _isLoading.value = false
             }
         }
     }
+
+    fun refreshData(groupId: String){
+        getGroups()
+        getMembers(groupId)
+        getMemberShip(groupId)
+    }
+
 }

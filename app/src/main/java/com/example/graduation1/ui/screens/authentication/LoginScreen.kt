@@ -1,6 +1,8 @@
 package com.example.graduation1.ui.screens.authentication
 
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -55,6 +57,7 @@ import com.example.graduation1.viewmodel.ChatViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel, userViewModel: UserViewModel, postViewModel: PostViewModel, chatViewModel: ChatViewModel){
 
@@ -209,7 +212,6 @@ fun LoginScreen(navController: NavHostController, authViewModel: AuthViewModel, 
                         Toast.makeText(context, "logged in successfully", Toast.LENGTH_SHORT).show()
                         navController.navigate(BottomNavItem.Home.route){popUpTo(0)}
                         userViewModel.refreshData()
-                        chatViewModel.refreshData()
                         postViewModel.refreshData()},
                     onFailure = {Toast.makeText(context, "email or password is wrong", Toast.LENGTH_SHORT).show()})
 

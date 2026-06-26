@@ -22,7 +22,7 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
                 val user = RegisterRequest(
                     userName,
-                    "",
+                    userName,
                     email,
                     password,
                     "User"

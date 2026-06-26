@@ -1,37 +1,49 @@
 package com.example.graduation1.viewmodel
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.graduation1.data.repository.NotificationRepository
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.Notification
 import com.example.graduation1.domain.models.User
+import com.example.graduation1.domain.models.requets_response.NotificationResponse
+import com.example.graduation1.domain.models.requets_response.UnreadCountResponse
+import com.example.graduation1.language
 import com.example.graduation1.todayNotificationList
 import com.example.graduation1.user
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.ZoneId
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@RequiresApi(Build.VERSION_CODES.O)
 class NotificationViewModel(private val notificationRepository: NotificationRepository, private val userRepository: UserRepository) : ViewModel() {
 
-    private val _todayNotifications = MutableStateFlow<List<Notification>>(emptyList())
+    private val _todayNotifications = MutableStateFlow<List<NotificationResponse>>(emptyList())
     val todayNotifications = _todayNotifications.asStateFlow()
 
-    private val _lastWeeksNotifications = MutableStateFlow<List<Notification>>(emptyList())
+    private val _lastWeeksNotifications = MutableStateFlow<List<NotificationResponse>>(emptyList())
     val lastWeeksNotifications = _lastWeeksNotifications.asStateFlow()
 
-    private val _notifications = MutableStateFlow<List<Notification>>(emptyList())
+    private val _notifications = MutableStateFlow<List<NotificationResponse>>(emptyList())
     val notifications = _notifications.asStateFlow()
 
     private val _currentUser = MutableStateFlow<User>(user)
     val currentUser  = _currentUser.asStateFlow()
 
+    private val _unreadCount = MutableStateFlow(0)
+    val unreadCount = _unreadCount.asStateFlow()
+
     init {
         getNotifications()
         getCurrentUser()
+        getUnreadCount()
     }
 
     private fun getCurrentUser(){
@@ -46,16 +58,23 @@ class NotificationViewModel(private val notificationRepository: NotificationRepo
         }
     }
 
-    private fun getNotificationDate(createdAt : Long) : Boolean{
-        val diff = System.currentTimeMillis() - createdAt
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getNotificationDate(createdAt : String) : Boolean{
+        val time = LocalDateTime.parse(createdAt)
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
+
+        val diff = System.currentTimeMillis() - time
 
         return diff < (1000 * 60 * 60 * 24)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getNotifications(){
         viewModelScope.launch {
             try {
-                _notifications.value = todayNotificationList.filter { it.userId == _currentUser.value.id }
+                _notifications.value = notificationRepository.getNotification()
                 _todayNotifications.value = _notifications.value.filter { getNotificationDate(it.createdAt) }
                 _lastWeeksNotifications.value = _notifications.value.filter { !getNotificationDate(it.createdAt) }
                 //notificationList = repository.getNotification()
@@ -72,7 +91,7 @@ class NotificationViewModel(private val notificationRepository: NotificationRepo
 
     @OptIn(ExperimentalUuidApi::class)
     fun sendNotification(userId : String, groupId : String){
-        val notificationIsSent = _notifications.value.any { it.userId == userId && it.groupId == groupId }
+        val notificationIsSent = _notifications.value.any { it.userID == userId.toInt()}
         viewModelScope.launch {
             try {
                 val notification = Notification(
@@ -81,8 +100,8 @@ class NotificationViewModel(private val notificationRepository: NotificationRepo
                     userId,
                     System.currentTimeMillis()
                 )
-                if (notificationIsSent)_notifications.value = _notifications.value - notification
-                else _notifications.value = listOf(notification) + _notifications.value
+                //if (notificationIsSent)_notifications.value = _notifications.value - notification
+                //else _notifications.value = listOf(notification) + _notifications.value
 
             }
             catch (e: Exception){
@@ -91,10 +110,78 @@ class NotificationViewModel(private val notificationRepository: NotificationRepo
         }
     }
 
-    fun removeNotification(notificationId : String){
-        val notification = _notifications.value.find { it.notificationId == notificationId } ?: return
-        _notifications.value = _notifications.value - notification
+    private fun getUnreadCount(){
+        viewModelScope.launch {
+            try {
+                _unreadCount.value = notificationRepository.getUnreadCount().unreadCount
+                Log.d("API", "getUnreadCount success: ${_unreadCount.value} ")
+            }
+            catch (e : Exception){
+                Log.e("API", "getUnreadCount error: ${e.message}", )
+            }
+        }
+    }
 
-        getNotifications()
+    fun markNotificationRead(id: Int){
+        viewModelScope.launch {
+            try {
+                val response = notificationRepository.markNotificationRead(id)
+                Log.d("API", "markNotificationRead success: $response")
+            }
+            catch (e : Exception){
+                Log.e("API", "markNotificationRead error: ${e.message}", )
+            }
+        }
+    }
+
+    fun markAllNotificationsRead() {
+        viewModelScope.launch {
+            try {
+                val response = notificationRepository.markAllNotificationsRead()
+                Log.d("API", "markAllNotificationsRead success: $response")
+            }
+            catch (e : Exception){
+                Log.e("API", "markAllNotificationsRead error: ${e.message}", )
+            }
+        }
+    }
+
+    fun deleteNotification(id: Int){
+        viewModelScope.launch {
+            try {
+                val response = notificationRepository.deleteNotification(id)
+                Log.d("API", "deleteNotification success: $response")
+            }
+            catch (e : Exception){
+                Log.e("API", "deleteNotification error: ${e.message}", )
+            }
+        }
+    }
+
+    fun getTimeAgo(createdAt : String) : String{
+        val time = LocalDateTime.parse(createdAt)
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
+
+        val diff = System.currentTimeMillis() - time
+
+        val seconds = diff / 1000
+        val minutes = diff / (1000 * 60)
+        val hours = diff / (1000 * 60 * 60)
+        val days = diff / (1000 * 60 * 60 * 24)
+
+        val secondsText = if (language == "en") "now" else "الأن"
+        val minutesText = if (language == "en") "$minutes minutes" else "$minutes دقيقة "
+        val hoursText = if (language == "en") "$hours hours" else "$hours ساعة "
+        val daysText = if (language == "en") "$days days" else "$days يوم "
+
+        return when{
+            seconds < 60 -> secondsText
+            minutes < 60 -> minutesText
+            hours < 24 -> hoursText
+            days < 7 -> daysText
+            else -> daysText
+        }
     }
 }

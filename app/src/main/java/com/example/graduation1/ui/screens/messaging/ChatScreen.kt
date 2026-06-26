@@ -1,11 +1,14 @@
 package com.example.graduation1.ui.screens.messaging
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -17,6 +20,7 @@ import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.viewmodel.ChatViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ChatScreen(navController: NavHostController, chatViewModel: ChatViewModel, userViewModel: UserViewModel){
 
@@ -32,6 +36,10 @@ fun ChatScreen(navController: NavHostController, chatViewModel: ChatViewModel, u
             chatsList.filter { chat ->
                 userMap[chat.userId]?.name?.contains(chatSearchQuery, ignoreCase = true) == true }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        chatViewModel.loadInbox()
     }
 
 

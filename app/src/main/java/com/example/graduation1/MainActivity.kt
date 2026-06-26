@@ -31,11 +31,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.graduation1.data.remote.RetrofitInstance
 import com.example.graduation1.data.repository.AppModule
-import com.example.graduation1.data.repository.AuthRepository
-import com.example.graduation1.data.repository.ChatRepository
-import com.example.graduation1.data.repository.GroupsRepository
-import com.example.graduation1.data.repository.PostRepository
-import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.BottomNavItem
 import com.example.graduation1.domain.models.BottomNavigationBar
@@ -61,11 +56,11 @@ import com.example.graduation1.ui.screens.settings.NotificationSettingsScreen
 import com.example.graduation1.ui.screens.profiles.OtherUsersProfileScreen
 import com.example.graduation1.ui.screens.settings.SettingsScreen
 import com.example.graduation1.ui.screens.authentication.StartScreen
-import com.example.graduation1.ui.screens.chatbot.AIRecommendedJobsScreen
 import com.example.graduation1.ui.screens.chatbot.AiProfileScreen
 import com.example.graduation1.ui.screens.chatbot.ApplyJobScreen
 import com.example.graduation1.ui.screens.chatbot.CandidateRankingScreen
 import com.example.graduation1.ui.screens.chatbot.ChatbotHistoryScreen
+import com.example.graduation1.ui.screens.chatbot.CodeReviewScreen
 import com.example.graduation1.ui.screens.chatbot.ExperienceGeneratorScreen
 import com.example.graduation1.ui.screens.chatbot.JobDetailsScreen
 import com.example.graduation1.ui.screens.chatbot.JobsListingScreen
@@ -110,6 +105,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        AppModule.initialize(this)
 
         val prefs = getSharedPreferences("settings", MODE_PRIVATE)
         language = prefs.getString("lang", "en") ?: "en"
@@ -161,19 +158,19 @@ class MainActivity : ComponentActivity() {
     fun MainScreen(navController: NavHostController, currentRoute : String?) {
 
         val postViewModel : PostViewModel = viewModel(
-            factory = PostViewModelFactory(AppModule.postRepository, AppModule.userRepository)
+            factory = PostViewModelFactory(AppModule.postRepository, AppModule.userRepository, AppModule.mediaRepository)
         )
 
         val chatViewModel : ChatViewModel = viewModel(
-            factory = ChatViewModelFactory(AppModule.chatRepository, AppModule.userRepository)
+            factory = ChatViewModelFactory(AppModule.chatRepository, AppModule.userRepository, AppModule.mediaRepository)
         )
 
         val userViewModel : UserViewModel = viewModel(
-            factory = UserViewModelFactory(AppModule.userRepository)
+            factory = UserViewModelFactory(AppModule.userRepository,AppModule.mediaRepository)
         )
 
         val groupsViewModel : GroupsViewModel = viewModel(
-            factory = GroupsViewModelFactory(AppModule.groupsRepository, AppModule.userRepository)
+            factory = GroupsViewModelFactory(AppModule.groupsRepository, AppModule.userRepository, AppModule.mediaRepository)
         )
 
         val authViewModel : AuthViewModel = viewModel(
@@ -259,7 +256,7 @@ class MainActivity : ComponentActivity() {
                 composable(AppPages.Settings.route) { SettingsScreen(navController, authViewModel) }
                 composable(AppPages.Favourite.route) { FavouriteScreen(navController, postViewModel, userViewModel, groupsViewModel) }
                 composable(AppPages.Saved.route) { SavedScreen(navController, postViewModel, userViewModel, groupsViewModel) }
-                composable(AppPages.Language.route) { LanguageScreen(navController) }
+                composable(AppPages.Language.route) { LanguageScreen(navController, userViewModel) }
                 composable(AppPages.Location.route) { LocationScreen(navController, userViewModel) }
                 composable(AppPages.Subscription.route) { SubscriptionScreen(navController) }
                 composable(AppPages.ReportTabs.route) { ReportTabs(navController) }
@@ -272,7 +269,7 @@ class MainActivity : ComponentActivity() {
                 composable(AppPages.MyProfileDetails.route) { MyProfileDetailsScreen(navController, userViewModel, postViewModel, groupsViewModel) }
                 composable("${AppPages.OtherUsersProfile.route}/{userId}", arguments = listOf(navArgument("userId") {type = NavType.StringType})){ backStack ->
                     val userId = backStack.arguments?.getString("userId")
-                    OtherUsersProfileScreen(navController, userId!!, userViewModel, postViewModel, groupsViewModel)
+                    OtherUsersProfileScreen(navController, userId!!, userViewModel, postViewModel, groupsViewModel, chatViewModel)
                 } // Composable
                 composable("${AppPages.Messaging.route}/{chatId}", arguments = listOf(navArgument("chatId") {type = NavType.StringType})){ backStack ->
                     val chatId = backStack.arguments?.getString("chatId")
@@ -283,53 +280,101 @@ class MainActivity : ComponentActivity() {
                     GroupDetailsScreen(navController, groupId!!,groupsViewModel, postViewModel, userViewModel)
                 } // Composable
 
+                composable(AppPages.CodeReview.route) { CodeReviewScreen(navController, chatbotViewModel) }
 
-                composable(AppPages.JobsListing.route) { JobsListingScreen(
-                    onJobClick = {navController.navigate(AppPages.JobDetails.route)},
-                    onOfferJob = {navController.navigate(AppPages.OfferJob.route)},
-                    onBack = {navController.popBackStack()},
-                    navController = navController
-                ) }
 
-                composable(AppPages.JobDetails.route) { JobDetailsScreen(
-                    onApply = {navController.navigate(AppPages.ApplyJob.route)},
-                    onBack = {navController.popBackStack()}
-                ) }
+                // Jobs listing
+                composable(AppPages.JobsList.route) {
+                    JobsListingScreen(
+                        chatbotViewModel = chatbotViewModel,
+                        onJobClick = { job ->
+                            chatbotViewModel.selectJob(job)
+                            navController.navigate(AppPages.JobDetails.route)
+                        },
+                        onOfferJob = { navController.navigate(AppPages.OfferJob.route) },
+                        onBack = { navController.popBackStack() },
+                        navController = navController
+                    )
+                }
 
-                composable(AppPages.ApplyJob.route) { ApplyJobScreen(onBack = {navController.popBackStack()}) }
+// Job details
+                composable(AppPages.JobDetails.route) {
+                    JobDetailsScreen(
+                        chatbotViewModel = chatbotViewModel,
+                        onBack = { navController.popBackStack() },
+                        onApply = { navController.navigate(AppPages.ApplyJob.route) }
+                    )
+                }
 
-                composable(AppPages.OfferJob.route) { OfferJobScreen(onBack = {navController.popBackStack()}) }
+// Apply
+                composable(AppPages.ApplyJob.route) {
+                    ApplyJobScreen(
+                        chatbotViewModel = chatbotViewModel,
+                        onBack = { navController.popBackStack() },
+                        onSubmitSuccess = {
+                            navController.popBackStack()
+                            navController.popBackStack()  // back to jobs list
+                        }
+                    )
+                }
 
-                composable(AppPages.SkillDashboard.route) { SkillDashboardScreen(
-                    navController = navController,
-                    onBack = {navController.popBackStack()}) }
+// Offer job (recruiter)
+                composable(AppPages.OfferJob.route) {
+                    OfferJobScreen(
+                        chatbotViewModel = chatbotViewModel,
+                        onBack = { navController.popBackStack() },
+                        onPostSuccess = { navController.popBackStack() }
+                    )
+                }
 
-                composable(AppPages.MatchResults.route) { MatchResultsScreen(
-                    navController = navController,
-                    onBack = {navController.popBackStack()}) }
+// Experience generator
+                composable(AppPages.ExperienceGen.route) {
+                    ExperienceGeneratorScreen(
+                        chatbotViewModel = chatbotViewModel,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
 
-                composable(AppPages.ExperienceGenerator.route) { ExperienceGeneratorScreen(onBack = {navController.popBackStack()}) }
+// Match results (for a selected job)
+                composable(AppPages.MatchResults.route) {
+                    MatchResultsScreen(
+                        chatbotViewModel = chatbotViewModel,
+                        onBack = { navController.popBackStack() },
+                        onViewJobs = { navController.navigate(AppPages.JobsList.route) },
+                        navController = navController
+                    )
+                }
 
-                composable(AppPages.AIRecommendedJobs.route) { AIRecommendedJobsScreen(
-                    navController = navController,
-                    onBack = {navController.popBackStack()}) }
+// Candidate ranking (recruiter)
+                composable(AppPages.CandidateRanking.route) {
+                    CandidateRankingScreen(
+                        chatbotViewModel = chatbotViewModel,
+                        onBack = { navController.popBackStack() },
+                        navController = navController
+                    )
+                }
 
-                composable(AppPages.CandidateRanking.route) { CandidateRankingScreen(
-                    navController = navController,
-                    onBack = {navController.popBackStack()}) }
+// Analytics (recruiter)
+                composable(AppPages.Analytics.route) {
+                    RecruiterAnalyticsDashboardScreen(
+                        chatbotViewModel = chatbotViewModel,
+                        onBack = { navController.popBackStack() },
+                        navController = navController
+                    )
+                }
 
-                composable(AppPages.RecruiterAnalytics.route) { RecruiterAnalyticsDashboardScreen(
-                    navController = navController,
-                    onBack = {navController.popBackStack()}) }
+                composable(AppPages.SkillDashboard.route) { SkillDashboardScreen(navController = navController)  }
 
-                composable(AppPages.AiProfile.route) { AiProfileScreen(
-                    onCandidate = {navController.navigate(AppPages.CandidateRanking.route)},
-                    onAnalytics = {navController.navigate(AppPages.RecruiterAnalytics.route)},
-                    onSkillDashboard = {navController.navigate(AppPages.SkillDashboard.route)},
-                    onMatchResults = {navController.navigate(AppPages.MatchResults.route)},
-                    onExperienceGenerator = {navController.navigate(AppPages.ExperienceGenerator.route)},
-                    navController,
-                ) }
+                composable(AppPages.AiProfile.route) {
+                    AiProfileScreen(
+                        onCandidate          = { navController.navigate(AppPages.CandidateRanking.route) },
+                        onAnalytics          = { navController.navigate(AppPages.Analytics.route) },
+                        onSkillDashboard     = { navController.navigate(AppPages.SkillDashboard.route) },
+                        onMatchResults       = { navController.navigate(AppPages.MatchResults.route) },
+                        onExperienceGenerator = { navController.navigate(AppPages.ExperienceGen.route) },
+                        navController        = navController)
+                }
+
             }
         }
     }

@@ -128,7 +128,7 @@ fun EditProfileScreen(navController: NavHostController, userViewModel: UserViewM
                     .align(Alignment.CenterHorizontally)
             ) {
                 Image(
-                    if (currentUser.image == "") rememberAsyncImagePainter(emptyProfileImage)
+                    if (selectedImageUri != null) rememberAsyncImagePainter(selectedImageUri)
                     else rememberAsyncImagePainter(currentUser.image),
                     contentDescription = "image",
                     contentScale = ContentScale.Crop,
@@ -298,7 +298,8 @@ fun EditProfileScreen(navController: NavHostController, userViewModel: UserViewM
                     name,
                     username,
                     bio,
-                    selectedImageUri.toString()
+                    selectedImageUri,
+                    currentUser.image.toString()
                 ){navController.popBackStack()}
             },
                 shape = RoundedCornerShape(16.dp),

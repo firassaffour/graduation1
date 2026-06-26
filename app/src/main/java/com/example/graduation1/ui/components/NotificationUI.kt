@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.Notification
+import com.example.graduation1.domain.models.requets_response.NotificationResponse
 import com.example.graduation1.friendsList
 import com.example.graduation1.ui.theme.brown
 import com.example.graduation1.ui.theme.darkGray
@@ -44,10 +45,10 @@ import com.example.graduation1.viewmodel.UserViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NotificationUI(notification: Notification, notificationViewModel: NotificationViewModel, groupsViewModel: GroupsViewModel, postViewModel: PostViewModel, userViewModel: UserViewModel){
+fun NotificationUI(notification: NotificationResponse, notificationViewModel: NotificationViewModel, groupsViewModel: GroupsViewModel, postViewModel: PostViewModel, userViewModel: UserViewModel){
 
     val groupsList by groupsViewModel.groups.collectAsState()
-    val group = groupsList.find { it.id == notification.groupId } ?: return
+    val group = groupsList.find { it.id == notification.type} ?: return
 
     val userList by userViewModel.users.collectAsState()
     val groupMembersInformation = userList.filter { it in group.members }
@@ -82,7 +83,7 @@ fun NotificationUI(notification: Notification, notificationViewModel: Notificati
                     Spacer(Modifier.weight(1f))
 
                     Text(
-                        text = postViewModel.getTimeAgo(notification.createdAt),
+                        text = notificationViewModel.getTimeAgo(notification.createdAt),
                         color = darkGray,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
@@ -105,8 +106,8 @@ fun NotificationUI(notification: Notification, notificationViewModel: Notificati
                     Spacer(Modifier.weight(1f))
 
                     Button(onClick = {
-                        groupsViewModel.joinGroup(notification.groupId)
-                        notificationViewModel.removeNotification(notification.notificationId)
+                        groupsViewModel.joinGroup(notification.type.toString())
+                        notificationViewModel.deleteNotification(notification.notificationID)
                     },
                         shape = RoundedCornerShape(17.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -124,7 +125,7 @@ fun NotificationUI(notification: Notification, notificationViewModel: Notificati
 
                     Spacer(Modifier.width(5.dp))
 
-                    Button(onClick = {notificationViewModel.removeNotification(notification.notificationId)},
+                    Button(onClick = {notificationViewModel.deleteNotification(notification.notificationID)},
                         shape = RoundedCornerShape(17.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = brown

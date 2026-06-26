@@ -89,7 +89,8 @@ fun ChatbotHistoryScreen(navController: NavHostController, chatbotViewModel: Cha
                         text = "+ New Section",
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(8.dp)
                     )
                 }
             }
@@ -108,7 +109,8 @@ fun ChatbotHistoryScreen(navController: NavHostController, chatbotViewModel: Cha
                         text = section.title ?: "",
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(8.dp)
                     )
                 }
             }

@@ -157,12 +157,23 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
             Spacer(Modifier.width(10.dp))
 
             Text(
+                text = "Code",
+                color = gray,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier
+                    .clickable { navController.navigate(AppPages.CodeReview.route) }
+            )
+
+            Spacer(Modifier.width(10.dp))
+
+            Text(
                 text = stringResource(R.string.Jobs),
                 color = gray,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier
-                    .clickable { navController.navigate(AppPages.JobsListing.route) }
+                    .clickable { navController.navigate(AppPages.JobsList.route) }
             )
 
             Spacer(Modifier.width(10.dp))

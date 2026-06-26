@@ -7,16 +7,10 @@ import com.example.graduation1.domain.models.requets_response.MediaResponse
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.http.Path
 
 class MediaRepository(private val api: ApiService, private val context: Context) {
 
-    /**
-     * Upload any image Uri from the device.
-     * Pass [postId], [messageId], or [commentId] to associate the media
-     * with that entity on the backend. Leave them all null for a profile image.
-     *
-     * Returns the full [MediaResponse] including filePath (the public URL).
-     */
     suspend fun uploadImage(
         uri: Uri,
         postId: Int? = null,
@@ -40,4 +34,6 @@ class MediaRepository(private val api: ApiService, private val context: Context)
 
         return api.uploadMedia(part, postId, messageId, commentId)
     }
+
+    suspend fun getMediaByPost(postId: Int): List<MediaResponse> {return api.getMediaByPost(postId)}
 }

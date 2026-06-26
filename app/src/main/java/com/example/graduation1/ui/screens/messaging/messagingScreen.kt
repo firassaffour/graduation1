@@ -362,7 +362,7 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
                                 if (selectedImageUri == null)
                                     chatViewModel.sendMessage(user.id, messageText, null)
                                 else
-                                    chatViewModel.sendMessage(user.id, messageText, selectedImageUri.toString())
+                                    chatViewModel.sendMessage(user.id, messageText, selectedImageUri)
                         }
                         chatViewModel.updateMessageText("")
                         selectedImageUri = null

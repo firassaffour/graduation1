@@ -108,7 +108,7 @@ fun CreateGroupScreen(navController: NavHostController, groupsViewModel: GroupsV
                     selectedImageUri == null -> Toast.makeText(context, emptyImageMessage, Toast.LENGTH_SHORT).show()
 
                     else -> {
-                        groupsViewModel.createGroup(groupName, selectedImageUri.toString())
+                        groupsViewModel.createGroup(groupName, selectedImageUri)
                         groupsViewModel.updateSelectedGroup(null)
                         Toast.makeText(context, groupCreatedSuccessfullyMessage, Toast.LENGTH_SHORT).show()
                         navController.popBackStack()

@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +43,6 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.AppPages
-import com.example.graduation1.domain.models.BottomNavItem
 import com.example.graduation1.domain.models.PostData
 import com.example.graduation1.selectedPostPage
 import com.example.graduation1.ui.components.PostUI
@@ -65,13 +65,18 @@ fun GroupDetailsScreen(navController: NavHostController, groupId : String, group
     val newPostId by postViewModel.newPostId.collectAsState()
 
     val usersList by userViewModel.users.collectAsState()
-    val groupMembers = usersList.filter { it.groupsList.contains(groupId) }
+    val groupMembers by groupsViewModel.members.collectAsState()
     val currentUser by userViewModel.currentUser.collectAsState()
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedPost by remember { mutableStateOf<PostData?>(null) }
 
-    val isMember = groupsViewModel.getMemberShip(groupId)
+    val isMember by groupsViewModel.memberShip.collectAsState()
+
+    LaunchedEffect(Unit) {
+        groupsViewModel.getMemberShip(groupId)
+        groupsViewModel.getMembers(groupId)
+    }
 
     Column(modifier = Modifier
         .fillMaxSize()) {
@@ -136,8 +141,14 @@ fun GroupDetailsScreen(navController: NavHostController, groupId : String, group
 
                 Button(
                     onClick = {
-                        if (isMember) groupsViewModel.leaveGroup(groupId)
-                        else groupsViewModel.joinGroup(groupId)
+                        if (isMember){
+                            groupsViewModel.leaveGroup(groupId)
+                            groupsViewModel.refreshData(groupId)
+                        }
+                        else {
+                            groupsViewModel.joinGroup(groupId)
+                            groupsViewModel.refreshData(groupId)
+                        }
                     },
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(

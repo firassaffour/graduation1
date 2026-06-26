@@ -43,11 +43,7 @@ import com.example.graduation1.viewmodel.UserViewModel
 import com.example.graduation1.viewmodel.UserViewModelFactory
 
 @Composable
-fun LanguageScreen(navController: NavHostController) {
-
-    val viewModel : UserViewModel = viewModel(
-        factory = UserViewModelFactory(UserRepository(RetrofitInstance.api))
-    )
+fun LanguageScreen(navController: NavHostController, userViewModel: UserViewModel) {
     val context = LocalContext.current
     val activity = context as Activity
     val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -103,10 +99,10 @@ fun LanguageScreen(navController: NavHostController) {
                         selected = lang
 
                         if (lang == "العربية") {
-                            viewModel.setAppLanguage(context, "ar")
+                            userViewModel.setAppLanguage(context, "ar")
                             activity.recreate()
                         } else {
-                            viewModel.setAppLanguage(context, "en")
+                            userViewModel.setAppLanguage(context, "en")
                             activity.recreate()
                         }
                     }
@@ -121,8 +117,5 @@ fun LanguageScreen(navController: NavHostController) {
 @Composable
 @Preview(showBackground = true)
 fun LanguageScreenPreview(){
-    Graduation1Theme(dynamicColor = false) {
-        val nav = rememberNavController()
-        LanguageScreen(nav)
-    }
+
 }

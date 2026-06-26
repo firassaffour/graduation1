@@ -1,11 +1,13 @@
 package com.example.graduation1.viewmodel
 
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.graduation1.data.repository.MediaRepository
 import com.example.graduation1.data.repository.PostRepository
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.Comment
@@ -27,7 +29,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @RequiresApi(Build.VERSION_CODES.O)
-class PostViewModel(private val postRepository: PostRepository, private val userRepository: UserRepository): ViewModel() {
+class PostViewModel(private val postRepository: PostRepository, private val userRepository: UserRepository, private val mediaRepository: MediaRepository): ViewModel() {
 
     private val _currentUser = MutableStateFlow<User>(user)
     val currentUser  = _currentUser.asStateFlow()
@@ -59,11 +61,14 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     private val _newPostId = MutableStateFlow("")
     val newPostId  = _newPostId.asStateFlow()
 
-    private val _isPostsLoading = MutableStateFlow<Boolean>(false)
+    private val _isPostsLoading = MutableStateFlow<Boolean>(true)
     val isPostsLoading = _isPostsLoading.asStateFlow()
 
-    private val _isCommentsLoading = MutableStateFlow<Boolean>(false)
+    private val _isCommentsLoading = MutableStateFlow<Boolean>(true)
     val isCommentsLoading = _isCommentsLoading.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error = _error.asStateFlow()
 
     init {
         getSavedPosts()
@@ -87,17 +92,16 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     private fun getPosts(){
         viewModelScope.launch {
             try {
-                _isPostsLoading.value = true
                 _posts.value = postRepository.getPosts().map {
-                    it.copy(likesCount = postRepository.getLikeCount(it.postId.toInt()),
-                        isLiked = postRepository.getLikeStatus(it.postId.toInt()),
-                        isSaved = _savedPosts.value.find { p -> it.postId == p.postId }!!.isSaved )
+                    it.copy(isLiked = postRepository.getLikeStatus(it.postId.toInt()),
+                        isSaved = _savedPosts.value.contains(it),
+                        postImage = mediaRepository.getMediaByPost(it.postId.toInt()).find {media -> media.postID ==  it.postId.toInt()} ?: "")
                 }
 
-                Log.d("API", "postViewModel getting posts: ${_posts.value}")
+                Log.d("API", "postViewModel getting posts success: ${_posts.value}")
             }
             catch (e: Exception){
-                Log.e("API", "postViewModel getting posts: ${e.message}")
+                Log.e("API", "postViewModel getting posts error: ${e.message}")
             }
             finally {
                 _isPostsLoading.value = false
@@ -143,57 +147,52 @@ class PostViewModel(private val postRepository: PostRepository, private val user
         }
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
-    fun createPost(groupId : String, postImage : String?){
+    fun createPost(groupId: String, imageUri: Uri?) {
         viewModelScope.launch {
             try {
-                val post = PostData(
-                    SecureRandom().nextInt(Int.MAX_VALUE).toString(),
-                    groupId,
-                    currentUser.value.id,
-                    _postText.value,
-                    postImage!!,
-                    _postCodeSnippet.value,
-                    System.currentTimeMillis(),
-                    0,
-                    false,
-                    false,
-                    emptyList(),
+                // 1. Upload image if the user picked one
+                var uploadedImageUrl: String? = null
+                if (imageUri != null) {
+                    val media = mediaRepository.uploadImage(imageUri)
+                    uploadedImageUrl = media.filePath
+                    Log.d("PostVM", "Image uploaded: $uploadedImageUrl")
+                }
 
-                )
-
-                val current = RegisterResponse(
-                    _currentUser.value.id.toInt(),
-                    _currentUser.value.name,
-                    _currentUser.value.name,
-                    _currentUser.value.email,
-                    _currentUser.value.description,
-                    _currentUser.value.image.toString(),
-                )
-
+                // 2. Create the post on the backend
                 val postData = CreatePostRequest(
-                    title = "",
-                    content = _postText.value,
-                    codeSnippet = _postCodeSnippet.value,
-                    communityID = groupId.toInt(),
+                    title       = null,
+                    content     = _postText.value,
+                    codeSnippet = _postCodeSnippet.value.ifBlank { null },
+                    communityID = groupId.toIntOrNull()
                 )
-                _posts.value = listOf(post) + _posts.value
-                _newPostId.value = post.postId
-
                 val response = postRepository.createPost(postData)
+
+                // 3. Optimistically add to UI list
+                val newPost = PostData(
+                    postId      = response.postID.toString(),
+                    groupId     = groupId,
+                    userId      = _currentUser.value.id,
+                    postText    = _postText.value,
+                    postImage   = uploadedImageUrl ?: "",
+                    codeSnippet = _postCodeSnippet.value,
+                    createdAt   = System.currentTimeMillis(),
+                    likesCount  = 0,
+                    isLiked     = false
+                )
+                _posts.value = listOf(newPost) + _posts.value
+                _newPostId.value = newPost.postId
 
                 _postText.value = ""
                 _postCodeSnippet.value = ""
-
-                Log.d("API", "postViewModel create post success: ${response}")
-
-            }
-            catch (e: Exception){
-                Log.e("API", "postViewModel create post error: ${e.message} $groupId")
+                Log.d("PostVM", "createPost OK: ${response.postID}")
+            } catch (e: Exception) {
+                _error.value = "Failed to create post: ${e.message}"
+                Log.e("PostVM", "createPost: ${e.message}")
             }
         }
     }
+
 
     fun removePost(postId: String) {
         viewModelScope.launch {
@@ -313,7 +312,6 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     fun getCommentsByPost(postId: String) {
         viewModelScope.launch {
             try {
-                _isCommentsLoading.value = true
                 _comments.value = postRepository.getCommentsByPost(postId.toInt())
                 Log.d("API", "getCommentsByPost success: ")
             } catch (e: Exception) {

@@ -66,6 +66,8 @@ import com.example.graduation1.ui.theme.darkGreen
 import com.example.graduation1.ui.theme.gradientGray
 import com.example.graduation1.ui.theme.gray
 import com.example.graduation1.user
+import com.example.graduation1.viewmodel.ChatViewModel
+import com.example.graduation1.viewmodel.ChatbotViewModel
 import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.PostViewModelFactory
@@ -74,15 +76,22 @@ import com.example.graduation1.viewmodel.UserViewModelFactory
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OtherUsersProfileScreen(navController: NavHostController, userId : String, userViewModel: UserViewModel, postViewModel: PostViewModel, groupsViewModel: GroupsViewModel){
+fun OtherUsersProfileScreen(navController: NavHostController, userId : String, userViewModel: UserViewModel, postViewModel: PostViewModel, groupsViewModel: GroupsViewModel, chatViewModel: ChatViewModel){
 
     val usersList by userViewModel.users.collectAsState()
     val user = usersList.first { it.id == userId }
 
     val currentUser by userViewModel.currentUser.collectAsState()
+    val following by userViewModel.following.collectAsState()
+    val followers by userViewModel.followers.collectAsState()
+
+    val chatContent by chatViewModel.chatContent.collectAsState()
 
     LaunchedEffect(Unit) {
         groupsViewModel.getUserGroups(user.groupsList)
+        userViewModel.loadFollowing(user.id.toInt())
+        userViewModel.loadFollowers(user.id.toInt())
+        chatViewModel.getChatContent(userId)
     }
 
     val groupList by groupsViewModel.currentUserGroups.collectAsState()
@@ -209,7 +218,11 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String, u
 
             Spacer(Modifier.weight(2f))
 
-            Button(onClick = {navController.navigate("${AppPages.Messaging.route}/${user.id}")},
+            Button(onClick = {
+                if (chatContent.isEmpty()){
+                chatViewModel.sendMessage(user.id, "Hello", null)
+                navController.navigate("${AppPages.Messaging.route}/${user.id}")}
+                else navController.navigate("${AppPages.Messaging.route}/${user.id}")},
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = darkGray
@@ -287,7 +300,7 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String, u
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = user.followersList.count().toString(),
+                        text = followers.count().toString(),
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
@@ -318,7 +331,7 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String, u
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
                     Text(
-                        text = user.followingList.count().toString(),
+                        text = following.count().toString(),
                         color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold

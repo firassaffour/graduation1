@@ -94,33 +94,30 @@ fun AppBottomBar(selected: NavTab, onSelect: (NavTab) -> Unit, onFab: () -> Unit
     Surface(shadowElevation = 8.dp, color = AppColors.Surface) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            Spacer(Modifier.weight(1f))
             NavIcon(Icons.Outlined.Home, selected == NavTab.Home) {
                 onSelect(NavTab.Home)
-            navController.navigate(AppPages.JobsListing.route)}
-            NavIcon(Icons.Outlined.People, selected == NavTab.People) { onSelect(NavTab.People) }
+            navController.navigate(AppPages.JobsList.route)}
+
+            Spacer(Modifier.weight(1f))
+
             Box(
                 Modifier.size(52.dp).clip(CircleShape).background(AppColors.Red).clickable {
                     navController.navigate(AppPages.OfferJob.route)
                     onFab() },
                 contentAlignment = Alignment.Center,
             ) { Icon(Icons.Default.Add, contentDescription = "Create", tint = Color.White) }
-            Box(
-                Modifier.size(48.dp).clip(Shapes.action)
-                    .background(if (selected == NavTab.Chat) AppColors.Red else Color.Transparent)
-                    .clickable { onSelect(NavTab.Chat) },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    Icons.Outlined.ChatBubbleOutline, contentDescription = "Chat",
-                    tint = if (selected == NavTab.Chat) Color.White else AppColors.TextPrimary,
-                )
-            }
+
+            Spacer(Modifier.weight(1f))
+
             NavIcon(Icons.Outlined.AccountCircle, selected == NavTab.Profile) {
                 onSelect(NavTab.Profile)
             navController.navigate(AppPages.AiProfile.route)}
+
+            Spacer(Modifier.weight(1f))
         }
     }
 }

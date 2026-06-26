@@ -28,13 +28,15 @@ class PostRepository(private val api: ApiService) {
                 .toInstant()
                 .toEpochMilli()
             PostData(
-                postId = it.postID.toString(),
-                postText = it.content ?: "",
+                postId      = it.postID.toString(),
+                groupId     = it.communityID?.toString() ?: "",
+                userId      = it.userID?.toString() ?: "",
+                postText    = it.content ?: "",
                 codeSnippet = it.codeSnippet ?: "",
-                createdAt = time ?: 0,
-                userId = it.userID.toString(),
-                groupId = it.communityID.toString(),
-                postImage = it.media?.firstOrNull()?.filePath.toString()
+                createdAt   = time,
+                likesCount  = it.likes?.size ?: 0,
+                isLiked     = false,
+                postImage   = it.media?.firstOrNull()?.filePath ?: ""
             )
         }
     }

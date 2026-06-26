@@ -179,11 +179,5 @@ fun FriendsScreen(navController: NavHostController, userViewModel: UserViewModel
 @Composable
 @Preview(showBackground = true)
 fun FriendsScreenPreview(){
-    Graduation1Theme(dynamicColor = false) {
-        val userViewModel : UserViewModel = viewModel(
-            factory = UserViewModelFactory(UserRepository(RetrofitInstance.api))
-        )
-        val nav = rememberNavController()
-        FriendsScreen(nav, userViewModel)
-    }
+
 }

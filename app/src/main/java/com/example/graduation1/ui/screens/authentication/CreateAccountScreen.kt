@@ -58,9 +58,11 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.graduation1.R
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.BottomNavItem
+import com.example.graduation1.emptyProfileImage
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.user
 import com.example.graduation1.viewmodel.AuthViewModel
+import com.example.graduation1.viewmodel.UserViewModel
 
 @Composable
 fun CreateAccountScreen(navController: NavHostController, authViewModel: AuthViewModel){
@@ -114,40 +116,6 @@ fun CreateAccountScreen(navController: NavHostController, authViewModel: AuthVie
         } // Row
 
         Spacer(Modifier.weight(1f))
-
-        Box(
-            modifier = Modifier
-                .background(color = Color.Gray, shape = CircleShape)
-                .size(110.dp)
-                .align(Alignment.CenterHorizontally)
-        ) {
-            Image(
-                rememberAsyncImagePainter(user.image),
-                contentDescription = "image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(110.dp)
-                    .clip(shape = CircleShape)
-                    .clickable { launcher.launch("image/*") }
-            )
-
-            IconButton(onClick = { launcher.launch("image/*") },
-                modifier = Modifier
-                    .size(25.dp)
-                    .align(Alignment.BottomEnd)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.onBackground)) {
-                Icon(
-                    painter = painterResource(id = R.drawable.camera),
-                    contentDescription = "camera",
-                    tint = MaterialTheme.colorScheme.background,
-                    modifier = Modifier
-                        .size(25.dp)
-                )
-            }
-        } // Box
-
-        Spacer(Modifier.height(40.dp))
 
         Text(
             text = stringResource(R.string.Username),
@@ -285,28 +253,6 @@ fun CreateAccountScreen(navController: NavHostController, authViewModel: AuthVie
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
 
-        Spacer(Modifier.height(20.dp))
-
-        Column(Modifier.fillMaxWidth()) {
-
-            options.forEach { gender ->
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    RadioButton(
-                        selected = selectedGender == gender,
-                        onClick = {
-                            selectedGender = gender
-                        }
-
-                    )
-
-                    Text(gender)
-                }
-            }
-        }
 
         Spacer(Modifier.height(40.dp))
 

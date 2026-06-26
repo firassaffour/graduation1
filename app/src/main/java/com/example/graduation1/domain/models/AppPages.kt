@@ -36,18 +36,23 @@ sealed class AppPages(val route: String) {
     object CreateGroup : AppPages("createGroupScreen")
 
 
-    object JobsListing : AppPages("jobs_listing")
     object JobDetails : AppPages("job_details")
     object ApplyJob : AppPages("apply_job")
     object OfferJob : AppPages("offer_job")
 
     object SkillDashboard : AppPages("skill_dashboard")
     object MatchResults : AppPages("match_results")
-    object ExperienceGenerator : AppPages("experience_generator")
     object AIRecommendedJobs : AppPages("ai_recommended_jobs")
 
     object CandidateRanking : AppPages("candidate_ranking")
     object RecruiterAnalytics : AppPages("recruiter_analytics")
 
     object AiProfile : AppPages("aiProfileScreen")
+    object CodeReview : AppPages("codeReviewScreen")
+
+    object JobsList         : AppPages("jobsListScreen")
+    object Analytics        : AppPages("analyticsScreen")
+    object ExperienceGen    : AppPages("experienceGeneratorScreen")
+    object CandidateProfile : AppPages("candidateProfileScreen")
+
 }

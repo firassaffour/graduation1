@@ -7,6 +7,7 @@ import com.example.graduation1.domain.models.requets_response.UpdateUserRequest
 import com.example.graduation1.emptyProfileImage
 
 class UserRepository(private val api: ApiService) {
+    private val BASE_URL = "https://graduation-project-backend-production-bc68.up.railway.app/wwwroot"
 
     suspend fun getUsers() : List<User>{
         val response = api.getUsers()
@@ -15,6 +16,7 @@ class UserRepository(private val api: ApiService) {
             User(
                 id = it.userID.toString(),
                 name = it.firstName,
+                userName = it.lastName,
                 email = it.email,
                 image = it.profileImage ?: emptyProfileImage,
                 description = it.bio ?: "New Developer",
@@ -34,6 +36,7 @@ class UserRepository(private val api: ApiService) {
             currentUser = User(
                 id = response.userID.toString(),
                 name = response.firstName,
+                userName = response.lastName,
                 email = response.email,
                 image = response.profileImage ?: emptyProfileImage,
                 description = response.bio ?: "New Developer",
@@ -48,9 +51,9 @@ class UserRepository(private val api: ApiService) {
 
     suspend fun getUserDetails(id : String) = api.getUserDetails(id)
 
-    suspend fun editUser(id : String, updateUserRequest: UpdateUserRequest) : Unit { return api.editUser(id, updateUserRequest)}
+    suspend fun editUser(id : String, updateUserRequest: UpdateUserRequest) {return api.editUser(id, updateUserRequest)}
 
-    suspend fun deleteUser(id : String) = api.deleteUser(id)
+    suspend fun deleteUser(id : String) { return api.deleteUser(id) }
 
     suspend fun followUser(id: String) = api.followUser(id)
 
