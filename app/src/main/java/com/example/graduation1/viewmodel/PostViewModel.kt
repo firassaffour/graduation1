@@ -70,6 +70,8 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
+    private val BASE_URL = "https://graduation-project-backend-production-bc68.up.railway.app"
+
     init {
         getSavedPosts()
         getPosts()
@@ -93,8 +95,11 @@ class PostViewModel(private val postRepository: PostRepository, private val user
         viewModelScope.launch {
             try {
                 _posts.value = postRepository.getPosts().map {
+                    val media = mediaRepository.getMediaByPost(it.postId.toInt())
+                    val image = media.find { !it.filePath.isNullOrEmpty() }?.filePath ?: ""
                     it.copy(isLiked = postRepository.getLikeStatus(it.postId.toInt()),
-                        isSaved = _savedPosts.value.contains(it))
+                        isSaved = _savedPosts.value.contains(it),
+                        postImage = if (!image.isNullOrEmpty()) "$BASE_URL$image" else "")
                 }
 
                 Log.d("API", "postViewModel getting posts success: ${_posts.value}")
@@ -150,13 +155,6 @@ class PostViewModel(private val postRepository: PostRepository, private val user
     fun createPost(groupId: String, imageUri: Uri?) {
         viewModelScope.launch {
             try {
-                // 1. Upload image if the user picked one
-                var uploadedImageUrl: String? = null
-                if (imageUri != null) {
-                    val media = mediaRepository.uploadImage(imageUri)
-                    uploadedImageUrl = media.filePath
-                    Log.d("PostVM", "Image uploaded: $uploadedImageUrl")
-                }
 
                 // 2. Create the post on the backend
                 val postData = CreatePostRequest(
@@ -166,6 +164,14 @@ class PostViewModel(private val postRepository: PostRepository, private val user
                     communityID = groupId.toIntOrNull()
                 )
                 val response = postRepository.createPost(postData)
+
+                // 1. Upload image if the user picked one
+                var uploadedImageUrl: String? = null
+                if (imageUri != null) {
+                    val media = mediaRepository.uploadImage(imageUri, postId = response.postID)
+                    uploadedImageUrl = media.filePath
+                    Log.d("PostVM", "Image uploaded: $uploadedImageUrl")
+                }
 
                 // 3. Optimistically add to UI list
                 val newPost = PostData(
@@ -395,10 +401,10 @@ class PostViewModel(private val postRepository: PostRepository, private val user
             if (post.postId == postId) {
                 val updatedComment = post.commentsList.map {comment ->
                     if (comment.commentId == commentId) {
-                        if (!comment.likesCount.contains(_currentUser.value.id))
-                            comment.copy(likesCount = comment.likesCount + _currentUser.value.id)
+                        if (!comment.isLiked)
+                            comment.copy(likesCount = comment.likesCount + _currentUser.value.id, isLiked = true)
                         else
-                            comment.copy(likesCount = comment.likesCount - _currentUser.value.id)
+                            comment.copy(likesCount = comment.likesCount - _currentUser.value.id, isLiked = false)
                     }
                     else comment
                 }
@@ -406,6 +412,16 @@ class PostViewModel(private val postRepository: PostRepository, private val user
             }
 
             else post
+        }
+
+        _comments.value = _comments.value.map {comment ->
+                if (comment.commentId == commentId) {
+                    if (!comment.isLiked)
+                        comment.copy(likesCount = comment.likesCount + _currentUser.value.id, isLiked = true)
+                    else
+                        comment.copy(likesCount = comment.likesCount - _currentUser.value.id, isLiked = false)
+                }
+                else comment
         }
     }
 

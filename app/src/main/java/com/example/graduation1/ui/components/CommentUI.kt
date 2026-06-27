@@ -1,6 +1,8 @@
 package com.example.graduation1.ui.components
 
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -53,6 +55,7 @@ import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 import kotlinx.coroutines.delay
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CommentUI(navController : NavHostController, comment: Comment, isNew : Boolean, postId : String, postViewModel : PostViewModel, userViewModel: UserViewModel){
 
@@ -146,10 +149,10 @@ fun CommentUI(navController : NavHostController, comment: Comment, isNew : Boole
                 modifier = Modifier.weight(1f)) {
                 IconButton(onClick = {postViewModel.toggleLikeComment(comment.commentId, postId)}) {
                     Icon(
-                        painter = if (!comment.likesCount.contains(currentUser.id)) painterResource(id = R.drawable.heart2)
+                        painter = if (!comment.isLiked) painterResource(id = R.drawable.heart2)
                         else painterResource(id = R.drawable.heart2red),
                         contentDescription = "heart",
-                        tint = if (darkMode && !comment.likesCount.contains(currentUser.id)) Color.White else Color.Unspecified,
+                        tint = if (darkMode && !comment.isLiked) Color.White else Color.Unspecified,
                         modifier = Modifier.size(15.dp)
                     )
                 }

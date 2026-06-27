@@ -6,4 +6,5 @@ data class Comment (
     val text : String = "",
     val createdAt : Long = 0,
     val likesCount : List<String> = emptyList(),
+    val isLiked : Boolean = false
 )

@@ -50,11 +50,12 @@ import com.example.graduation1.friendsList
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.ui.theme.darkGreen
+import com.example.graduation1.viewmodel.NotificationViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 import com.example.graduation1.viewmodel.UserViewModelFactory
 
 @Composable
-fun FriendsScreen(navController: NavHostController, userViewModel: UserViewModel){
+fun FriendsScreen(navController: NavHostController, userViewModel: UserViewModel, notificationViewModel: NotificationViewModel){
 
     val usersList by userViewModel.users.collectAsState()
 
@@ -148,7 +149,14 @@ fun FriendsScreen(navController: NavHostController, userViewModel: UserViewModel
                             Button(
                                 onClick = {
                                     if (friend.isFollowedByMe) userViewModel.unfollowUser(friend.id)
-                                    else userViewModel.followUser(friend.id)
+                                    else {
+                                        userViewModel.followUser(friend.id)
+                                        notificationViewModel.sendNotification(
+                                            userId  = friend.id.toInt(),
+                                            type    = "follow",
+                                            message = "${currentUser.name} started following you"
+                                        )
+                                    }
                                 },
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(

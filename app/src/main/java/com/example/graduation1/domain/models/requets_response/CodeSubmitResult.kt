@@ -4,5 +4,5 @@ import com.google.gson.annotations.SerializedName
 
 data class CodeSubmitResult(
     @SerializedName("submission") val submission: CodeSubmissionResponse,
-    @SerializedName("aIFeedback") val aiFeedback: AiResponseItem
+    @SerializedName("AIFeedback") val aiFeedback: AiResponseItem
 )

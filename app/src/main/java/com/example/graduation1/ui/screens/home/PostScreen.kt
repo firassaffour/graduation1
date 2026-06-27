@@ -48,13 +48,14 @@ import com.example.graduation1.ui.components.CommentUI
 import com.example.graduation1.ui.components.PostUI
 import com.example.graduation1.ui.theme.Graduation1Theme
 import com.example.graduation1.ui.theme.darkGray
+import com.example.graduation1.viewmodel.ChatbotViewModel
 import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PostScreen(navController: NavHostController, postId: String, postViewModel: PostViewModel, userViewModel: UserViewModel, groupsViewModel: GroupsViewModel){
+fun PostScreen(navController: NavHostController, postId: String, postViewModel: PostViewModel, userViewModel: UserViewModel, groupsViewModel: GroupsViewModel, chatbotViewModel: ChatbotViewModel){
 
     val postsList by postViewModel.posts.collectAsState()
     val commentText by postViewModel.commentText.collectAsState()
@@ -108,7 +109,7 @@ fun PostScreen(navController: NavHostController, postId: String, postViewModel: 
             state = listState
         ) {
             item {
-                PostUI(navController, post, post.postId == newPostId, postViewModel, userViewModel, groupsViewModel,
+                PostUI(navController, post, post.postId == newPostId, postViewModel, userViewModel, groupsViewModel, chatbotViewModel,
                     onPostClicked = {},
                     onCommentClicked = {},
                     onGroupClicked = {navController.navigate("${AppPages.GroupDetails.route}/${post.groupId}")},
@@ -142,8 +143,10 @@ fun PostScreen(navController: NavHostController, postId: String, postViewModel: 
             Spacer(Modifier.width(10.dp))
 
             IconButton(onClick = {
-                if (commentText.isNotEmpty())
+                if (commentText.isNotEmpty()){
                     postViewModel.createComment(postId)
+                    postViewModel.refreshData()
+                }
             },
                 colors = IconButtonDefaults.iconButtonColors(darkGray),
                 shape = CircleShape) {

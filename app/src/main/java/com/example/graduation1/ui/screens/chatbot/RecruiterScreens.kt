@@ -216,7 +216,7 @@ fun RecruiterAnalyticsDashboardScreen(onBack: () -> Unit = {}, navController: Na
 }
 
 @Composable
-fun AiProfileScreen(onCandidate: () -> Unit, onAnalytics: () -> Unit, onSkillDashboard: () -> Unit, onMatchResults: () -> Unit, onExperienceGenerator: () -> Unit, navController: NavHostController){
+fun AiProfileScreen(onCandidate: () -> Unit, onCandidateProfile: () -> Unit, onAnalytics: () -> Unit, onSkillDashboard: () -> Unit, onMatchResults: () -> Unit, onExperienceGenerator: () -> Unit, navController: NavHostController){
 
     Scaffold(
         containerColor = AppColors.Background,
@@ -240,6 +240,33 @@ fun AiProfileScreen(onCandidate: () -> Unit, onAnalytics: () -> Unit, onSkillDas
 
                 Text(
                     text = "Candidate Ranking",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(Modifier.weight(1f))
+
+                Icon(
+                    painter = painterResource(id = R.drawable.rightarrow),
+                    contentDescription = "right arrow",
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .rotate(if (language == "ar") 180f else 0f)
+                )
+            } // Row
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable { onCandidateProfile() }) {
+
+                Spacer(Modifier.width(20.dp))
+
+                Text(
+                    text = "Candidate Profile",
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold

@@ -41,8 +41,8 @@ class NotificationViewModel(private val notificationRepository: NotificationRepo
     val unreadCount = _unreadCount.asStateFlow()
 
     init {
-        getNotifications()
         getCurrentUser()
+        getNotifications()
         getUnreadCount()
     }
 
@@ -78,9 +78,11 @@ class NotificationViewModel(private val notificationRepository: NotificationRepo
                 _todayNotifications.value = _notifications.value.filter { getNotificationDate(it.createdAt) }
                 _lastWeeksNotifications.value = _notifications.value.filter { !getNotificationDate(it.createdAt) }
                 //notificationList = repository.getNotification()
+
+                Log.d("API", "getNotifications success: ${_notifications.value}")
             }
             catch (e: Exception){
-                Log.e("API", "NotificationViewModel: ${e.message}")
+                Log.e("API", "NotificationViewModel failed: ${e.message}")
             }
         }
     }
@@ -123,7 +125,7 @@ class NotificationViewModel(private val notificationRepository: NotificationRepo
         }
     }
 
-    private fun getUnreadCount(){
+    fun getUnreadCount(){
         viewModelScope.launch {
             try {
                 _unreadCount.value = notificationRepository.getUnreadCount().unreadCount
@@ -163,6 +165,7 @@ class NotificationViewModel(private val notificationRepository: NotificationRepo
         viewModelScope.launch {
             try {
                 val response = notificationRepository.deleteNotification(id)
+                getNotifications()
                 Log.d("API", "deleteNotification success: $response")
             }
             catch (e : Exception){

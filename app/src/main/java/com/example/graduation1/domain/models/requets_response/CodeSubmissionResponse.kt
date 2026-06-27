@@ -9,5 +9,5 @@ data class CodeSubmissionResponse(
     @SerializedName("code")         val code: String?,
     @SerializedName("language")     val language: String?,
     @SerializedName("createdAt")    val createdAt: String,
-    @SerializedName("aIResponses")  val aiResponses: List<AiResponseItem>?
+    @SerializedName("AIResponses")  val aiResponses: List<AiResponseItem>?
 )

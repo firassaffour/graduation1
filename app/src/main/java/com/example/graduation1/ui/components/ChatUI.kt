@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,16 +38,18 @@ import com.example.graduation1.emptyProfileImage
 import com.example.graduation1.ui.theme.darkGray
 import com.example.graduation1.ui.theme.darkGreen
 import com.example.graduation1.ui.theme.primaryRed
+import com.example.graduation1.user
 import com.example.graduation1.viewmodel.ChatViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : ChatViewModel, userViewModel: UserViewModel){
-    val userList by userViewModel.users.collectAsState()
-    val user = userList.find { it.id == chat.userId } ?: return
+    val userList by chatViewModel.allUsers.collectAsState()
+    val user = userList.find { it.id == chat.userId } ?: user
     val isSeenCount = chatViewModel.getUnSeenMessagesCount(chat.userId)
     val lastMessage = chat.messagesList.lastOrNull()
+
 
     Column(
         modifier = Modifier
@@ -67,6 +70,7 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
                     if (user.image == "") rememberAsyncImagePainter(emptyProfileImage)
                     else rememberAsyncImagePainter(user.image),
                     contentDescription = "image",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(70.dp)
                         .clip(shape = CircleShape)
@@ -100,7 +104,7 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
                 )
 
                 Text(
-                    text = if (lastMessage!!.image != null && lastMessage.text.isEmpty()) stringResource(R.string.Image)
+                    text = if (lastMessage!!.image != null && lastMessage.text.isEmpty()) stringResource(R.string.Image) ?: ""
                         else lastMessage.text ?: "",
                     color = darkGray,
                     fontSize = 12.sp,

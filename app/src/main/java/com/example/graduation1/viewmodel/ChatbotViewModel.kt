@@ -348,15 +348,34 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
             try {
                 _isReviewing.value = true
                 _codeReviewResult.value = null
+
                 val result = repository.submitCode(
-                    CodeSubmitRequest(code = code, language = language, postID = postId)
+                    com.example.graduation1.domain.models.requets_response.CodeSubmitRequest(
+                        code     = code,
+                        language = language,
+                        postID   = 7
+                    )
                 )
 
-                _codeReviewResult.value = result.aiFeedback
-                Log.d("PostVM", "Code review OK: ${result.aiFeedback.content}")
+                Log.d("ChatbotVM", "submitCode raw result: $result")
+
+                // KEY FIX: aiFeedback may be null if Gson can't match "aIFeedback"
+                // (capital I). Fall back to the first item in submission.aiResponses.
+                val feedback = result.aiFeedback
+                    ?: result.submission.aiResponses?.firstOrNull()
+
+                if (feedback == null) {
+                    _error.value = "The server returned no AI feedback. Try again."
+                    Log.e("ChatbotVM", "submitCodeForReview: aiFeedback is null in result=$result")
+                    return@launch
+                }
+
+                _codeReviewResult.value = feedback
+                Log.d("ChatbotVM", "Code review OK: ${feedback.content}")
+
             } catch (e: Exception) {
                 _error.value = "Code review failed: ${e.message}"
-                Log.e("PostVM", "submitCodeForReview: ${e.message}")
+                Log.e("ChatbotVM", "submitCodeForReview: ${e.message}")
             } finally {
                 _isReviewing.value = false
             }
@@ -377,18 +396,19 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
     fun generateExperience(targetRole: String?) {
         viewModelScope.launch {
             try {
-                _isGeneratingExp.value = true
-                _experienceResult.value = null
+                _isGeneratingExp.value = true; _experienceResult.value = null
                 val result = repository.generateExperience(targetRole?.ifBlank { null })
                 _experienceResult.value = result
                 Log.d("ChatbotVM", "generateExperience OK: ${result.cvBullets.size} bullets")
             } catch (e: Exception) {
-                _error.value = "Could not generate experience: ${e.message}"
-                Log.e("ChatbotVM", "generateExperience: ${e.message}")
+                val msg = e.message ?: ""
+                _error.value = if (msg.contains("502") || msg.contains("50")) {
+                    "You need to create posts with code snippets first. The AI builds your skill profile from your posts."
+                } else "Could not generate experience: $msg"
+                Log.e("ChatbotVM", "generateExperience: $msg")
             } finally { _isGeneratingExp.value = false }
         }
     }
-
     fun clearExperience() { _experienceResult.value = null }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -425,6 +445,7 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
         viewModelScope.launch {
             try {
                 _candidateProfile.value = repository.getMyCandidateProfile()
+                Log.d("API", "loadCandidateProfile success: $_candidateProfile.")
             } catch (e: Exception) {
                 // 404 is normal for first-time users — don't show error
                 Log.d("ChatbotVM", "No candidate profile yet: ${e.message}")

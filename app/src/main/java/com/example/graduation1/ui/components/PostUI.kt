@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -56,7 +57,9 @@ import com.example.graduation1.R
 import com.example.graduation1.darkMode
 import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.PostData
+import com.example.graduation1.ui.screens.home.PostAnalysisDialog
 import com.example.graduation1.ui.theme.darkGray
+import com.example.graduation1.viewmodel.ChatbotViewModel
 import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
@@ -70,6 +73,7 @@ fun PostUI(navController: NavHostController,
            postViewModel: PostViewModel,
            userViewModel: UserViewModel,
            groupsViewModel: GroupsViewModel,
+           chatbotViewModel: ChatbotViewModel,
            onPostClicked : () -> Unit,
            onCommentClicked : () -> Unit,
            onGroupClicked : () -> Unit,
@@ -87,6 +91,10 @@ fun PostUI(navController: NavHostController,
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     val postDeletedMessage = stringResource(R.string.PostDeletedSuccessfully)
+
+    val postAnalysis  by chatbotViewModel.postAnalysis.collectAsState()
+    val isAnalyzing   by chatbotViewModel.isAnalyzing.collectAsState()
+    var showAnalysisDialog by remember { mutableStateOf(false) }
 
     var highlight by remember(post.postId) { mutableStateOf(isNew) }
     LaunchedEffect(post.postId) {
@@ -119,7 +127,16 @@ fun PostUI(navController: NavHostController,
     ) {
 
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            if (post.userId == currentUser.id) showDeleteDialog = true
+                        },
+                        onTap = { onPostClicked() }
+                    )
+                },
         ) {
 
             Image(
@@ -178,6 +195,14 @@ fun PostUI(navController: NavHostController,
                 .fillMaxSize()
                 .padding(8.dp)
                 .wrapContentHeight()
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            if (post.userId == currentUser.id) showDeleteDialog = true
+                        },
+                        onTap = { onPostClicked() }
+                    )
+                },
         )
 
         Spacer(Modifier.height(10.dp))
@@ -287,6 +312,24 @@ fun PostUI(navController: NavHostController,
                 )
             }
 
+            if (post.codeSnippet.isNotBlank()) {
+                IconButton(onClick = {
+                    chatbotViewModel.analyzePost(post.postId.toInt())
+                    showAnalysisDialog = true
+                }) {
+                    if (isAnalyzing) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    } else {
+                        Icon(
+                            painter            = painterResource(R.drawable.chatbot),  // use any suitable AI/analysis icon
+                            contentDescription = "Analyze code",
+                            tint               = MaterialTheme.colorScheme.onBackground,
+                            modifier           = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
+
         } // Row
     } // Column
 
@@ -312,5 +355,16 @@ fun PostUI(navController: NavHostController,
             } // dismissButton
         ) // AlertDialog
     } // if
+
+    if (showAnalysisDialog) {
+        PostAnalysisDialog(
+            analysis  = postAnalysis,
+            isLoading = isAnalyzing,
+            onDismiss = {
+                showAnalysisDialog = false
+                chatbotViewModel.clearPostAnalysis()
+            }
+        )
+    }
 
 }

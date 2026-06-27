@@ -1,5 +1,7 @@
 package com.example.graduation1.ui.screens.notification
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +15,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,11 +38,17 @@ import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NotificationScreen(navController: NavHostController, notificationViewModel: NotificationViewModel, groupsViewModel: GroupsViewModel, postViewModel: PostViewModel, userViewModel: UserViewModel){
 
     val todayNotifications by notificationViewModel.todayNotifications.collectAsState()
     val lastWeekNotification by notificationViewModel.lastWeeksNotifications.collectAsState()
+
+    LaunchedEffect(Unit) {
+        notificationViewModel.markAllNotificationsRead()
+        notificationViewModel.getUnreadCount()
+    }
 
     Column(modifier = Modifier
         .fillMaxSize()

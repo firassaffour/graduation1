@@ -1,6 +1,7 @@
 package com.example.graduation1.data.repository
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.graduation1.data.remote.ApiService
 import com.example.graduation1.domain.models.Comment

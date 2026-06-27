@@ -135,8 +135,10 @@ fun CommentsScreen(navController : NavHostController, postId : String, postViewM
             Spacer(Modifier.width(10.dp))
 
             IconButton(onClick = {
-                if (commentText.isNotEmpty())
-                  postViewModel.createComment(post.postId) },
+                if (commentText.isNotEmpty()) {
+                    postViewModel.createComment(post.postId)
+                    postViewModel.refreshData()
+                }},
                 colors = IconButtonDefaults.iconButtonColors(darkGray),
                 shape = CircleShape) {
                 Icon(

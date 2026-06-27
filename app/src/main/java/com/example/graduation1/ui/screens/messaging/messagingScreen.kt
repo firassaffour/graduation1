@@ -92,9 +92,9 @@ import kotlinx.coroutines.delay
 @Composable
 fun MessagingScreen(navController: NavHostController, chatId : String, chatViewModel: ChatViewModel, userViewModel: UserViewModel){
     val chatList by chatViewModel.chatsList.collectAsState()
-    val chat = chatList.find { it.chatId == chatId } ?: return
+    val chat = chatList.find { it.chatId == chatId } ?: chatList[0]
     val userList by userViewModel.users.collectAsState()
-    val user = userList.find { it.id == chat.userId } ?: return
+    val user = userList.find { it.id == chat.userId } ?: user
 
     LaunchedEffect(Unit) {
         chatViewModel.getChatContent(user.id)

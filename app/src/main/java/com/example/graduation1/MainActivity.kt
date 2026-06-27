@@ -58,6 +58,7 @@ import com.example.graduation1.ui.screens.settings.SettingsScreen
 import com.example.graduation1.ui.screens.authentication.StartScreen
 import com.example.graduation1.ui.screens.chatbot.AiProfileScreen
 import com.example.graduation1.ui.screens.chatbot.ApplyJobScreen
+import com.example.graduation1.ui.screens.chatbot.CandidateProfileScreen
 import com.example.graduation1.ui.screens.chatbot.CandidateRankingScreen
 import com.example.graduation1.ui.screens.chatbot.ChatbotHistoryScreen
 import com.example.graduation1.ui.screens.chatbot.CodeReviewScreen
@@ -229,11 +230,11 @@ class MainActivity : ComponentActivity() {
             ) {
                 composable(AppPages.StartScreen.route) { StartScreen(navController) }
                 composable(AppPages.OnBoardingTabs.route) { OnBoardingTabs(navController) }
-                composable(BottomNavItem.Home.route) { HomeScreen(navController, postViewModel, userViewModel, groupsViewModel, notificationViewModel) }
+                composable(BottomNavItem.Home.route) { HomeScreen(navController, postViewModel, userViewModel, groupsViewModel, notificationViewModel,chatbotViewModel) }
                 composable(BottomNavItem.Chat.route) { ChatTabs(navController, chatViewModel, groupsViewModel, userViewModel) }
                 composable(AppPages.MyRooms.route) { MyRoomsScreen(navController, groupsViewModel, userViewModel) }
                 composable(AppPages.CreatePost.route) { CreatePostScreen(navController, userViewModel, postViewModel, groupsViewModel) }
-                composable(BottomNavItem.Friends.route) { FriendsScreen(navController, userViewModel) }
+                composable(BottomNavItem.Friends.route) { FriendsScreen(navController, userViewModel, notificationViewModel) }
                 composable(AppPages.AddFriends.route) { AddFriendsScreen(navController, userViewModel, groupsViewModel, notificationViewModel) }
                 composable(AppPages.CreateGroup.route) { CreateGroupScreen(navController, groupsViewModel) }
                 composable(AppPages.SignUp.route) { SignUpScreen(navController, authViewModel) }
@@ -244,7 +245,7 @@ class MainActivity : ComponentActivity() {
                     GroupsListScreen(navController, userId!!, groupsViewModel, userViewModel) {} }
                 composable("${AppPages.Post.route}/{postId}", arguments = listOf(navArgument("postId") {type = NavType.StringType})){ backStack ->
                 val postId = backStack.arguments?.getString("postId")
-                    PostScreen(navController, postId!!, postViewModel, userViewModel, groupsViewModel)
+                    PostScreen(navController, postId!!, postViewModel, userViewModel, groupsViewModel, chatbotViewModel)
                 } // Composable
                 composable(BottomNavItem.Profile.route) { MyProfileScreen(navController, userViewModel, authViewModel) }
                 composable(AppPages.EditProfile.route) { EditProfileScreen(navController, userViewModel) }
@@ -277,7 +278,7 @@ class MainActivity : ComponentActivity() {
                 } // Composable
                 composable("${AppPages.GroupDetails.route}/{groupId}", arguments = listOf(navArgument("groupId") {type = NavType.StringType})){ backStack ->
                     val groupId = backStack.arguments?.getString("groupId")
-                    GroupDetailsScreen(navController, groupId!!,groupsViewModel, postViewModel, userViewModel)
+                    GroupDetailsScreen(navController, groupId!!,groupsViewModel, postViewModel, userViewModel, chatbotViewModel)
                 } // Composable
 
                 composable(AppPages.CodeReview.route) { CodeReviewScreen(navController, chatbotViewModel) }
@@ -354,6 +355,8 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
+                composable(AppPages.CandidateProfile.route) { CandidateProfileScreen(navController, chatbotViewModel) }
+
 // Analytics (recruiter)
                 composable(AppPages.Analytics.route) {
                     RecruiterAnalyticsDashboardScreen(
@@ -368,6 +371,7 @@ class MainActivity : ComponentActivity() {
                 composable(AppPages.AiProfile.route) {
                     AiProfileScreen(
                         onCandidate          = { navController.navigate(AppPages.CandidateRanking.route) },
+                        onCandidateProfile   = { navController.navigate(AppPages.CandidateProfile.route)},
                         onAnalytics          = { navController.navigate(AppPages.Analytics.route) },
                         onSkillDashboard     = { navController.navigate(AppPages.SkillDashboard.route) },
                         onMatchResults       = { navController.navigate(AppPages.MatchResults.route) },

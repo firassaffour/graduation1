@@ -1,5 +1,7 @@
 package com.example.graduation1.ui.screens.profiles
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -68,6 +70,7 @@ import com.example.graduation1.viewmodel.UserViewModel
 import com.example.graduation1.viewmodel.UserViewModelFactory
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: UserViewModel, postViewModel: PostViewModel, groupsViewModel: GroupsViewModel){
 
@@ -126,6 +129,7 @@ fun MyProfileDetailsScreen(navController: NavHostController, userViewModel: User
                 if (currentUser.image == "") rememberAsyncImagePainter(emptyProfileImage)
                 else rememberAsyncImagePainter(currentUser.image),
                 contentDescription = "image",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(140.dp)
                     .clip(shape = CircleShape)

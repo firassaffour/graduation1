@@ -48,6 +48,7 @@ import com.example.graduation1.selectedPostPage
 import com.example.graduation1.ui.components.PostUI
 import com.example.graduation1.ui.screens.home.CommentsScreen
 import com.example.graduation1.ui.theme.darkGray
+import com.example.graduation1.viewmodel.ChatbotViewModel
 import com.example.graduation1.viewmodel.GroupsViewModel
 import com.example.graduation1.viewmodel.PostViewModel
 import com.example.graduation1.viewmodel.UserViewModel
@@ -55,7 +56,7 @@ import com.example.graduation1.viewmodel.UserViewModel
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GroupDetailsScreen(navController: NavHostController, groupId : String, groupsViewModel: GroupsViewModel, postViewModel: PostViewModel, userViewModel: UserViewModel){
+fun GroupDetailsScreen(navController: NavHostController, groupId : String, groupsViewModel: GroupsViewModel, postViewModel: PostViewModel, userViewModel: UserViewModel, chatbotViewModel: ChatbotViewModel){
 
     val groupsList by groupsViewModel.groups.collectAsState()
     val group = groupsList.find { it.id == groupId } ?: return
@@ -172,7 +173,7 @@ fun GroupDetailsScreen(navController: NavHostController, groupId : String, group
 
             items(groupPosts,
                 key = {it.postId}) { post ->
-                PostUI(navController, post, post.postId == newPostId, postViewModel, userViewModel, groupsViewModel,
+                PostUI(navController, post, post.postId == newPostId, postViewModel, userViewModel, groupsViewModel, chatbotViewModel,
                     onPostClicked = {
                         selectedPostPage = post
                         navController.navigate("${AppPages.Post.route}/${post.postId}")},

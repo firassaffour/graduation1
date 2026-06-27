@@ -27,7 +27,7 @@ fun ChatScreen(navController: NavHostController, chatViewModel: ChatViewModel, u
     val chatsList by chatViewModel.chatsList.collectAsState()
     val chatSearchQuery by chatViewModel.chatSearchQuery.collectAsState()
 
-    val userList by userViewModel.users.collectAsState()
+    val userList by chatViewModel.allUsers.collectAsState()
     val userMap = remember(userList) { userList.associateBy { it.id } }
 
     val filteredChatList = remember (chatSearchQuery, chatsList, userMap) {
@@ -45,6 +45,7 @@ fun ChatScreen(navController: NavHostController, chatViewModel: ChatViewModel, u
         LazyColumn(modifier = Modifier
             .fillMaxWidth()) {
             items(filteredChatList, key = {it.chatId}){ chat ->
+                chatViewModel.getChatContent(chat.chatId)
                ChatUI(navController, chat, chatViewModel, userViewModel)
             } // items
         } // LazyColumn

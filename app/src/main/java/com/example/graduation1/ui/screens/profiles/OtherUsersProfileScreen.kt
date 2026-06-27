@@ -140,6 +140,7 @@ fun OtherUsersProfileScreen(navController: NavHostController, userId : String, u
                 if (user.image == "") rememberAsyncImagePainter(emptyProfileImage)
                 else rememberAsyncImagePainter(user.image),
                 contentDescription = "image",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(140.dp)
                     .clip(shape = CircleShape)

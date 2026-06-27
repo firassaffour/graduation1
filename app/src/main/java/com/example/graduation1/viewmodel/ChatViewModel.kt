@@ -31,10 +31,6 @@ import kotlin.uuid.Uuid
 class ChatViewModel(private val chatRepository: ChatRepository, private val userRepository: UserRepository, private val mediaRepository: MediaRepository) : ViewModel() {
 
 
-    /** Messages for the currently open conversation. */
-    private val _chatContent = MutableStateFlow<List<Message>>(emptyList())
-    val chatContent = _chatContent.asStateFlow()
-
     /**
      * Inbox list — one [ChatItem] per unique conversation partner.
      * chatId == the OTHER user's id (as String).
@@ -42,11 +38,18 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
     private val _chatsList = MutableStateFlow<List<ChatItem>>(emptyList())
     val chatsList = _chatsList.asStateFlow()
 
-    private val _messageText = MutableStateFlow("")
-    val messageText = _messageText.asStateFlow()
+    /** Messages for the currently open conversation. */
+    private val _chatContent = MutableStateFlow<List<Message>>(emptyList())
+    val chatContent = _chatContent.asStateFlow()
 
     private val _currentUser = MutableStateFlow(user)
     val currentUser = _currentUser.asStateFlow()
+
+    private val _allUsers = MutableStateFlow<List<User>>(emptyList())
+    val allUsers = _allUsers.asStateFlow()
+
+    private val _messageText = MutableStateFlow("")
+    val messageText = _messageText.asStateFlow()
 
     private val _chatSearchQuery = MutableStateFlow("")
     val chatSearchQuery = _chatSearchQuery.asStateFlow()
@@ -57,6 +60,8 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
+    private val BASE_URL = "https://graduation-project-backend-production-bc68.up.railway.app"
+
     // ── Init ────────────────────────────────────────────────────────────────
 
     // KEY FIX: load currentUser FIRST then inbox in same coroutine so myId
@@ -64,6 +69,7 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
     init {
         viewModelScope.launch {
             loadCurrentUserSuspend()
+            loadAllUsersSuspend()
             loadInboxInternal()
         }
     }
@@ -83,6 +89,15 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
             } catch (e: Exception) {
                 Log.e("ChatVM", "loadCurrentUser: ${e.message}")
             }
+        }
+    }
+
+    private suspend fun loadAllUsersSuspend() {
+        try {
+            _allUsers.value = userRepository.getUsers()
+            Log.d("ChatVM", "allUsers loaded: ${_allUsers.value.size}")
+        } catch (e: Exception) {
+            Log.e("ChatVM", "loadAllUsers: ${e.message}")
         }
     }
 
@@ -146,7 +161,10 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
                 val id = otherUserId.toIntOrNull() ?: return@launch
                 val messages = chatRepository.getConversation(id)
                     .sortedBy { parseTime(it.sentAt) }
-                    .map { it.toMessage() }
+                    .map {
+                        val media = mediaRepository.getMediaByPost(it.messageID)
+                        val image = media.find { !it.filePath.isNullOrEmpty() }?.filePath ?: ""
+                        it.toMessage()}
 
                 _chatContent.value = messages
 
@@ -171,6 +189,7 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
         }
     }
 
+
     // ── Send message ─────────────────────────────────────────────────────────
 
     /**
@@ -186,10 +205,16 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
             try {
                 val receiverId = otherUserId.toIntOrNull() ?: return@launch
 
+                // 3. Real API call
+                val content = trimmed
+                val response = chatRepository.sendMessage(
+                    SendMessageRequest(receiverID = receiverId, content = content)
+                )
+
                 // 1. Upload image if picked
                 var imageUrl: String? = null
                 if (imageUri != null) {
-                    val media = mediaRepository.uploadImage(imageUri)
+                    val media = mediaRepository.uploadImage(imageUri, messageId = response.messageID)
                     imageUrl = media.filePath
                 }
 
@@ -204,12 +229,6 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
                 )
                 appendToConversation(otherUserId, optimistic)
                 _messageText.value = ""
-
-                // 3. Real API call
-                val content = if (imageUrl != null && trimmed.isEmpty()) "[image]" else trimmed
-                val response = chatRepository.sendMessage(
-                    SendMessageRequest(receiverID = receiverId, content = content)
-                )
 
                 // 4. Replace optimistic bubble with real server message
                 val real = response.toMessage()
