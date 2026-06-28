@@ -3,15 +3,10 @@ package com.example.graduation1.data.repository
 import com.example.graduation1.data.remote.ApiService
 import com.example.graduation1.domain.models.Group
 import com.example.graduation1.domain.models.User
-import com.example.graduation1.domain.models.requets_response.CommunityMemberItem
 import com.example.graduation1.domain.models.requets_response.CommunityMessageResponse
 import com.example.graduation1.domain.models.requets_response.CommunityResponse
 import com.example.graduation1.domain.models.requets_response.CreateCommunityRequest
 import com.example.graduation1.domain.models.requets_response.MembershipResponse
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
 
 class GroupsRepository(private val api : ApiService) {
 

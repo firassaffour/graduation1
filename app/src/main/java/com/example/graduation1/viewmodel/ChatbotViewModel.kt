@@ -1,14 +1,10 @@
 package com.example.graduation1.viewmodel
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.graduation1.data.repository.AuthRepository
+import coil.network.HttpException
 import com.example.graduation1.data.repository.ChatbotRepository
-import com.example.graduation1.data.repository.MediaRepository
 import com.example.graduation1.data.repository.UserRepository
 import com.example.graduation1.domain.models.Message
 import com.example.graduation1.domain.models.User
@@ -17,9 +13,7 @@ import com.example.graduation1.domain.models.requets_response.CandidateProfileRe
 import com.example.graduation1.domain.models.requets_response.CandidateProfileResponse
 import com.example.graduation1.domain.models.requets_response.ChatMessageResponse
 import com.example.graduation1.domain.models.requets_response.ChatSessionResponse
-import com.example.graduation1.domain.models.requets_response.CodeSubmissionResponse
 import com.example.graduation1.domain.models.requets_response.CodeSubmitRequest
-import com.example.graduation1.domain.models.requets_response.CodeSubmitResult
 import com.example.graduation1.domain.models.requets_response.ExperienceResponse
 import com.example.graduation1.domain.models.requets_response.JobApplicationResponse
 import com.example.graduation1.domain.models.requets_response.JobMatchResponse
@@ -29,51 +23,36 @@ import com.example.graduation1.domain.models.requets_response.PostAnalysisRespon
 import com.example.graduation1.domain.models.requets_response.RecruiterDashboardResponse
 import com.example.graduation1.domain.models.requets_response.RecruiterProfileRequest
 import com.example.graduation1.domain.models.requets_response.RecruiterProfileResponse
-import com.example.graduation1.messageList
-import com.example.graduation1.user
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 class ChatbotViewModel(private val repository: ChatbotRepository, private val userRepository: UserRepository) : ViewModel() {
 
-    /** Messages shown in the current conversation (user + assistant bubbles). */
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages = _messages.asStateFlow()
 
-    /** The text the user is typing right now. */
     private val _messageText = MutableStateFlow("")
     val messageText = _messageText.asStateFlow()
 
-    /** True while we are waiting for the AI to reply. */
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
-    /** Non-null when something went wrong; shown as a snackbar / toast. */
     private val _error = MutableStateFlow<String?>(null)
     val error = _error.asStateFlow()
 
-    /** All sessions for the history screen. */
     private val _sessions = MutableStateFlow<List<ChatSessionResponse>>(emptyList())
     val sessions = _sessions.asStateFlow()
 
-    /** The session that is currently open. */
     private val _activeSession = MutableStateFlow<ChatSessionResponse?>(null)
     val activeSession = _activeSession.asStateFlow()
 
-    /** The logged-in user (needed to decide which bubble side to use). */
     private val _currentUser = MutableStateFlow(User())
     val currentUser = _currentUser.asStateFlow()
 
-    /** The AI feedback text after a code review submission. */
     private val _codeReviewResult = MutableStateFlow<AiResponseItem?>(null)
     val codeReviewResult = _codeReviewResult.asStateFlow()
 
-    /** True while the review is being processed. */
     private val _isReviewing = MutableStateFlow(false)
     val isReviewing = _isReviewing.asStateFlow()
 
@@ -173,11 +152,6 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
 
     // ── Session management ──────────────────────────────────────────────────
 
-    /**
-     * Call this when the user taps "New Chat" or opens the chatbot screen
-     * for the first time. It creates a fresh session on the backend and
-     * clears the message list.
-     */
     fun startNewSession(title: String? = null) {
         viewModelScope.launch {
             try {
@@ -185,7 +159,7 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
                 val session = repository.newSession(title)
                 _activeSession.value = session
                 _messages.value = emptyList()
-                // Add the new session to the history list
+
                 _sessions.value = listOf(session) + _sessions.value
                 Log.d("ChatbotVM", "New session: ${session.sessionID}")
             } catch (e: Exception) {
@@ -197,9 +171,6 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
         }
     }
 
-    /**
-     * Open a past session from the history screen and load its messages.
-     */
     fun openSession(session: ChatSessionResponse) {
         viewModelScope.launch {
             try {
@@ -219,12 +190,6 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
 
     // ── Messaging ───────────────────────────────────────────────────────────
 
-    /**
-     * Send the current [messageText] to the backend and append both the
-     * user bubble and the AI reply to [messages].
-     *
-     * If no session is open yet, we create one automatically.
-     */
     fun sendMessage() {
         val text = _messageText.value.trim()
         if (text.isEmpty()) return
@@ -232,7 +197,6 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
         viewModelScope.launch {
             try {
                 Log.e("CHATBOT", "1", )
-                // 1. Ensure we have an active session
                 val session = _activeSession.value ?: run {
                     Log.e("CHATBOT", "2", )
                     val s = repository.newSession(_messageText.value)
@@ -244,7 +208,6 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
 
                 Log.e("CHATBOT", "4", )
 
-                // 2. Optimistically add the user bubble immediately
                 val userBubble = Message(
                     messageId  = "tmp_${System.currentTimeMillis()}",
                     text       = text,
@@ -254,10 +217,8 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
                 _messages.value = _messages.value + userBubble
                 _messageText.value = ""
 
-                // 3. Show loading indicator
                 _isLoading.value = true
 
-                // 4. Send to backend
                 val response = repository.sendMessage(session.sessionID, text)
 
                 Log.e("CHATBOT", "5 $response", )
@@ -268,12 +229,11 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
                 }
                 Log.e("ChatbotVM", "sendMessage: ${_error.value}")
 
-                // 5. Append the AI reply bubble
                 val reply = response.reply ?: "(no reply)"
                 val aiBubble = Message(
                     messageId = "ai_${System.currentTimeMillis()}",
                     text      = reply,
-                    senderId  = "AI",   // anything that is NOT the user's id
+                    senderId  = "AI",
                     createdAt = System.currentTimeMillis()
                 )
                 _messages.value = _messages.value + aiBubble
@@ -298,14 +258,12 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
 
     // ── Helpers ─────────────────────────────────────────────────────────────
 
-    /** Convert the backend ChatMessageResponse to the local Message UI model. */
     private fun ChatMessageResponse.toUiMessage() = Message(
         messageId = messageID.toString(),
         text      = content ?: "",
-        // role is "user" or "assistant" – map "user" to the actual user's id,
-        // everything else to "AI" so the bubble appears on the left.
+
         senderId  = if (role == "user") _currentUser.value.id else "AI",
-        createdAt = System.currentTimeMillis() // we don't parse the date string here
+        createdAt = System.currentTimeMillis()
     )
 
     fun getCodeSubmissions() {
@@ -334,11 +292,6 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
     }
 
 
-    /**
-     * Submit code for AI review. Optionally link it to a [postId].
-     * When the result comes back, [codeReviewResult] will be updated —
-     * collect it in your UI to show the feedback.
-     */
     fun submitCodeForReview(code: String, language: String? = null, postId: Int? = null) {
         if (code.isBlank()) {
             _error.value = "Please write some code first."
@@ -350,28 +303,35 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
                 _codeReviewResult.value = null
 
                 val result = repository.submitCode(
-                    com.example.graduation1.domain.models.requets_response.CodeSubmitRequest(
-                        code     = code,
-                        language = language,
-                        postID   = 7
-                    )
+                    CodeSubmitRequest(code = code, language = language, postID = postId)
                 )
 
-                Log.d("ChatbotVM", "submitCode raw result: $result")
+                Log.d("ChatbotVM", "submitCode raw: feedback=${result.aiFeedback}, sub=${result.submission?.submissionID}")
 
-                // KEY FIX: aiFeedback may be null if Gson can't match "aIFeedback"
-                // (capital I). Fall back to the first item in submission.aiResponses.
                 val feedback = result.aiFeedback
-                    ?: result.submission.aiResponses?.firstOrNull()
+                    ?: result.submission?.aiResponses?.firstOrNull()
 
                 if (feedback == null) {
-                    _error.value = "The server returned no AI feedback. Try again."
-                    Log.e("ChatbotVM", "submitCodeForReview: aiFeedback is null in result=$result")
+                    _error.value = "The AI service could not review the code right now.\n" +
+                            "This usually means the AI provider (OpenAI/Gemini) is temporarily unavailable.\n" +
+                            "Please try again in a moment."
+                    Log.e("ChatbotVM", "aiFeedback null — submission=${result.submission}")
                     return@launch
                 }
 
                 _codeReviewResult.value = feedback
-                Log.d("ChatbotVM", "Code review OK: ${feedback.content}")
+                Log.d("ChatbotVM", "Code review OK: ${feedback.content?.take(80)}")
+
+            } catch (e: retrofit2.HttpException) {
+                val code502 = e.code() == 502
+                _error.value = if (code502) {
+                    "The AI service is temporarily unavailable (502).\n" +
+                            "Your code has been saved — the AI will review it when the service recovers.\n" +
+                            "Please try again in a few minutes."
+                } else {
+                    "Code review failed (HTTP ${e.code()}): ${e.message()}"
+                }
+                Log.e("ChatbotVM", "submitCodeForReview HTTP ${e.code()}: ${e.message()}")
 
             } catch (e: Exception) {
                 _error.value = "Code review failed: ${e.message}"
@@ -382,17 +342,11 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
         }
     }
 
-    /** Call after displaying the review so the UI goes back to idle. */
+
     fun clearCodeReview() { _codeReviewResult.value = null }
 
-    // ═══════════════════════════════════════════════════════════════════════
     //  EXPERIENCE GENERATOR
-    // ═══════════════════════════════════════════════════════════════════════
 
-    /**
-     * Call this when the user taps "Generate" in ExperienceGeneratorScreen.
-     * Pass the role the user typed. Result goes into [experienceResult].
-     */
     fun generateExperience(targetRole: String?) {
         viewModelScope.launch {
             try {
@@ -411,15 +365,8 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
     }
     fun clearExperience() { _experienceResult.value = null }
 
-    // ═══════════════════════════════════════════════════════════════════════
     //  POST ANALYSIS
-    // ═══════════════════════════════════════════════════════════════════════
 
-    /**
-     * Analyze a post's code content.
-     * Call from PostScreen when the user taps an "Analyze" button on a post.
-     * Result goes into [postAnalysis].
-     */
     fun analyzePost(postId: Int) {
         viewModelScope.launch {
             try {
@@ -437,26 +384,19 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
 
     fun clearPostAnalysis() { _postAnalysis.value = null }
 
-    // ═══════════════════════════════════════════════════════════════════════
     //  CANDIDATE PROFILE
-    // ═══════════════════════════════════════════════════════════════════════
 
     private fun loadCandidateProfile() {
         viewModelScope.launch {
             try {
                 _candidateProfile.value = repository.getMyCandidateProfile()
-                Log.d("API", "loadCandidateProfile success: $_candidateProfile.")
+                Log.d("API", "loadCandidateProfile success: ${_candidateProfile.value}")
             } catch (e: Exception) {
-                // 404 is normal for first-time users — don't show error
                 Log.d("ChatbotVM", "No candidate profile yet: ${e.message}")
             }
         }
     }
 
-    /**
-     * Create or update the candidate profile depending on whether one exists.
-     * UI just calls this with the filled-in form values.
-     */
     fun saveCandidateProfile(
         country: String,
         governorate: String,
@@ -492,9 +432,7 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
     //  JOBS
-    // ═══════════════════════════════════════════════════════════════════════
 
     private fun loadJobs(q: String? = null, location: String? = null, skill: String? = null) {
         viewModelScope.launch {
@@ -508,7 +446,6 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
         }
     }
 
-    /** Call when the user types in the search field or picks a filter. */
     fun searchJobs(q: String? = null, location: String? = null, skill: String? = null) =
         loadJobs(q, location, skill)
 
@@ -527,7 +464,6 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
         }
     }
 
-    /** Recruiter: post a new job. */
     fun createJob(
         title: String,
         description: String,
@@ -558,7 +494,6 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
         }
     }
 
-    /** Recruiter: close a job posting. */
     fun closeJob(jobId: Int) {
         viewModelScope.launch {
             try {
@@ -573,21 +508,23 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
         }
     }
 
-    /** Recruiter: load ranked candidates for a job. */
     fun loadJobCandidates(jobId: Int) {
         viewModelScope.launch {
             try {
                 _jobCandidates.value = repository.getJobCandidates(jobId)
                 Log.d("ChatbotVM", "loadJobCandidates OK: ${_jobCandidates.value?.totalCandidates}")
-            } catch (e: Exception) {
-                Log.e("ChatbotVM", "loadJobCandidates: ${e.message}")
+            }
+            catch (e : HttpException){
+                Log.e("API", "loadJobCandidates: code ${e.response.code}", )
+                Log.e("API", "loadJobCandidates: JSON ${e.response.body?.string()}", )
+            }
+            catch (e: Exception) {
+                Log.e("ChatbotVM", "loadJobCandidates error: ${e.message}")
             }
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
     //  JOB APPLICATIONS
-    // ═══════════════════════════════════════════════════════════════════════
 
     private fun loadMyApplications() {
         viewModelScope.launch {
@@ -598,11 +535,6 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
             }
         }
     }
-
-    /**
-     * Apply to a job. [jobId] comes from [JobResponse.jobID].
-     * After success [applySuccess] flips to true — reset it after showing confirmation.
-     */
     fun applyToJob(jobId: Int, coverNote: String = "") {
         viewModelScope.launch {
             try {
@@ -622,9 +554,7 @@ class ChatbotViewModel(private val repository: ChatbotRepository, private val us
 
     fun hasApplied(jobId: Int) = _myApplications.value.any { it.jobID == jobId }
 
-    // ═══════════════════════════════════════════════════════════════════════
     //  RECRUITER PROFILE
-    // ═══════════════════════════════════════════════════════════════════════
 
     private fun loadRecruiterProfile() {
         viewModelScope.launch {

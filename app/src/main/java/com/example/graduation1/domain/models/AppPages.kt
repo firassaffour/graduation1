@@ -7,7 +7,6 @@ sealed class AppPages(val route: String) {
     object CreateAccount : AppPages("createAccountScreen")
     object CreatePost : AppPages("createPostScreen")
     object Post : AppPages("postScreen")
-    object MyProfile : AppPages("myProfileScreen")
     object MyProfileDetails : AppPages("myProfileDetailsScreen")
     object OtherUsersProfile : AppPages("otherUsersProfileScreen")
     object EditProfile : AppPages("editProfileScreen")
@@ -45,7 +44,6 @@ sealed class AppPages(val route: String) {
     object AIRecommendedJobs : AppPages("ai_recommended_jobs")
 
     object CandidateRanking : AppPages("candidate_ranking")
-    object RecruiterAnalytics : AppPages("recruiter_analytics")
 
     object AiProfile : AppPages("aiProfileScreen")
     object CodeReview : AppPages("codeReviewScreen")
@@ -54,5 +52,8 @@ sealed class AppPages(val route: String) {
     object Analytics        : AppPages("analyticsScreen")
     object ExperienceGen    : AppPages("experienceGeneratorScreen")
     object CandidateProfile : AppPages("candidateProfileScreen")
+
+    object RecruiterProfile : AppPages("recruiterProfileScreen")
+
 
 }

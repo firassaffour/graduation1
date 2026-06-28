@@ -7,7 +7,6 @@ import com.example.graduation1.domain.models.requets_response.MediaResponse
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import retrofit2.http.Path
 
 class MediaRepository(private val api: ApiService, private val context: Context) {
 

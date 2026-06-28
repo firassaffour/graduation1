@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -37,6 +38,7 @@ import com.example.graduation1.domain.models.BottomNavigationBar
 import com.example.graduation1.ui.screens.authentication.CreateAccountScreen
 import com.example.graduation1.ui.screens.authentication.LoginScreen
 import com.example.graduation1.ui.screens.authentication.OnBoardingTabs
+import com.example.graduation1.ui.screens.authentication.RecruiterProfileScreen
 import com.example.graduation1.ui.screens.messaging.ChatTabs
 import com.example.graduation1.ui.screens.chatbot.ChatbotScreen
 import com.example.graduation1.ui.screens.chatbot.ChatbotStartScreen
@@ -106,6 +108,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         AppModule.initialize(this)
 
@@ -284,7 +287,6 @@ class MainActivity : ComponentActivity() {
                 composable(AppPages.CodeReview.route) { CodeReviewScreen(navController, chatbotViewModel) }
 
 
-                // Jobs listing
                 composable(AppPages.JobsList.route) {
                     JobsListingScreen(
                         chatbotViewModel = chatbotViewModel,
@@ -298,7 +300,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-// Job details
                 composable(AppPages.JobDetails.route) {
                     JobDetailsScreen(
                         chatbotViewModel = chatbotViewModel,
@@ -307,7 +308,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-// Apply
                 composable(AppPages.ApplyJob.route) {
                     ApplyJobScreen(
                         chatbotViewModel = chatbotViewModel,
@@ -319,7 +319,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-// Offer job (recruiter)
                 composable(AppPages.OfferJob.route) {
                     OfferJobScreen(
                         chatbotViewModel = chatbotViewModel,
@@ -328,7 +327,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-// Experience generator
                 composable(AppPages.ExperienceGen.route) {
                     ExperienceGeneratorScreen(
                         chatbotViewModel = chatbotViewModel,
@@ -336,7 +334,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-// Match results (for a selected job)
                 composable(AppPages.MatchResults.route) {
                     MatchResultsScreen(
                         chatbotViewModel = chatbotViewModel,
@@ -346,7 +343,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-// Candidate ranking (recruiter)
                 composable(AppPages.CandidateRanking.route) {
                     CandidateRankingScreen(
                         chatbotViewModel = chatbotViewModel,
@@ -357,7 +353,6 @@ class MainActivity : ComponentActivity() {
 
                 composable(AppPages.CandidateProfile.route) { CandidateProfileScreen(navController, chatbotViewModel) }
 
-// Analytics (recruiter)
                 composable(AppPages.Analytics.route) {
                     RecruiterAnalyticsDashboardScreen(
                         chatbotViewModel = chatbotViewModel,
@@ -368,10 +363,18 @@ class MainActivity : ComponentActivity() {
 
                 composable(AppPages.SkillDashboard.route) { SkillDashboardScreen(navController = navController)  }
 
+                composable(AppPages.RecruiterProfile.route) {
+                    RecruiterProfileScreen(
+                        navController    = navController,
+                        chatbotViewModel = chatbotViewModel
+                    )
+                }
+
                 composable(AppPages.AiProfile.route) {
                     AiProfileScreen(
                         onCandidate          = { navController.navigate(AppPages.CandidateRanking.route) },
                         onCandidateProfile   = { navController.navigate(AppPages.CandidateProfile.route)},
+                        onRecruiterProfile    = { navController.navigate(AppPages.RecruiterProfile.route) },
                         onAnalytics          = { navController.navigate(AppPages.Analytics.route) },
                         onSkillDashboard     = { navController.navigate(AppPages.SkillDashboard.route) },
                         onMatchResults       = { navController.navigate(AppPages.MatchResults.route) },

@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -91,23 +92,23 @@ import kotlinx.coroutines.delay
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun MessagingScreen(navController: NavHostController, chatId : String, chatViewModel: ChatViewModel, userViewModel: UserViewModel){
+    val chatContent by chatViewModel.chatContent.collectAsState()
     val chatList by chatViewModel.chatsList.collectAsState()
-    val chat = chatList.find { it.chatId == chatId } ?: chatList[0]
-    val userList by userViewModel.users.collectAsState()
-    val user = userList.find { it.id == chat.userId } ?: user
+    val chat = chatList.find { it.chatId == chatId }
+    val userList by chatViewModel.allUsers.collectAsState()
+    val user = userList.find { it.id == chatId }
 
     LaunchedEffect(Unit) {
-        chatViewModel.getChatContent(user.id)
+        chatViewModel.getChatContent(user!!.id)
         chatViewModel.updateMessagesSeen(chatId)
     }
 
     val currentUser by chatViewModel.currentUser.collectAsState()
 
-    val chatContent by chatViewModel.chatContent.collectAsState()
     val listState = rememberLazyListState()
     var firstLoad by remember { mutableStateOf(true) }
     LaunchedEffect(Unit) {
-        val test = chatContent.filter { it.senderId == user.id }
+        val test = chatContent.filter { it.senderId == user!!.id }
         Log.d("TAG", "MessagingScreen is seen: $test")
     }
 
@@ -149,17 +150,17 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
         }
     }
 
-    LaunchedEffect(user.id) {
-        //chatViewModel.openConversationWith(user.id)
-        // Poll for new messages
+    LaunchedEffect(chatId) {
+        //chatViewModel.openConversationWith(chatId)
         while (true) {
             delay(5_000)
-            chatViewModel.getChatContent(user.id)
+            chatViewModel.getChatContent(chatId)
         }
     }
 
     Column(modifier = Modifier
         .fillMaxSize()
+        .imePadding()
         .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally) {
 
@@ -171,7 +172,7 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(8.dp)
-                    .clickable { navController.navigate("${AppPages.OtherUsersProfile.route}/${user.id}") },
+                    .clickable { navController.navigate("${AppPages.OtherUsersProfile.route}/${user!!.id}") },
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
@@ -187,7 +188,7 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
                 Spacer(Modifier.width(20.dp))
 
                 Image(
-                    if (user.image == "") rememberAsyncImagePainter(emptyProfileImage)
+                    if (user!!.image == "") rememberAsyncImagePainter(emptyProfileImage)
                     else rememberAsyncImagePainter(user.image),
                     contentDescription = "profile Image",
                     contentScale = ContentScale.Crop,
@@ -370,9 +371,9 @@ fun MessagingScreen(navController: NavHostController, chatId : String, chatViewM
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             if (messageText.isNotEmpty() || imageIsSelected)
                                 if (selectedImageUri == null)
-                                    chatViewModel.sendMessage(user.id, messageText, null)
+                                    chatViewModel.sendMessage(user!!.id, messageText, null)
                                 else
-                                    chatViewModel.sendMessage(user.id, messageText, selectedImageUri)
+                                    chatViewModel.sendMessage(user!!.id, messageText, selectedImageUri)
                         }
                         chatViewModel.updateMessageText("")
                         selectedImageUri = null

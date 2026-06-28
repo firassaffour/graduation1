@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -25,17 +26,17 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.graduation1.domain.models.AppPages
 import com.example.graduation1.domain.models.requets_response.JobResponse
 import com.example.graduation1.ui.theme.AppColors
 import com.example.graduation1.ui.theme.Dimens
 import com.example.graduation1.ui.theme.Shapes
 import com.example.graduation1.ui.components.*
-import com.example.graduation1.ui.theme.AppTheme
 import com.example.graduation1.viewmodel.ChatbotViewModel
 
 /* ----------------------------- Mock model -------------------------------- */
@@ -66,7 +67,6 @@ private fun levelLabel(level: Int) = when {
     else -> "Beginner"
 }
 
-/* ----------------------- AI-specific local widgets ----------------------- */
 
 @Composable
 private fun MatchRing(progress: Float, size: Dp = 150.dp) {
@@ -98,7 +98,6 @@ private fun StatusChip(text: String, matched: Boolean) {
     }
 }
 
-/* ------------------------- 1) Skill Dashboard ---------------------------- */
 
 @Composable
 fun SkillDashboardScreen(
@@ -149,9 +148,6 @@ fun SkillDashboardScreen(
     }
 }
 
-/* -------------------------- 2) Match Results ----------------------------- */
-
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MatchResultsScreen(onBack: () -> Unit = {}, onViewJobs: () -> Unit = {}, navController: NavHostController) {
     Scaffold(
@@ -194,9 +190,6 @@ fun MatchResultsScreen(onBack: () -> Unit = {}, onViewJobs: () -> Unit = {}, nav
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   1. EXPERIENCE GENERATOR  (wired to API)
-   ═══════════════════════════════════════════════════════════════════════ */
 
 @Composable
 fun ExperienceGeneratorScreen(
@@ -237,7 +230,6 @@ fun ExperienceGeneratorScreen(
                     onClick = { chatbotViewModel.generateExperience(role.ifBlank { null }) }
                 )
 
-                // Error
                 if (error != null) {
                     Card(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
@@ -250,14 +242,12 @@ fun ExperienceGeneratorScreen(
                     }
                 }
 
-                // Loading spinner
                 if (isGenerating) {
                     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = AppColors.Red)
                     }
                 }
 
-                // Result card
                 AnimatedVisibility(
                     visible = experienceResult != null,
                     enter = fadeIn() + slideInVertically { it / 2 }
@@ -304,11 +294,6 @@ fun ExperienceGeneratorScreen(
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   2. MATCH RESULTS  (wired to real job match API)
-   ═══════════════════════════════════════════════════════════════════════ */
-
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MatchResultsScreen(
     chatbotViewModel: ChatbotViewModel,
@@ -384,9 +369,6 @@ fun MatchResultsScreen(
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   3. JOBS LISTING  (wired to real API)
-   ═══════════════════════════════════════════════════════════════════════ */
 
 @Composable
 fun JobsListingScreen(
@@ -403,7 +385,6 @@ fun JobsListingScreen(
     var selectedFilter by remember { mutableStateOf("All") }
     val filters = listOf("All", "Remote", "On-site", "Hybrid", "Full-time", "Contract")
 
-    // Filter locally by mode/type chips; search hits the API
     val filtered = remember(jobs, query, selectedFilter) {
         jobs.filter { job ->
             val matchesSearch = query.isBlank() ||
@@ -480,9 +461,6 @@ private fun RealJobCard(job: JobResponse, onClick: () -> Unit) {
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   4. JOB DETAILS  (wired to real API)
-   ═══════════════════════════════════════════════════════════════════════ */
 
 @Composable
 fun JobDetailsScreen(
@@ -563,7 +541,6 @@ fun JobDetailsScreen(
                     Spacer(Modifier.height(20.dp))
                 }
 
-                // Parse required skills from JSON string
                 val skills = remember(j.requiredSkillsJson) {
                     try {
                         j.requiredSkillsJson
@@ -591,9 +568,6 @@ fun JobDetailsScreen(
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   5. APPLY JOB  (wired to real API)
-   ═══════════════════════════════════════════════════════════════════════ */
 
 @Composable
 fun ApplyJobScreen(
@@ -608,7 +582,6 @@ fun ApplyJobScreen(
 
     var cover by remember { mutableStateOf("") }
 
-    // Navigate away when apply succeeds
     LaunchedEffect(success) {
         if (success) { chatbotViewModel.resetApplySuccess(); onSubmitSuccess() }
     }
@@ -658,10 +631,6 @@ fun ApplyJobScreen(
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   6. OFFER JOB  (wired to real API)
-   ═══════════════════════════════════════════════════════════════════════ */
-
 @Composable
 fun OfferJobScreen(
     chatbotViewModel: ChatbotViewModel,
@@ -675,7 +644,7 @@ fun OfferJobScreen(
     var location    by remember { mutableStateOf("") }
     var expLevel    by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var skillsText  by remember { mutableStateOf("") }  // comma-separated
+    var skillsText  by remember { mutableStateOf("") }
 
     val expOptions = listOf("Junior", "Mid", "Senior", "Lead")
     var selectedExp by remember { mutableStateOf("") }
@@ -734,22 +703,67 @@ fun OfferJobScreen(
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   7. CANDIDATE RANKING  (wired to real API)
-   ═══════════════════════════════════════════════════════════════════════ */
-
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CandidateRankingScreen(
     chatbotViewModel: ChatbotViewModel,
     onBack: () -> Unit = {},
     navController: NavHostController
 ) {
-    val jobs         by chatbotViewModel.jobs.collectAsState()
-    val jobCandidates by chatbotViewModel.jobCandidates.collectAsState()
-    val isLoading    by chatbotViewModel.isLoadingJobs.collectAsState()
+    val recruiterProfile by chatbotViewModel.recruiterProfile.collectAsState()
+    val jobs             by chatbotViewModel.jobs.collectAsState()
+    val jobCandidates    by chatbotViewModel.jobCandidates.collectAsState()
+    val isLoading        by chatbotViewModel.isLoadingJobs.collectAsState()
+    val error            by chatbotViewModel.error.collectAsState()
 
     var selectedJobId by remember { mutableStateOf<Int?>(null) }
+    val sorts = listOf("Best match", "Newest", "Experience")
+    var sort by remember { mutableStateOf(sorts.first()) }
+
+    if (recruiterProfile == null) {
+        Scaffold(containerColor = AppColors.Background) { pad ->
+            Column(
+                Modifier.padding(pad).fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AppTopBar(title = "Candidate Ranking", onBack = onBack)
+                Spacer(Modifier.weight(1f))
+                Card(
+                    colors   = CardDefaults.cardColors(containerColor = AppColors.Surface),
+                    shape    = Shapes.card,
+                    modifier = Modifier.padding(Dimens.screenPadding).fillMaxWidth()
+                ) {
+                    Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            "Recruiter profile required",
+                            style      = MaterialTheme.typography.titleLarge,
+                            color      = AppColors.TextPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            "You need a recruiter profile to view candidate rankings. " +
+                                    "Create one first — it only takes a minute.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = AppColors.TextSecondary
+                        )
+                        Spacer(Modifier.height(20.dp))
+                        Button(
+                            onClick  = { navController.navigate(AppPages.RecruiterProfile.route) },
+                            shape    = Shapes.card,
+                            modifier = Modifier.fillMaxWidth().height(52.dp)
+                        ) {
+                            Text(
+                                "Create Recruiter Profile",
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+                Spacer(Modifier.weight(1f))
+            }
+        }
+        return
+    }
 
     Scaffold(
         containerColor = AppColors.Background,
@@ -757,71 +771,151 @@ fun CandidateRankingScreen(
     ) { pad ->
         Column(Modifier.padding(pad).fillMaxSize()) {
             AppTopBar(title = "Candidate Ranking", onBack = onBack)
-            Column(Modifier.padding(horizontal = Dimens.screenPadding)) {
 
-                // Job picker
-                Text("Select a job to rank candidates", style = MaterialTheme.typography.bodyMedium, color = AppColors.TextSecondary)
-                Spacer(Modifier.height(8.dp))
-                androidx.compose.foundation.lazy.LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(jobs) { job ->
-                        FilterChipPill(job.title, job.jobID == selectedJobId) {
-                            selectedJobId = job.jobID
-                            chatbotViewModel.loadJobCandidates(job.jobID)
+            Column(Modifier.padding(horizontal = Dimens.screenPadding)) {
+                AppCard {
+                    Text(
+                        "Recruiter: ${recruiterProfile!!.companyName}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = AppColors.TextSecondary
+                    )
+                    Text(
+                        "Select a job to see ranked candidates",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = AppColors.TextPrimary
+                    )
+                }
+
+                Spacer(Modifier.height(10.dp))
+
+                if (jobs.isEmpty()) {
+                    Text(
+                        "No jobs posted yet. Post a job first.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = AppColors.TextSecondary
+                    )
+                } else {
+                    androidx.compose.foundation.lazy.LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(jobs) { job ->
+                            SelectChip(
+                                text     = job.title,
+                                selected = job.jobID == selectedJobId
+                            ) {
+                                selectedJobId = job.jobID
+                                chatbotViewModel.loadJobCandidates(job.jobID)
+                            }
                         }
                     }
+                }
+
+                Spacer(Modifier.height(10.dp))
+
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    sorts.forEach { s -> SelectChip(s, s == sort) { sort = s } }
                 }
             }
 
             Spacer(Modifier.height(8.dp))
 
+            if (error != null) {
+                Card(
+                    colors   = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                    shape    = RoundedCornerShape(10.dp),
+                    modifier = Modifier.padding(horizontal = Dimens.screenPadding).fillMaxWidth()
+                ) {
+                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(error ?: "", Modifier.weight(1f), color = MaterialTheme.colorScheme.onErrorContainer)
+                        TextButton(onClick = { chatbotViewModel.clearError() }) { Text("Dismiss") }
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+
             if (isLoading) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = AppColors.Red)
                 }
-            } else if (jobCandidates == null || selectedJobId == null) {
+                return@Scaffold
+            }
+
+            if (selectedJobId == null) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("Select a job above to see ranked candidates.", color = AppColors.TextSecondary)
                 }
-            } else {
-                val dash = jobCandidates!!
-                Column(Modifier.padding(horizontal = Dimens.screenPadding)) {
-                    AppCard {
-                        Text("Ranked for", style = MaterialTheme.typography.bodyMedium, color = AppColors.TextSecondary)
-                        Text(dash.jobTitle ?: "Job #${dash.jobID}", style = MaterialTheme.typography.titleLarge, color = AppColors.TextPrimary)
-                        Text("${dash.totalCandidates} candidates", style = MaterialTheme.typography.bodyMedium, color = AppColors.TextSecondary)
-                    }
+                return@Scaffold
+            }
+
+            if (jobCandidates == null || jobCandidates!!.candidates.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No candidates found for this job.", color = AppColors.TextSecondary)
                 }
-                Spacer(Modifier.height(8.dp))
-                LazyColumn(
-                    contentPadding = PaddingValues(Dimens.screenPadding),
-                    verticalArrangement = Arrangement.spacedBy(Dimens.itemSpacing)
-                ) {
-                    items(dash.candidates.sortedByDescending { it.overallScore }) { c ->
-                        Surface(shape = Shapes.card, color = AppColors.Surface, shadowElevation = 2.dp, modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    // rank number
-                                    Box(Modifier.size(34.dp).clip(CircleShape).background(AppColors.ChipBg), contentAlignment = Alignment.Center) {
-                                        Text(
-                                            (dash.candidates.sortedByDescending { it.overallScore }.indexOf(c) + 1).toString(),
-                                            style = MaterialTheme.typography.titleMedium, color = AppColors.TextPrimary
-                                        )
-                                    }
-                                    Spacer(Modifier.width(12.dp))
-                                    Avatar(label = c.displayName, size = 52.dp)
-                                    Spacer(Modifier.width(12.dp))
-                                    Column(Modifier.weight(1f)) {
-                                        Text(c.displayName, style = MaterialTheme.typography.titleLarge, color = AppColors.TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                        Text("${c.preferredRole ?: ""} · ${c.country ?: ""}", style = MaterialTheme.typography.bodyMedium, color = AppColors.TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                    }
-                                    MatchBadge(c.matchPercentage)
+                return@Scaffold
+            }
+
+            val dash = jobCandidates!!
+            val sorted = when (sort) {
+                "Best match"  -> dash.candidates.sortedByDescending { it.matchPercentage }
+                "Experience"  -> dash.candidates.sortedByDescending { it.overallScore }
+                else          -> dash.candidates
+            }
+
+            LazyColumn(
+                contentPadding      = PaddingValues(Dimens.screenPadding),
+                verticalArrangement = Arrangement.spacedBy(Dimens.itemSpacing)
+            ) {
+                items(sorted.size) { index ->
+                    val c = sorted[index]
+                    Surface(
+                        shape          = Shapes.card,
+                        color          = AppColors.Surface,
+                        shadowElevation = 2.dp,
+                        modifier       = Modifier.fillMaxWidth()
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RankBadge(index + 1)
+                                Spacer(Modifier.width(12.dp))
+                                Avatar(label = c.displayName, size = 52.dp)
+                                Spacer(Modifier.width(12.dp))
+                                Column(Modifier.weight(1f)) {
+                                    Text(
+                                        c.displayName,
+                                        style    = MaterialTheme.typography.titleLarge,
+                                        color    = AppColors.TextPrimary,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        "${c.preferredRole ?: ""} · ${c.country ?: ""}".trim(' ', '·'),
+                                        style    = MaterialTheme.typography.bodyMedium,
+                                        color    = AppColors.TextSecondary,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                 }
-                                if (c.strongSkills.isNotEmpty()) {
-                                    Spacer(Modifier.height(12.dp))
-                                    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        c.strongSkills.take(4).forEach { TagChip(it) }
-                                    }
+                                MatchBadge(c.matchPercentage)
+                            }
+
+                            if (c.strongSkills.isNotEmpty()) {
+                                Spacer(Modifier.height(12.dp))
+                                FlowRow(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalArrangement   = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    c.strongSkills.take(4).forEach { TagChip(it) }
                                 }
+                            }
+
+                            if (c.availabilityStatus != null) {
+                                Spacer(Modifier.height(6.dp))
+                                Text(
+                                    "Status: ${c.availabilityStatus}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = AppColors.TextSecondary
+                                )
                             }
                         }
                     }
@@ -831,9 +925,6 @@ fun CandidateRankingScreen(
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════
-   8. RECRUITER ANALYTICS  (unchanged — uses local mock)
-   ═══════════════════════════════════════════════════════════════════════ */
 
 private val mockApplications = listOf("W1" to 12f, "W2" to 18f, "W3" to 9f, "W4" to 22f, "W5" to 16f, "W6" to 25f)
 private val mockFunnel       = listOf("Applied" to 128, "Screened" to 64, "Interview" to 24, "Offer" to 6, "Hired" to 3)
@@ -899,7 +990,6 @@ fun RecruiterAnalyticsDashboardScreen(
     }
 }
 
-/** Simple bar chart extracted from RecruiterScreens */
 @Composable
 private fun BarChartWidget(data: List<Pair<String, Float>>) {
     val maxV = (data.maxOfOrNull { it.second } ?: 1f).coerceAtLeast(1f)
@@ -921,7 +1011,5 @@ private fun BarChartWidget(data: List<Pair<String, Float>>) {
     }
 }
 
-
-/* ------------------------------ Previews --------------------------------- */
 
 

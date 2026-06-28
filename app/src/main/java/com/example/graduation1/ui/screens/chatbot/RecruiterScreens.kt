@@ -51,10 +51,9 @@ private val mockApplications = listOf("W1" to 12f, "W2" to 18f, "W3" to 9f, "W4"
 private val mockFunnel = listOf("Applied" to 128, "Screened" to 64, "Interview" to 24, "Offer" to 6, "Hired" to 3)
 private val mockTopSkills = listOf("Kotlin" to 0.72f, "Jetpack Compose" to 0.58f, "MVVM" to 0.49f, "Coroutines" to 0.37f)
 
-/* --------------------------- Local widgets ------------------------------- */
 
 @Composable
-private fun SelectChip(text: String, selected: Boolean, onClick: () -> Unit) {
+fun SelectChip(text: String, selected: Boolean, onClick: () -> Unit) {
     Box(
         Modifier.clip(Shapes.chip)
             .background(if (selected) AppColors.Red else AppColors.ChipBg)
@@ -66,13 +65,12 @@ private fun SelectChip(text: String, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun RankBadge(rank: Int) {
+fun RankBadge(rank: Int) {
     Box(Modifier.size(34.dp).clip(CircleShape).background(AppColors.ChipBg), contentAlignment = Alignment.Center) {
         Text(rank.toString(), style = MaterialTheme.typography.titleMedium, color = AppColors.TextPrimary)
     }
 }
 
-/** Simple proportional bar chart. */
 @Composable
 private fun BarChart(data: List<Pair<String, Float>>, modifier: Modifier = Modifier) {
     val maxV = (data.maxOfOrNull { it.second } ?: 1f).coerceAtLeast(1f)
@@ -96,7 +94,6 @@ private fun BarChart(data: List<Pair<String, Float>>, modifier: Modifier = Modif
     }
 }
 
-/* ----------------------- 1) Candidate Ranking ---------------------------- */
 
 @Composable
 fun CandidateRankingScreen(
@@ -135,7 +132,6 @@ fun CandidateRankingScreen(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun CandidateCard(c: Candidate, onClick: () -> Unit) {
     Surface(shape = Shapes.card, color = AppColors.Surface, shadowElevation = 2.dp,
@@ -160,7 +156,6 @@ private fun CandidateCard(c: Candidate, onClick: () -> Unit) {
     }
 }
 
-/* ------------------- 2) Recruiter Analytics Dashboard -------------------- */
 
 @Composable
 fun RecruiterAnalyticsDashboardScreen(onBack: () -> Unit = {}, navController: NavHostController) {
@@ -216,7 +211,7 @@ fun RecruiterAnalyticsDashboardScreen(onBack: () -> Unit = {}, navController: Na
 }
 
 @Composable
-fun AiProfileScreen(onCandidate: () -> Unit, onCandidateProfile: () -> Unit, onAnalytics: () -> Unit, onSkillDashboard: () -> Unit, onMatchResults: () -> Unit, onExperienceGenerator: () -> Unit, navController: NavHostController){
+fun AiProfileScreen(onCandidate: () -> Unit, onCandidateProfile: () -> Unit, onRecruiterProfile: () -> Unit, onAnalytics: () -> Unit, onSkillDashboard: () -> Unit, onMatchResults: () -> Unit, onExperienceGenerator: () -> Unit, navController: NavHostController){
 
     Scaffold(
         containerColor = AppColors.Background,
@@ -267,6 +262,33 @@ fun AiProfileScreen(onCandidate: () -> Unit, onCandidateProfile: () -> Unit, onA
 
                 Text(
                     text = "Candidate Profile",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(Modifier.weight(1f))
+
+                Icon(
+                    painter = painterResource(id = R.drawable.rightarrow),
+                    contentDescription = "right arrow",
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .rotate(if (language == "ar") 180f else 0f)
+                )
+            } // Row
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable { onRecruiterProfile() }) {
+
+                Spacer(Modifier.width(20.dp))
+
+                Text(
+                    text = "Recruiter Profile",
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold

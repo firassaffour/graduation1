@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.graduation1.domain.models.AppPages
-import com.example.graduation1.domain.models.BottomNavItem
 import com.example.graduation1.ui.theme.AppColors
 import com.example.graduation1.ui.theme.Dimens
 import com.example.graduation1.ui.theme.Shapes

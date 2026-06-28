@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -119,6 +120,7 @@ fun ChatbotScreen(navController: NavHostController, chatbotViewModel: ChatbotVie
 
     Column(modifier = Modifier
         .fillMaxSize()
+        .imePadding()
         .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
 

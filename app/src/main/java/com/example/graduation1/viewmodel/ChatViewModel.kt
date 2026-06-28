@@ -30,15 +30,9 @@ import kotlin.uuid.Uuid
 
 class ChatViewModel(private val chatRepository: ChatRepository, private val userRepository: UserRepository, private val mediaRepository: MediaRepository) : ViewModel() {
 
-
-    /**
-     * Inbox list — one [ChatItem] per unique conversation partner.
-     * chatId == the OTHER user's id (as String).
-     */
     private val _chatsList = MutableStateFlow<List<ChatItem>>(emptyList())
     val chatsList = _chatsList.asStateFlow()
 
-    /** Messages for the currently open conversation. */
     private val _chatContent = MutableStateFlow<List<Message>>(emptyList())
     val chatContent = _chatContent.asStateFlow()
 
@@ -64,8 +58,6 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
 
     // ── Init ────────────────────────────────────────────────────────────────
 
-    // KEY FIX: load currentUser FIRST then inbox in same coroutine so myId
-    // is always available when we group messages — fixes disappearing chats.
     init {
         viewModelScope.launch {
             loadCurrentUserSuspend()
@@ -103,10 +95,6 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
 
     // ── Inbox ────────────────────────────────────────────────────────────────
 
-    /**
-     * Loads GET /api/Messages/inbox and groups messages by conversation partner.
-     * Each [ChatItem].chatId == the OTHER user's id.
-     */
     fun loadInbox() {
         viewModelScope.launch {
             loadCurrentUserSuspend()
@@ -149,11 +137,6 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
 
     // ── Conversation ─────────────────────────────────────────────────────────
 
-    /**
-     * Load messages for one conversation.
-     * Call this in LaunchedEffect when the user opens MessagingScreen.
-     * [otherUserId] == the other user's id (String).
-     */
     fun getChatContent(otherUserId: String) {
         viewModelScope.launch {
             try {
@@ -168,12 +151,10 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
 
                 _chatContent.value = messages
 
-                // Also update the inbox list so unseen counts stay correct
                 _chatsList.value = _chatsList.value.map { chat ->
                     if (chat.chatId == otherUserId) chat.copy(messagesList = messages)
                     else chat
                 }.let { existing ->
-                    // If no ChatItem for this partner yet, add one
                     if (existing.none { it.chatId == otherUserId } && messages.isNotEmpty())
                         listOf(ChatItem(chatId = otherUserId, userId = otherUserId, messagesList = messages)) + existing
                     else existing
@@ -192,10 +173,6 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
 
     // ── Send message ─────────────────────────────────────────────────────────
 
-    /**
-     * Send a text message. Optionally upload [imageUri] first.
-     * [otherUserId] == the other user's id (String).
-     */
     @RequiresApi(Build.VERSION_CODES.O)
     fun sendMessage(otherUserId: String, text: String, imageUri: Uri?) {
         val trimmed = text.trim()
@@ -205,20 +182,17 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
             try {
                 val receiverId = otherUserId.toIntOrNull() ?: return@launch
 
-                // 3. Real API call
                 val content = trimmed
                 val response = chatRepository.sendMessage(
                     SendMessageRequest(receiverID = receiverId, content = content)
                 )
 
-                // 1. Upload image if picked
                 var imageUrl: String? = null
                 if (imageUri != null) {
                     val media = mediaRepository.uploadImage(imageUri, messageId = response.messageID)
                     imageUrl = media.filePath
                 }
 
-                // 2. Optimistic bubble — appears instantly
                 val optimistic = Message(
                     messageId = "tmp_${System.currentTimeMillis()}",
                     text      = trimmed,
@@ -230,7 +204,6 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
                 appendToConversation(otherUserId, optimistic)
                 _messageText.value = ""
 
-                // 4. Replace optimistic bubble with real server message
                 val real = response.toMessage()
                 _chatContent.value = _chatContent.value.map {
                     if (it.messageId == optimistic.messageId) real else it
@@ -254,7 +227,6 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
     // ── Delete message ────────────────────────────────────────────────────────
 
     fun removeMessage(messageId: String, otherUserId: String) {
-        // Optimistic remove
         _chatContent.value = _chatContent.value.filter { it.messageId != messageId }
         _chatsList.value = _chatsList.value.map { chat ->
             if (chat.chatId == otherUserId)
@@ -267,7 +239,6 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
                 val response = chatRepository.deleteMessage(messageId.toInt())
             } catch (e: Exception) {
                 Log.e("ChatVM", "removeMessage: ${e.message}")
-                // Re-load to restore if delete failed
                 getChatContent(otherUserId)
             }
         }
@@ -284,7 +255,6 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
                 })
             } else chat
         }
-        // Also update _chatContent
         _chatContent.value = _chatContent.value.map { msg ->
             if (msg.senderId != _currentUser.value.id) msg.copy(isSeen = true)
             else msg
@@ -298,15 +268,8 @@ class ChatViewModel(private val chatRepository: ChatRepository, private val user
         } ?: 0
     }
 
-    // ── MessagingScreen: open with any userId, even without prior ChatItem ────
 
-    /**
-     * Use this in MessagingScreen instead of looking up the ChatItem first.
-     * It loads the conversation directly from the backend even if the inbox
-     * has no entry for this partner yet (new conversation).
-     */
     fun openConversationWith(otherUserId: String) {
-        // Clear previous conversation immediately so old messages don't flash
         _chatContent.value = emptyList()
         getChatContent(otherUserId)
         updateMessagesSeen(otherUserId)

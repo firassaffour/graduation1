@@ -4,8 +4,6 @@ import android.content.Context
 import com.example.graduation1.data.remote.RetrofitInstance
 
 object AppModule {
-
-    // Call AppModule.initialize(context) from your Application class or MainActivity
     private lateinit var appContext: Context
 
     fun initialize(context: Context) {

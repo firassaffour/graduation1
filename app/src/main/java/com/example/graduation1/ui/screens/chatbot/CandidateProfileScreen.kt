@@ -24,7 +24,6 @@ fun CandidateProfileScreen(
     val isSaving         by chatbotViewModel.isSavingCandidate.collectAsState()
     val error            by chatbotViewModel.error.collectAsState()
 
-    // Pre-fill form with existing profile data if it exists
     var country            by remember { mutableStateOf(candidateProfile?.country            ?: "") }
     var governorate        by remember { mutableStateOf(candidateProfile?.governorate        ?: "") }
     var yearsText          by remember { mutableStateOf(candidateProfile?.yearsOfExperience?.toString() ?: "0") }
@@ -119,7 +118,6 @@ fun CandidateProfileScreen(
                     modifier      = Modifier.fillMaxWidth()
                 )
 
-                // Availability chips
                 Column {
                     Text("Availability", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
                     Spacer(Modifier.height(8.dp))
@@ -135,7 +133,6 @@ fun CandidateProfileScreen(
                     }
                 }
 
-                // Error
                 if (error != null) {
                     Card(
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
@@ -149,7 +146,6 @@ fun CandidateProfileScreen(
                     }
                 }
 
-                // Success
                 if (showSuccess) {
                     Card(
                         colors   = CardDefaults.cardColors(containerColor = Color(0xFF2E7D32).copy(alpha = 0.15f)),

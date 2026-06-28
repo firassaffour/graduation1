@@ -45,8 +45,8 @@ import com.example.graduation1.viewmodel.UserViewModel
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : ChatViewModel, userViewModel: UserViewModel){
-    val userList by chatViewModel.allUsers.collectAsState()
-    val user = userList.find { it.id == chat.userId } ?: user
+    val allUsers = chatViewModel.allUsers.collectAsState().value
+    val user     = allUsers.find { it.id == chat.userId }
     val isSeenCount = chatViewModel.getUnSeenMessagesCount(chat.userId)
     val lastMessage = chat.messagesList.lastOrNull()
 
@@ -67,7 +67,7 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
 
             Box {
                 Image(
-                    if (user.image == "") rememberAsyncImagePainter(emptyProfileImage)
+                    if (user!!.image == "") rememberAsyncImagePainter(emptyProfileImage)
                     else rememberAsyncImagePainter(user.image),
                     contentDescription = "image",
                     contentScale = ContentScale.Crop,
@@ -95,7 +95,7 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
                     .padding(8.dp)
             ) {
                 Text(
-                    text = user.name,
+                    text = user!!.name,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
@@ -103,7 +103,7 @@ fun ChatUI(navController : NavHostController, chat: ChatItem, chatViewModel : Ch
                     overflow = TextOverflow.Ellipsis
                 )
 
-                Text(
+               Text(
                     text = if (lastMessage!!.image != null && lastMessage.text.isEmpty()) stringResource(R.string.Image) ?: ""
                         else lastMessage.text ?: "",
                     color = darkGray,

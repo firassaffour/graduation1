@@ -1,7 +1,6 @@
 package com.example.graduation1.data.repository
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.graduation1.data.remote.ApiService
 import com.example.graduation1.domain.models.Comment
@@ -11,10 +10,6 @@ import com.example.graduation1.domain.models.requets_response.CreateCommentReque
 import com.example.graduation1.domain.models.requets_response.CreatePostRequest
 import com.example.graduation1.domain.models.requets_response.PostResponse
 import com.example.graduation1.domain.models.requets_response.ToggleLikeResponse
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
 import java.time.LocalDateTime
 import java.time.ZoneId
 

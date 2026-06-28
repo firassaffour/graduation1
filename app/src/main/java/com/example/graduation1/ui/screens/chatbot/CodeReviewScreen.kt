@@ -43,7 +43,6 @@ fun CodeReviewScreen(
     val clipboard = LocalClipboardManager.current
     val codeEditorColor = Color(28, 27, 27, 255)
 
-    // Clear previous result when the screen opens
     LaunchedEffect(Unit) { chatbotViewModel.clearCodeReview() }
 
     Column(
@@ -53,7 +52,6 @@ fun CodeReviewScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        // ── Top bar ──────────────────────────────────────────────────────────
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -83,7 +81,6 @@ fun CodeReviewScreen(
                 .verticalScroll(rememberScrollState())
         ) {
 
-            // ── Language hint field ──────────────────────────────────────────
             OutlinedTextField(
                 value = language,
                 onValueChange = { language = it },
@@ -95,7 +92,6 @@ fun CodeReviewScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            // ── Code editor ──────────────────────────────────────────────────
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -127,7 +123,6 @@ fun CodeReviewScreen(
                         .heightIn(min = 200.dp, max = 400.dp)
                 )
 
-                // Copy button (top-right of editor)
                 TextButton(
                     onClick = { clipboard.setText(AnnotatedString(code)) },
                     modifier = Modifier
@@ -140,7 +135,6 @@ fun CodeReviewScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // ── Review button ─────────────────────────────────────────────────
             Button(
                 onClick = {
                     chatbotViewModel.submitCodeForReview(
@@ -167,7 +161,6 @@ fun CodeReviewScreen(
                 }
             }
 
-            // ── Error snackbar ────────────────────────────────────────────────
             if (error != null) {
                 Spacer(Modifier.height(8.dp))
                 Card(
@@ -191,7 +184,6 @@ fun CodeReviewScreen(
                 }
             }
 
-            // ── AI feedback card ──────────────────────────────────────────────
             AnimatedVisibility(
                 visible = codeReviewResult != null,
                 enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 })
@@ -216,7 +208,6 @@ fun CodeReviewScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(Modifier.weight(1f))
-                            // Copy feedback button
                             IconButton(onClick = {
                                 clipboard.setText(AnnotatedString(feedback))
                             }) {

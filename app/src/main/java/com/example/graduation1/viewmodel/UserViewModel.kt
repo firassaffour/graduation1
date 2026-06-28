@@ -76,7 +76,6 @@ class UserViewModel(private val userRepository: UserRepository, private val medi
         }
     }
 
-    /** Fetch real followers from backend and update [_followers]. */
     fun loadFollowers(userId: Int) {
         viewModelScope.launch {
             try {
@@ -95,7 +94,6 @@ class UserViewModel(private val userRepository: UserRepository, private val medi
         }
     }
 
-    /** Fetch real following list from backend and update [_following]. */
     fun loadFollowing(userId: Int) {
         viewModelScope.launch {
             try {
@@ -123,15 +121,14 @@ class UserViewModel(private val userRepository: UserRepository, private val medi
         name: String,
         userName: String,
         bio: String,
-        imageUri: Uri?,                // LOCAL Uri picked from gallery
-        existingImageUrl: String?,     // Keep the old URL if no new image picked
+        imageUri: Uri?,
+        existingImageUrl: String?,
         onSuccess: () -> Unit
     ) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
 
-                // 1. Upload new profile image if chosen
                 val finalImageUrl: String? = if (imageUri != null) {
                     val media = mediaRepository.uploadImage(imageUri)
                     media.filePath.also { Log.d("UserVM", "Profile image uploaded: $it") }
@@ -139,7 +136,6 @@ class UserViewModel(private val userRepository: UserRepository, private val medi
                     existingImageUrl ?: emptyProfileImage
                 }
 
-                // 2. Send profile update
                 val request = UpdateUserRequest(
                     firstName    = name,
                     lastName     = userName,
@@ -148,7 +144,6 @@ class UserViewModel(private val userRepository: UserRepository, private val medi
                 )
                 userRepository.editUser(id, request)
 
-                // 3. Update local state so UI reflects the change immediately
                 _currentUser.value = _currentUser.value.copy(
                     name        = name,
                     userName    = userName,

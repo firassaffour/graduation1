@@ -72,7 +72,6 @@ object MockJobs {
     )
 }
 
-/* --------------------------- 1) Jobs Listing ----------------------------- */
 
 @Composable
 fun JobsListingScreen(
@@ -144,7 +143,6 @@ private fun JobCard(job: Job, onClick: () -> Unit) {
     }
 }
 
-/* --------------------------- 2) Job Details ------------------------------ */
 
 @Composable
 fun JobDetailsScreen(job: Job = MockJobs.list.first(), onBack: () -> Unit = {}, onApply: () -> Unit = {}) {
@@ -214,7 +212,6 @@ private fun BulletSection(title: String, items: List<String>) {
     Spacer(Modifier.height(20.dp))
 }
 
-/* ---------------------------- 3) Apply Job ------------------------------- */
 
 @Composable
 fun ApplyJobScreen(job: Job = MockJobs.list.first(), onBack: () -> Unit = {}, onSubmit: () -> Unit = {}) {
@@ -268,7 +265,6 @@ fun ApplyJobScreen(job: Job = MockJobs.list.first(), onBack: () -> Unit = {}, on
     }
 }
 
-/* ---------------------------- 4) Offer Job ------------------------------- */
 
 @Composable
 fun OfferJobScreen(onBack: () -> Unit = {}, onPost: () -> Unit = {}) {

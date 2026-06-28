@@ -39,13 +39,13 @@ fun ChatScreen(navController: NavHostController, chatViewModel: ChatViewModel, u
     }
 
 
+
     Column(modifier = Modifier
         .fillMaxSize()) {
 
         LazyColumn(modifier = Modifier
             .fillMaxWidth()) {
             items(filteredChatList, key = {it.chatId}){ chat ->
-                chatViewModel.getChatContent(chat.chatId)
                ChatUI(navController, chat, chatViewModel, userViewModel)
             } // items
         } // LazyColumn

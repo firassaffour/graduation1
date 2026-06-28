@@ -221,7 +221,6 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
             try {
                 _isLoading.value = true
 
-                // 1. Upload image if chosen from gallery
                 val finalImage: String = if (imageUri != null) {
                     val media = mediaRepository.uploadImage(imageUri)
                     media.filePath ?: ""
@@ -229,12 +228,10 @@ class GroupsViewModel(private val groupsRepository: GroupsRepository, private va
                     imageUrl
                 }
 
-                // 2. Create community on backend
                 val response = groupsRepository.createCommunity(
                     CreateCommunityRequest(name, finalImage, null)
                 )
 
-                // 3. Add to local list so UI updates immediately
                 val newGroup = Group(
                     id      = response.communityID.toString(),
                     admin   = _currentUser.value.id,
