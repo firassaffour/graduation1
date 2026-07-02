@@ -24,11 +24,11 @@ A modern social platform built for developers using Kotlin & Jetpack Compose.
 
 | Home | Chat | AI |
 |------|------|----|
-| ![](screenshots/home.png) | ![](screenshots/chat.png) | ![](screenshots/chatbot.png) |
+| ![](screenshots/home.jpeg) | ![](screenshots/chat.jpeg) | ![](screenshots/chatbot.jpeg) |
 
 | Communities | Profile | Experience Generator |
 |-------------|---------|-------------|
-| ![](screenshots/community.png) | ![](screenshots/profile.png) | ![](screenshots/experience generator.png) |
+| ![](screenshots/community.jpeg) | ![](screenshots/profile.jpeg) | ![](screenshots/experience generator.jpeg) |
 
 ## Architecture
 
