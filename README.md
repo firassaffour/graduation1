@@ -28,7 +28,7 @@ A modern social platform built for developers using Kotlin & Jetpack Compose.
 
 | Communities | Profile | Experience Generator |
 |-------------|---------|-------------|
-| ![](screenshots/community.jpeg) | ![](screenshots/profile.jpeg) | ![](screenshots/experience generator.jpeg) |
+| ![](screenshots/community.jpeg) | ![](screenshots/profile.jpeg) | ![](screenshots/experiencegenerator.jpeg) |
 
 ## Architecture
 
